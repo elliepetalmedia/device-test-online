@@ -90,17 +90,13 @@ export function MouseTest() {
       }
     };
 
-    // Prevent side button navigation - Use capture phase at window level
-    // Handling mousedown, mouseup, etc directly here to access state
+    // Mouse Event Handler
     const handleMouseNative = (e: MouseEvent) => {
-        // Check if back (3) or forward (4) buttons
+        // Always log for debugging
+        // console.log(`Mouse Event: ${e.type}, Button: ${e.button}`);
+
         if (e.button === 3 || e.button === 4) {
             e.preventDefault();
-            
-            // We used to stop propagation here, but that killed our own event logic
-            // Now we just prevent default and let it bubble so our React state can update
-            
-            console.log("Prevented side button navigation", e.type);
             
             const buttonId = e.button;
             const buttonName = e.button === 3 ? "Back Button (Side)" : "Forward Button (Side)";
@@ -108,13 +104,7 @@ export function MouseTest() {
 
             if (e.type === 'mousedown') {
                 setActiveButtons(prev => new Set(prev).add(buttonId));
-                const timeString = new Date().toLocaleTimeString('en-US', { hour12: false, hour: '2-digit', minute: '2-digit', second: '2-digit', fractionalSecondDigits: 3 });
-                const newEvent: ClickEvent = {
-                  button: buttonName,
-                  timestamp: timeString,
-                  rawTime: now
-                };
-                setHistory(prev => [newEvent, ...prev].slice(0, 10));
+                addHistoryEvent(buttonName);
             } else if (e.type === 'mouseup') {
                 setActiveButtons(prev => {
                     const next = new Set(prev);
@@ -122,39 +112,46 @@ export function MouseTest() {
                     return next;
                 });
             }
-            
-            // Also try to push state to prevent back nav if it slips through
-            window.history.pushState(null, document.title, window.location.href);
-            
-            // IMPORTANT: Return false to help prevent default in some browsers
             return false;
         }
     };
 
-    // Add pointer events listener for better compatibility
+    // Pointer Event Handler - Often more reliable for modern browsers
     const handlePointerNative = (e: PointerEvent) => {
+         // console.log(`Pointer Event: ${e.type}, Button: ${e.button}`);
+         
          if (e.button === 3 || e.button === 4) {
             e.preventDefault();
-            // No stopPropagation to ensure it registers
+            
+            const buttonId = e.button;
+            const buttonName = e.button === 3 ? "Back Button (Side)" : "Forward Button (Side)";
+            
+            if (e.type === 'pointerdown') {
+                setActiveButtons(prev => new Set(prev).add(buttonId));
+                addHistoryEvent(buttonName);
+            } else if (e.type === 'pointerup') {
+                setActiveButtons(prev => {
+                    const next = new Set(prev);
+                    next.delete(buttonId);
+                    return next;
+                });
+            }
          }
     };
 
-    // Prevent popstate if it was triggered by a side button
-    const handlePopState = (e: PopStateEvent) => {
-        // Push state back to keep user on page
-        window.history.pushState(null, document.title, window.location.href);
+    // Prevent context menu to allow right click testing
+    const handleContextMenu = (e: MouseEvent) => {
+        e.preventDefault();
+        return false;
     };
 
-    // Important: use capture: true to intercept before browser default
-    element.addEventListener('wheel', handleWheelNative, { passive: false });
-    
-    window.addEventListener('mouseup', handleMouseNative, { capture: true });
-    window.addEventListener('mousedown', handleMouseNative, { capture: true });
-    window.addEventListener('pointerup', handlePointerNative, { capture: true });
-    window.addEventListener('pointerdown', handlePointerNative, { capture: true });
-    
-    window.addEventListener('click', handleMouseNative, { capture: true }); // Add click just in case
-    window.addEventListener('auxclick', handleMouseNative, { capture: true }); // Add auxclick for non-primary buttons
+    // Attach listeners to WINDOW to capture everything
+    window.addEventListener('contextmenu', handleContextMenu);
+    window.addEventListener('mouseup', handleMouseNative);
+    window.addEventListener('mousedown', handleMouseNative);
+    window.addEventListener('pointerup', handlePointerNative);
+    window.addEventListener('pointerdown', handlePointerNative);
+    window.addEventListener('auxclick', handleMouseNative); 
     window.addEventListener('popstate', handlePopState);
 
     // Initial push to create history buffer
@@ -162,12 +159,12 @@ export function MouseTest() {
 
     return () => {
       element.removeEventListener('wheel', handleWheelNative);
-      window.removeEventListener('mouseup', handleMouseNative, { capture: true });
-      window.removeEventListener('mousedown', handleMouseNative, { capture: true });
-      window.removeEventListener('pointerup', handlePointerNative, { capture: true });
-      window.removeEventListener('pointerdown', handlePointerNative, { capture: true });
-      window.removeEventListener('click', handleMouseNative, { capture: true });
-      window.removeEventListener('auxclick', handleMouseNative, { capture: true });
+      window.removeEventListener('contextmenu', handleContextMenu);
+      window.removeEventListener('mouseup', handleMouseNative);
+      window.removeEventListener('mousedown', handleMouseNative);
+      window.removeEventListener('pointerup', handlePointerNative);
+      window.removeEventListener('pointerdown', handlePointerNative);
+      window.removeEventListener('auxclick', handleMouseNative);
       window.removeEventListener('popstate', handlePopState);
     };
   }, []);

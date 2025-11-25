@@ -35,7 +35,9 @@ export function MicrophoneTest() {
       const AudioContext = window.AudioContext || (window as any).webkitAudioContext;
       const audioContext = new AudioContext();
       
+      // Explicitly resume audio context if it's suspended (browser autoplay policy)
       if (audioContext.state === 'suspended') {
+          console.log("Resuming suspended AudioContext...");
           await audioContext.resume();
       }
       
@@ -67,59 +69,66 @@ export function MicrophoneTest() {
   const drawVisualizer = () => {
     const canvas = canvasRef.current;
     const analyser = analyserRef.current;
-    if (!analyser || !canvas) {
-      console.error("Canvas or analyser not available");
-      return;
-    }
+    
+    if (!analyser || !canvas) return;
     
     const ctx = canvas.getContext('2d');
-    if (!ctx) {
-      console.error("Canvas context not available");
-      return;
-    }
+    if (!ctx) return;
     
     const bufferLength = analyser.frequencyBinCount;
     const dataArray = new Uint8Array(bufferLength);
     
-    console.log("Starting visualization, buffer length:", bufferLength, "canvas size:", canvas.width, "x", canvas.height);
-    
     const draw = () => {
-      if (!analyserRef.current) return;
+      if (!analyserRef.current || !isListening) return; // Stop if not listening
       
       rafRef.current = requestAnimationFrame(draw);
       analyserRef.current.getByteFrequencyData(dataArray);
       
-      // Calculate average volume for the progress bar
+      // Calculate average volume
       let sum = 0;
       for (let i = 0; i < bufferLength; i++) {
         sum += dataArray[i];
       }
       const average = sum / bufferLength;
-      setVolume(average); // 0-255
+      setVolume(average); 
       
-      // Draw Canvas Waveform - Dark background
+      // Debug only every ~60 frames to avoid spam
+      if (Math.random() < 0.01) {
+          console.log("Audio data average:", average);
+      }
+
+      // Clear canvas
       ctx.fillStyle = 'rgb(11, 12, 16)';
       ctx.fillRect(0, 0, canvas.width, canvas.height);
       
       // Draw bars
-      const barWidth = canvas.width / bufferLength * 2.5;
-      let barHeight;
+      const barWidth = (canvas.width / bufferLength) * 2.5;
       let x = 0;
       
       for (let i = 0; i < bufferLength; i++) {
-        barHeight = dataArray[i];
+        const barHeight = dataArray[i]; // Scale: 0-255
         
-        // Sci-fi cyan/teal gradient
-        const hue = (i / bufferLength) * 60 + 180; // Cyan to teal range
-        ctx.fillStyle = `hsl(${hue}, 100%, ${50 + barHeight / 5}%)`;
+        // Dynamic color based on volume
+        const hue = 180 + (barHeight / 255) * 60; // Cyan to Blue
+        const alpha = 0.5 + (barHeight / 255) * 0.5;
+        
+        ctx.fillStyle = `hsla(${hue}, 100%, 50%, ${alpha})`;
         ctx.fillRect(x, canvas.height - barHeight, barWidth, barHeight);
         
-        x += barWidth + 0.5;
+        x += barWidth + 1;
       }
     };
     
     draw();
   };
+
+  // Add cleanup effect when isListening changes
+  useEffect(() => {
+      if (!isListening) {
+          if (rafRef.current) cancelAnimationFrame(rafRef.current);
+          setVolume(0);
+      }
+  }, [isListening]);
 
   useEffect(() => {
     return () => {

@@ -66,36 +66,6 @@ export function MouseTest() {
   };
 
   useEffect(() => {
-    const handleSideButtonClick = (e: Event) => {
-        const detail = (e as CustomEvent).detail;
-        setActiveButtons(prev => new Set(prev).add(detail.buttonId));
-        
-        const newEvent: ClickEvent = {
-          button: detail.buttonName,
-          timestamp: detail.timeString,
-          rawTime: detail.rawTime
-        };
-        setHistory(prev => [newEvent, ...prev].slice(0, 10));
-
-        // Clear the active state after a short delay since there's no "mouseup" for intercepted events
-        setTimeout(() => {
-            setActiveButtons(prev => {
-                const next = new Set(prev);
-                next.delete(detail.buttonId);
-                return next;
-            });
-        }, 200);
-    };
-
-    window.addEventListener('side-button-click', handleSideButtonClick);
-    return () => {
-        window.removeEventListener('side-button-click', handleSideButtonClick);
-    };
-  }, []);
-
-  // Use native event listener for wheel to prevent default behavior properly
-  // React's synthetic onWheel can be passive and fail to prevent scroll
-  useEffect(() => {
     const element = testAreaRef.current;
     if (!element) return;
 
@@ -121,27 +91,36 @@ export function MouseTest() {
     };
 
     // Prevent side button navigation - Use capture phase at window level
+    // Handling mousedown, mouseup, etc directly here to access state
     const handleMouseNative = (e: MouseEvent) => {
         // Check if back (3) or forward (4) buttons
         if (e.button === 3 || e.button === 4) {
             e.preventDefault();
             e.stopPropagation();
             e.stopImmediatePropagation();
-            console.log("Prevented side button navigation");
+            console.log("Prevented side button navigation", e.type);
             
-            // Manually trigger the visualizer logic since we stopped propagation
+            // Directly update state here instead of dispatching custom event
+            const buttonId = e.button;
+            const buttonName = e.button === 3 ? "Back Button (Side)" : "Forward Button (Side)";
             const now = Date.now();
-            const timeString = new Date().toLocaleTimeString('en-US', { hour12: false, hour: '2-digit', minute: '2-digit', second: '2-digit', fractionalSecondDigits: 3 });
-            
-            let buttonName = e.button === 3 ? "Back Button (Side)" : "Forward Button (Side)";
-            
-            // We need to manually update React state from this native event
-            // This is a bit of a hack but necessary since we kill the event before React sees it
-            // We'll dispatch a custom event that our component can listen to safely
-            const customEvent = new CustomEvent('side-button-click', { 
-                detail: { buttonId: e.button, buttonName, timeString, rawTime: now } 
-            });
-            window.dispatchEvent(customEvent);
+
+            if (e.type === 'mousedown') {
+                setActiveButtons(prev => new Set(prev).add(buttonId));
+                const timeString = new Date().toLocaleTimeString('en-US', { hour12: false, hour: '2-digit', minute: '2-digit', second: '2-digit', fractionalSecondDigits: 3 });
+                const newEvent: ClickEvent = {
+                  button: buttonName,
+                  timestamp: timeString,
+                  rawTime: now
+                };
+                setHistory(prev => [newEvent, ...prev].slice(0, 10));
+            } else if (e.type === 'mouseup') {
+                setActiveButtons(prev => {
+                    const next = new Set(prev);
+                    next.delete(buttonId);
+                    return next;
+                });
+            }
             
             // Also try to push state to prevent back nav if it slips through
             window.history.pushState(null, document.title, window.location.href);

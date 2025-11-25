@@ -38,7 +38,7 @@ export default function Home() {
       )}>
         <div className="p-6 border-b border-secondary/20">
           <h1 className="font-orbitron font-black text-2xl text-transparent bg-clip-text bg-gradient-to-r from-primary to-secondary drop-shadow-[0_0_10px_rgba(102,252,241,0.3)]">
-            DeviceTest
+            Device Test online
           </h1>
           <p className="text-[10px] text-muted-foreground uppercase tracking-[0.2em] mt-1">Hardware Suite</p>
         </div>

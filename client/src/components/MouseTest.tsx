@@ -100,8 +100,18 @@ export function MouseTest() {
             e.stopPropagation();
             e.stopImmediatePropagation();
             console.log("Prevented side button navigation");
+            
+            // Also try to push state to prevent back nav if it slips through
+            window.history.pushState(null, document.title, window.location.href);
+            
             return false;
         }
+    };
+
+    // Prevent popstate if it was triggered by a side button
+    const handlePopState = (e: PopStateEvent) => {
+        // Push state back to keep user on page
+        window.history.pushState(null, document.title, window.location.href);
     };
 
     // Important: use capture: true to intercept before browser default
@@ -110,6 +120,10 @@ export function MouseTest() {
     window.addEventListener('mousedown', handleMouseNative, { capture: true });
     window.addEventListener('click', handleMouseNative, { capture: true }); // Add click just in case
     window.addEventListener('auxclick', handleMouseNative, { capture: true }); // Add auxclick for non-primary buttons
+    window.addEventListener('popstate', handlePopState);
+
+    // Initial push to create history buffer
+    window.history.pushState(null, document.title, window.location.href);
 
     return () => {
       element.removeEventListener('wheel', handleWheelNative);
@@ -117,6 +131,7 @@ export function MouseTest() {
       window.removeEventListener('mousedown', handleMouseNative, { capture: true });
       window.removeEventListener('click', handleMouseNative, { capture: true });
       window.removeEventListener('auxclick', handleMouseNative, { capture: true });
+      window.removeEventListener('popstate', handlePopState);
     };
   }, []);
 

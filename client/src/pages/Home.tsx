@@ -70,7 +70,7 @@ export default function Home() {
       <main className="flex-1 flex flex-col h-screen overflow-hidden">
         {/* Mobile Header */}
         <header className="md:hidden p-4 border-b border-secondary/20 flex justify-between items-center bg-background/80 backdrop-blur sticky top-0 z-20">
-          <span className="font-orbitron font-bold text-primary">DeviceTestOnline</span>
+          <span className="font-orbitron font-bold text-primary">Device Test online</span>
           <button onClick={() => setMobileMenuOpen(true)} className="text-foreground">
             <Menu />
           </button>

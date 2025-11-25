@@ -219,19 +219,21 @@ export function KeyboardTest() {
 
   return (
     <div className="flex flex-col gap-8 w-full max-w-full">
-      <div className="flex justify-between items-end">
+      <div className="flex flex-col md:flex-row justify-between items-end gap-4">
         <div className="space-y-1">
           <h3 className="text-primary font-orbitron text-xl">Keyboard Matrix Test</h3>
           <p className="text-sm text-muted-foreground">Press keys to verify functionality. Test your N-Key Rollover.</p>
         </div>
-        <div className="bg-surface border border-secondary px-4 py-2 rounded text-right flex items-center gap-4">
+        
+        <div className="flex items-center gap-6">
           <button 
             onClick={resetTest}
-            className="text-xs font-orbitron text-muted-foreground hover:text-destructive border border-muted hover:border-destructive px-2 py-1 rounded transition-colors"
+            className="px-6 py-2 bg-destructive/10 hover:bg-destructive/20 text-destructive border border-destructive/50 rounded-md font-orbitron text-sm tracking-wider transition-all hover:scale-105 active:scale-95 shadow-[0_0_10px_rgba(255,0,0,0.1)]"
           >
-            RESET
+            RESET MATRIX
           </button>
-          <div>
+          
+          <div className="bg-surface border border-secondary px-4 py-2 rounded text-right">
             <div className="text-xs text-muted-foreground uppercase tracking-widest">Verified</div>
             <div className="text-2xl font-orbitron text-primary glow-text">
               {verifiedKeys.size} <span className="text-muted-foreground text-lg">/ {totalKeys}</span>

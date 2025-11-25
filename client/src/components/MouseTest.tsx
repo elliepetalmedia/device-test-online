@@ -92,22 +92,31 @@ export function MouseTest() {
       }
     };
 
-    // Prevent side button navigation
+    // Prevent side button navigation - Use capture phase at window level
     const handleMouseNative = (e: MouseEvent) => {
+        // Check if back (3) or forward (4) buttons
         if (e.button === 3 || e.button === 4) {
             e.preventDefault();
+            e.stopPropagation();
             e.stopImmediatePropagation();
+            console.log("Prevented side button navigation");
+            return false;
         }
     };
 
+    // Important: use capture: true to intercept before browser default
     element.addEventListener('wheel', handleWheelNative, { passive: false });
-    window.addEventListener('mouseup', handleMouseNative);
-    window.addEventListener('mousedown', handleMouseNative);
+    window.addEventListener('mouseup', handleMouseNative, { capture: true });
+    window.addEventListener('mousedown', handleMouseNative, { capture: true });
+    window.addEventListener('click', handleMouseNative, { capture: true }); // Add click just in case
+    window.addEventListener('auxclick', handleMouseNative, { capture: true }); // Add auxclick for non-primary buttons
 
     return () => {
       element.removeEventListener('wheel', handleWheelNative);
-      window.removeEventListener('mouseup', handleMouseNative);
-      window.removeEventListener('mousedown', handleMouseNative);
+      window.removeEventListener('mouseup', handleMouseNative, { capture: true });
+      window.removeEventListener('mousedown', handleMouseNative, { capture: true });
+      window.removeEventListener('click', handleMouseNative, { capture: true });
+      window.removeEventListener('auxclick', handleMouseNative, { capture: true });
     };
   }, []);
 

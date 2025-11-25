@@ -145,6 +145,12 @@ export function MouseTest() {
         return false;
     };
 
+    // Prevent popstate if it was triggered by a side button
+    const handlePopState = (e: PopStateEvent) => {
+        // Push state back to keep user on page
+        window.history.pushState(null, document.title, window.location.href);
+    };
+
     // Attach listeners to WINDOW to capture everything
     window.addEventListener('contextmenu', handleContextMenu);
     window.addEventListener('mouseup', handleMouseNative);

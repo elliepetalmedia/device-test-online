@@ -13,23 +13,38 @@ export function MicrophoneTest() {
   const sourceRef = useRef<MediaStreamAudioSourceNode | null>(null);
   const rafRef = useRef<number | null>(null);
   const canvasRef = useRef<HTMLCanvasElement>(null);
+  const streamRef = useRef<MediaStream | null>(null);
 
   const stopListening = () => {
     if (rafRef.current) cancelAnimationFrame(rafRef.current);
-    if (sourceRef.current) sourceRef.current.disconnect();
-    if (analyserRef.current) analyserRef.current.disconnect();
-    if (audioContextRef.current) audioContextRef.current.close();
+    if (sourceRef.current) {
+        sourceRef.current.disconnect();
+        sourceRef.current = null;
+    }
+    if (analyserRef.current) {
+        analyserRef.current.disconnect();
+        analyserRef.current = null;
+    }
+    if (audioContextRef.current) {
+        audioContextRef.current.close();
+        audioContextRef.current = null;
+    }
+    if (streamRef.current) {
+        streamRef.current.getTracks().forEach(track => track.stop());
+        streamRef.current = null;
+    }
     
-    audioContextRef.current = null;
     setIsListening(false);
     setVolume(0);
   };
 
   const startListening = async () => {
+    stopListening();
     try {
       setError(null);
       console.log("Requesting microphone access...");
       const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
+      streamRef.current = stream;
       console.log("Microphone access granted:", stream.id);
       
       const AudioContext = window.AudioContext || (window as any).webkitAudioContext;
@@ -53,7 +68,12 @@ export function MicrophoneTest() {
       source.connect(analyser);
       
       setIsListening(true);
-      drawVisualizer();
+      
+      // Small delay to ensure context is ready before drawing
+      setTimeout(() => {
+        drawVisualizer();
+      }, 100);
+      
     } catch (err: any) {
       console.error("Microphone access error:", err);
       if (err.name === 'NotAllowedError' || err.name === 'PermissionDeniedError') {
@@ -68,35 +88,41 @@ export function MicrophoneTest() {
 
   const drawVisualizer = () => {
     const canvas = canvasRef.current;
-    const analyser = analyserRef.current;
     
-    if (!analyser || !canvas) return;
+    // IMPORTANT: Check refs inside the loop, not just outside
+    // This allows the loop to break cleanly if components unmount or stop
+    if (!canvas) return;
     
     const ctx = canvas.getContext('2d');
     if (!ctx) return;
     
-    const bufferLength = analyser.frequencyBinCount;
-    const dataArray = new Uint8Array(bufferLength);
+    // Data array needs to be persistent or re-created if analyser changes
+    let dataArray: Uint8Array;
+    let bufferLength: number;
     
     const draw = () => {
-      if (!analyserRef.current || !isListening) return; // Stop if not listening
-      
+      if (!isListening) return; 
+      if (!analyserRef.current) return; // Stop if analyser is gone
+
+      // Initialize buffer on first frame or if it changed
+      if (!bufferLength) {
+         bufferLength = analyserRef.current.frequencyBinCount;
+         dataArray = new Uint8Array(bufferLength);
+      }
+
       rafRef.current = requestAnimationFrame(draw);
       analyserRef.current.getByteFrequencyData(dataArray);
       
       // Calculate average volume
       let sum = 0;
+      // We only use the lower half of the frequency spectrum for voice usually
+      // to get a better visual representation of "loudness"
       for (let i = 0; i < bufferLength; i++) {
         sum += dataArray[i];
       }
       const average = sum / bufferLength;
       setVolume(average); 
       
-      // Debug only every ~60 frames to avoid spam
-      if (Math.random() < 0.01) {
-          console.log("Audio data average:", average);
-      }
-
       // Clear canvas
       ctx.fillStyle = 'rgb(11, 12, 16)';
       ctx.fillRect(0, 0, canvas.width, canvas.height);

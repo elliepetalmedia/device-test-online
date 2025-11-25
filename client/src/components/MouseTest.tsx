@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useRef } from 'react';
-import { AlertTriangle, CheckCircle, ExternalLink } from 'lucide-react';
+import { AlertTriangle, CheckCircle, ExternalLink, ArrowUp, ArrowDown } from 'lucide-react';
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
 import { Card } from "@/components/ui/card";
 
@@ -12,8 +12,10 @@ interface ClickEvent {
 export function MouseTest() {
   const [history, setHistory] = useState<ClickEvent[]>([]);
   const [activeButtons, setActiveButtons] = useState<Set<number>>(new Set());
+  const [scrollDirection, setScrollDirection] = useState<'up' | 'down' | null>(null);
   const [faultDetected, setFaultDetected] = useState(false);
   const lastClickRef = useRef<Record<number, number>>({});
+  const scrollTimeoutRef = useRef<NodeJS.Timeout | null>(null);
   
   const handleMouseDown = (e: React.MouseEvent) => {
     e.preventDefault(); // Prevent default context menu for right click
@@ -28,13 +30,7 @@ export function MouseTest() {
     const timeString = new Date().toLocaleTimeString('en-US', { hour12: false, hour: '2-digit', minute: '2-digit', second: '2-digit', fractionalSecondDigits: 3 });
     const buttonName = buttonId === 0 ? "Left Click" : buttonId === 1 ? "Middle Click" : "Right Click";
     
-    const newEvent: ClickEvent = {
-      button: buttonName,
-      timestamp: timeString,
-      rawTime: now
-    };
-    
-    setHistory(prev => [newEvent, ...prev].slice(0, 10));
+    addHistoryEvent(buttonName);
     
     // Double Click Fault Detection (< 80ms)
     const lastTime = lastClickRef.current[buttonId];
@@ -59,6 +55,42 @@ export function MouseTest() {
     e.preventDefault();
   };
 
+  const handleWheel = (e: React.WheelEvent) => {
+    // e.preventDefault(); // Don't prevent default scrolling entirely as it might block page nav if user intends to scroll page
+    
+    const direction = e.deltaY < 0 ? 'up' : 'down';
+    setScrollDirection(direction);
+    
+    // Throttle log events for scroll to avoid spam
+    if (!scrollTimeoutRef.current) {
+        addHistoryEvent(direction === 'up' ? "Scroll Up" : "Scroll Down");
+        scrollTimeoutRef.current = setTimeout(() => {
+            scrollTimeoutRef.current = null;
+            setScrollDirection(null); // Reset visualizer after delay
+        }, 150);
+    } else {
+        // Still reset the timeout to keep the visualizer active while scrolling
+        clearTimeout(scrollTimeoutRef.current);
+        scrollTimeoutRef.current = setTimeout(() => {
+            scrollTimeoutRef.current = null;
+            setScrollDirection(null);
+        }, 150);
+    }
+  };
+
+  const addHistoryEvent = (name: string) => {
+    const now = Date.now();
+    const timeString = new Date().toLocaleTimeString('en-US', { hour12: false, hour: '2-digit', minute: '2-digit', second: '2-digit', fractionalSecondDigits: 3 });
+    
+    const newEvent: ClickEvent = {
+      button: name,
+      timestamp: timeString,
+      rawTime: now
+    };
+    
+    setHistory(prev => [newEvent, ...prev].slice(0, 10));
+  };
+
   return (
     <div className="w-full grid grid-cols-1 lg:grid-cols-2 gap-8">
       <div className="flex flex-col gap-6">
@@ -68,6 +100,7 @@ export function MouseTest() {
             onMouseDown={handleMouseDown}
             onMouseUp={handleMouseUp}
             onContextMenu={handleContextMenu}
+            onWheel={handleWheel}
             data-testid="mouse-test-area"
           />
           
@@ -86,15 +119,31 @@ export function MouseTest() {
               <span className="absolute bottom-4 left-0 w-full text-center text-xs font-orbitron text-foreground/70">RIGHT</span>
             </div>
             
-            {/* Middle Button / Scroll Wheel */}
-            <div className={`absolute top-16 left-1/2 -translate-x-1/2 w-8 h-20 border-2 border-secondary rounded-full transition-colors duration-100 ${activeButtons.has(1) ? 'bg-primary shadow-[0_0_15px_var(--color-primary)]' : 'bg-background'}`}></div>
+            {/* Middle Button / Scroll Wheel Area */}
+            <div className={`absolute top-16 left-1/2 -translate-x-1/2 w-8 h-24 flex flex-col items-center justify-center gap-1 transition-colors duration-100`}>
+               {/* Scroll Up Indicator */}
+               <div className={`transition-all duration-100 ${scrollDirection === 'up' ? 'text-neon-green translate-y-[-2px]' : 'text-secondary/20'}`}>
+                 <ArrowUp size={16} />
+               </div>
+               
+               {/* Physical Wheel */}
+               <div className={`w-8 h-12 border-2 border-secondary rounded-full transition-colors duration-100 flex items-center justify-center overflow-hidden ${activeButtons.has(1) ? 'bg-primary shadow-[0_0_15px_var(--color-primary)]' : 'bg-background'}`}>
+                  {/* Wheel Ridges Animation */}
+                  <div className={`w-full h-full bg-[linear-gradient(transparent_45%,currentColor_50%,transparent_55%)] bg-[length:100%_6px] opacity-30 ${scrollDirection === 'up' ? 'animate-[moveBackground_0.5s_linear_infinite_reverse]' : scrollDirection === 'down' ? 'animate-[moveBackground_0.5s_linear_infinite]' : ''}`}></div>
+               </div>
+
+               {/* Scroll Down Indicator */}
+               <div className={`transition-all duration-100 ${scrollDirection === 'down' ? 'text-neon-green translate-y-[2px]' : 'text-secondary/20'}`}>
+                 <ArrowDown size={16} />
+               </div>
+            </div>
             
             {/* Palm Rest Logo */}
             <div className="absolute bottom-16 left-1/2 -translate-x-1/2 text-secondary/20 font-orbitron text-4xl font-bold">DTO</div>
           </div>
           
           <div className="absolute bottom-4 text-muted-foreground text-sm animate-pulse">
-            Click anywhere in this box to test
+            Click or scroll inside this box to test
           </div>
         </Card>
 

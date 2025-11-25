@@ -86,7 +86,70 @@ const KEYBOARD_LAYOUT = [
     { key: 'Space', label: 'SPACE', w: 6.25 },
     { key: 'AltRight', label: 'ALT', w: 1.25 },
     { key: 'MetaRight', label: 'WIN', w: 1.25 },
+    { key: 'ContextMenu', label: 'MENU', w: 1.25 },
     { key: 'ControlRight', label: 'CTRL', w: 1.25 },
+  ]
+];
+
+// Navigation Cluster
+const NAV_LAYOUT = [
+  [
+    { key: 'PrintScreen', label: 'PRT', w: 1 },
+    { key: 'ScrollLock', label: 'SCR', w: 1 },
+    { key: 'Pause', label: 'PAU', w: 1 },
+  ],
+  [
+    { key: 'Insert', label: 'INS', w: 1 },
+    { key: 'Home', label: 'HOM', w: 1 },
+    { key: 'PageUp', label: 'PGU', w: 1 },
+  ],
+  [
+    { key: 'Delete', label: 'DEL', w: 1 },
+    { key: 'End', label: 'END', w: 1 },
+    { key: 'PageDown', label: 'PGD', w: 1 },
+  ],
+  [
+    { key: '', label: '', w: 1, invisible: true },
+    { key: 'ArrowUp', label: '↑', w: 1 },
+    { key: '', label: '', w: 1, invisible: true },
+  ],
+  [
+    { key: 'ArrowLeft', label: '←', w: 1 },
+    { key: 'ArrowDown', label: '↓', w: 1 },
+    { key: 'ArrowRight', label: '→', w: 1 },
+  ]
+];
+
+// Numpad Layout
+const NUMPAD_LAYOUT = [
+  [
+    { key: 'NumLock', label: 'NUM', w: 1 },
+    { key: 'NumpadDivide', label: '/', w: 1 },
+    { key: 'NumpadMultiply', label: '*', w: 1 },
+    { key: 'NumpadSubtract', label: '-', w: 1 },
+  ],
+  [
+    { key: 'Numpad7', label: '7', w: 1 },
+    { key: 'Numpad8', label: '8', w: 1 },
+    { key: 'Numpad9', label: '9', w: 1 },
+    { key: 'NumpadAdd', label: '+', w: 1, h: 2 },
+  ],
+  [
+    { key: 'Numpad4', label: '4', w: 1 },
+    { key: 'Numpad5', label: '5', w: 1 },
+    { key: 'Numpad6', label: '6', w: 1 },
+    // + is height 2, so skipped here visually in grid but handled by h prop
+  ],
+  [
+    { key: 'Numpad1', label: '1', w: 1 },
+    { key: 'Numpad2', label: '2', w: 1 },
+    { key: 'Numpad3', label: '3', w: 1 },
+    { key: 'NumpadEnter', label: 'ENT', w: 1, h: 2 },
+  ],
+  [
+    { key: 'Numpad0', label: '0', w: 2 },
+    { key: 'NumpadDecimal', label: '.', w: 1 },
+    // Enter is height 2
   ]
 ];
 
@@ -122,7 +185,31 @@ export function KeyboardTest() {
   }, []);
 
   // Count verifiable keys in our map
-  const totalKeys = KEYBOARD_LAYOUT.flat().length;
+  const totalKeys = KEYBOARD_LAYOUT.flat().length + NAV_LAYOUT.flat().filter(k => !k.invisible).length + NUMPAD_LAYOUT.flat().length;
+
+  const KeyCap = ({ k, h = 1 }: { k: any, h?: number }) => {
+    if (k.invisible) return <div className="w-12 h-12" style={{ flexGrow: k.w, width: `${k.w * 3}rem` }} />;
+    
+    const isVerified = verifiedKeys.has(k.key);
+    const isActive = activeKeys.has(k.key);
+    const heightClass = k.h === 2 ? "h-[6.5rem]" : "h-12";
+
+    return (
+      <div
+        className={cn(
+          `${heightClass} rounded border flex items-center justify-center text-xs font-bold transition-all duration-75 select-none`,
+          isActive 
+            ? "bg-primary text-background border-primary shadow-[0_0_10px_var(--color-primary)] scale-95 z-10" 
+            : isVerified 
+              ? "bg-secondary/20 border-secondary text-secondary shadow-[0_0_5px_var(--color-secondary)]"
+              : "bg-background border-muted text-muted-foreground"
+        )}
+        style={{ flexGrow: k.w, width: `${k.w * 3}rem` }}
+      >
+        {k.label}
+      </div>
+    );
+  };
 
   return (
     <div className="flex flex-col gap-8">
@@ -140,32 +227,84 @@ export function KeyboardTest() {
       </div>
 
       <div className="bg-surface/50 p-8 rounded-xl border border-secondary/30 overflow-x-auto">
-        <div className="min-w-[800px] flex flex-col gap-2">
-          {KEYBOARD_LAYOUT.map((row, rowIndex) => (
-            <div key={rowIndex} className="flex gap-2 justify-center">
-              {row.map((k) => {
-                const isVerified = verifiedKeys.has(k.key);
-                const isActive = activeKeys.has(k.key);
-                
-                return (
-                  <div
-                    key={k.key}
-                    className={cn(
-                      "h-12 rounded border flex items-center justify-center text-xs font-bold transition-all duration-75 select-none",
-                      isActive 
-                        ? "bg-primary text-background border-primary shadow-[0_0_10px_var(--color-primary)] scale-95" 
-                        : isVerified 
-                          ? "bg-secondary/20 border-secondary text-secondary shadow-[0_0_5px_var(--color-secondary)]"
-                          : "bg-background border-muted text-muted-foreground"
-                    )}
-                    style={{ flexGrow: k.w, width: `${k.w * 3}rem` }}
-                  >
-                    {k.label}
-                  </div>
-                );
-              })}
+        <div className="min-w-[1200px] flex gap-8">
+          
+          {/* Main Block */}
+          <div className="flex flex-col gap-2">
+            {KEYBOARD_LAYOUT.map((row, rowIndex) => (
+              <div key={rowIndex} className="flex gap-2">
+                {row.map((k) => <KeyCap key={k.key} k={k} />)}
+              </div>
+            ))}
+          </div>
+
+          {/* Nav Block */}
+          <div className="flex flex-col gap-2">
+            {/* Top Nav Row (PRT, SCR, PAU) - aligned with F-keys row (row 0) */}
+            <div className="flex gap-2 mb-4">
+               {NAV_LAYOUT[0].map(k => <KeyCap key={k.key} k={k} />)}
             </div>
-          ))}
+            
+            {/* Insert/Home/PgUp - Aligned with row 1 */}
+            <div className="flex gap-2">
+               {NAV_LAYOUT[1].map(k => <KeyCap key={k.key} k={k} />)}
+            </div>
+
+            {/* Del/End/PgDn - Aligned with row 2 */}
+            <div className="flex gap-2">
+               {NAV_LAYOUT[2].map(k => <KeyCap key={k.key} k={k} />)}
+            </div>
+
+            {/* Spacing */}
+            <div className="h-12"></div>
+
+            {/* Arrow Keys Top */}
+            <div className="flex gap-2">
+               {NAV_LAYOUT[3].map((k, i) => <KeyCap key={i} k={k} />)}
+            </div>
+
+            {/* Arrow Keys Bottom */}
+            <div className="flex gap-2">
+               {NAV_LAYOUT[4].map(k => <KeyCap key={k.key} k={k} />)}
+            </div>
+          </div>
+
+          {/* Numpad Block */}
+          <div className="flex flex-col gap-2">
+             {/* Numpad Row 1 */}
+             <div className="flex gap-2">
+               {NUMPAD_LAYOUT[0].map(k => <KeyCap key={k.key} k={k} />)}
+             </div>
+             
+             <div className="flex gap-2 h-[13.5rem]">
+                <div className="flex flex-col gap-2">
+                  {/* 7 8 9 */}
+                  <div className="flex gap-2">
+                    {NUMPAD_LAYOUT[1].slice(0,3).map(k => <KeyCap key={k.key} k={k} />)}
+                  </div>
+                  {/* 4 5 6 */}
+                  <div className="flex gap-2">
+                    {NUMPAD_LAYOUT[2].map(k => <KeyCap key={k.key} k={k} />)}
+                  </div>
+                   {/* 1 2 3 */}
+                  <div className="flex gap-2">
+                    {NUMPAD_LAYOUT[3].slice(0,3).map(k => <KeyCap key={k.key} k={k} />)}
+                  </div>
+                   {/* 0 . */}
+                  <div className="flex gap-2">
+                    {NUMPAD_LAYOUT[4].map(k => <KeyCap key={k.key} k={k} />)}
+                  </div>
+                </div>
+                
+                <div className="flex flex-col gap-2">
+                   {/* + */}
+                   <KeyCap k={NUMPAD_LAYOUT[1][3]} />
+                   {/* Enter */}
+                   <KeyCap k={NUMPAD_LAYOUT[3][3]} />
+                </div>
+             </div>
+          </div>
+
         </div>
       </div>
       

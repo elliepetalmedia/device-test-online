@@ -53,13 +53,9 @@ export function MicrophoneTest() {
     try {
       setError(null);
       console.log("Requesting microphone access...");
-      const stream = await navigator.mediaDevices.getUserMedia({ 
-        audio: {
-            echoCancellation: true,
-            noiseSuppression: true,
-            autoGainControl: true
-        } 
-      });
+      // Removing aggressive constraints to fix choppy audio
+      const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
+      
       streamRef.current = stream;
       console.log("Microphone access granted:", stream.id);
       
@@ -87,9 +83,12 @@ export function MicrophoneTest() {
       const source = audioContext.createMediaStreamSource(stream);
       sourceRef.current = source;
       
-      // Route: Source -> Analyser -> Gain -> Destination (Speakers)
+      // Route 1: Source -> Analyser (Visualization) - Always active
       source.connect(analyser);
-      analyser.connect(gainNode);
+      
+      // Route 2: Source -> Gain -> Destination (Playback) - Controlled by gain
+      // We connect source directly to gain, splitting the signal
+      source.connect(gainNode);
       gainNode.connect(audioContext.destination);
       
       setIsListening(true);

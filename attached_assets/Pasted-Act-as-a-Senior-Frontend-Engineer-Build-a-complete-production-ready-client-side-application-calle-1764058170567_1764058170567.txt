@@ -1,0 +1,120 @@
+Act as a Senior Frontend Engineer. Build a complete, production-ready, client-side application called "DeviceTestOnline".
+
+1. FILE STRUCTURE
+Create the following files:
+- index.html
+- style.css
+- script.js
+- /pages/about.html
+- /pages/contact.html
+- /pages/privacy.html
+
+2. TECHNICAL REQUIREMENTS
+- Tech Stack: HTML5, CSS3, Vanilla JavaScript.
+- Fonts: Use 'Orbitron' (headers) and 'Roboto Mono' (body) via Google Fonts.
+- Icons: Use Phosphor Icons via CDN.
+- Persistence: None required.
+- Constraint: Client-side processing only. No audio recording is sent to servers (visualization only).
+
+3. DESIGN SYSTEM (style.css)
+- Theme: "Sci-Fi Dashboard".
+- Colors: Background #0b0c10, Surface #1f2833, Accent #66fcf1 (Cyan), Secondary #45a29e (Teal), Text #c5c6c7.
+- Layout:
+  - Sidebar: Fixed width (250px), dark background, navigation links to tests.
+  - Main Content: Flex area.
+- UI Components:
+  - Borders: 1px solid #45a29e with slight glow (`box-shadow`).
+  - Typography: Monospace, technical look.
+  - Indicators: LED style lights (Red/Green).
+
+4. APPLICATION LOGIC (script.js)
+Implement 4 distinct testing modules that toggle visibility based on Sidebar navigation:
+
+A. Mouse Test
+- Visualizer: A graphic of a mouse. Highlight Left, Right, Middle buttons on `mousedown`.
+- History Log: List the last 10 events (e.g., "Left Click - 12:01:05").
+- **Double Click Fault Detector:** Track timestamps of clicks. If two `mousedown` events on the same button occur within 80ms, trigger a RED Alert Banner: "Potential Double-Click Fault Detected".
+- **Affiliate Logic:** If a fault is detected, unhide a div with ID `affiliate-offer`. Content: "Mouse switch failing? Recommended Replacement: Logitech G502".
+
+B. Keyboard Test
+- Visualizer: Render a full QWERTY layout using HTML/CSS grid.
+- Logic: Listen for `keydown` events. When a key is pressed, change its background color to Green permanently (to show it has been tested/verified).
+- Counter: Display "Keys Verified: X / 104".
+
+C. Dead Pixel Test
+- UI: A large button "Start Color Cycle".
+- Logic: Trigger `element.requestFullscreen()`.
+- Interaction: On `click`, cycle the background color through: Black -> White -> Red -> Green -> Blue.
+- Exit: Press ESC to exit.
+
+D. Microphone Test
+- Logic: Use `navigator.mediaDevices.getUserMedia({audio: true})`.
+- AudioContext: Create an `AnalyserNode` to get volume data.
+- Visualizer: Map the volume level to the height of a CSS Bar or HTML5 Canvas waveform in real-time.
+- Privacy Note: Display "Audio is visualized locally. No recording happens."
+
+5. INDEX.HTML CONTENT
+- Header: Logo "DeviceTestOnline", Subtitle "Hardware Diagnostic Suite".
+- Sidebar: Navigation links (Mouse, Keyboard, Screen, Mic).
+- Main: Container for the tools.
+- SEO Article: Below the tool container, insert an `<article>` with this EXACT HTML content:
+  """
+  <div style="max-width: 800px; margin: 4rem auto; padding: 0 1rem; color: #c5c6c7;">
+    <h2>Diagnosing Mouse Double-Click Issues</h2>
+    <p>One of the most common failures in modern gaming mice is the "double-click" fault. This occurs when the copper tension spring inside the microswitch degrades, causing a single physical click to register as two rapid electrical signals. Our tool detects this by measuring the milliseconds between signals; anything under 80ms is typically a hardware failure.</p>
+
+    <h2>What is Keyboard Ghosting?</h2>
+    <p>"Ghosting" happens when a keyboard cannot register multiple keys pressed simultaneously. This is critical for gamers and fast typists. Use our Keyboard Test to verify your N-Key Rollover (NKRO) capabilities by pressing multiple keys at once.</p>
+
+    <h2>Checking for Dead Pixels</h2>
+    <p>A dead pixel is a picture element that fails to change color. By cycling through primary colors (Red, Green, Blue) and extremes (Black, White) in full-screen mode, you can easily spot stuck or dead pixels on your monitor.</p>
+  </div>
+  """
+- Footer: Links to `/pages/about.html`, `/pages/contact.html`, `/pages/privacy.html`. Copyright 2025 Ellie Petal Media.
+
+6. LEGAL PAGES (Generate these files with the EXACT content below)
+
+**File: /pages/about.html**
+<!DOCTYPE html>
+<html lang="en" style="background:#0b0c10; color:#c5c6c7; font-family:'Roboto Mono', monospace; padding:2rem;">
+<head><title>About Us</title><meta name="viewport" content="width=device-width, initial-scale=1"></head>
+<body>
+  <a href="/" style="color:#66fcf1; text-decoration:none;">&larr; Back to Diagnostics</a>
+  <h1 style="color:#66fcf1">About DeviceTestOnline</h1>
+  <p>DeviceTestOnline.com is a digital utility project published by <strong>Ellie Petal Media</strong>.</p>
+  <p>We build privacy-focused diagnostic tools for gamers, remote workers, and IT professionals. Unlike downloaded software, our tools run instantly in your browser to verify hardware functionality without installing bloatware.</p>
+</body>
+</html>
+
+**File: /pages/contact.html**
+<!DOCTYPE html>
+<html lang="en" style="background:#0b0c10; color:#c5c6c7; font-family:'Roboto Mono', monospace; padding:2rem;">
+<head><title>Contact</title><meta name="viewport" content="width=device-width, initial-scale=1"></head>
+<body>
+  <a href="/" style="color:#66fcf1; text-decoration:none;">&larr; Back to Diagnostics</a>
+  <h1 style="color:#66fcf1">Contact Us</h1>
+  <p><strong>Publisher:</strong> Ellie Petal Media</p>
+  <h3>Support Policy</h3>
+  <p>These tools are provided as-is. We cannot provide individual technical support for hardware repairs or warranty claims.</p>
+  <h3>Business Inquiries</h3>
+  <p>For advertising and legal matters, please contact: <strong>legal@devicetestonline.com</strong></p>
+</body>
+</html>
+
+**File: /pages/privacy.html**
+<!DOCTYPE html>
+<html lang="en" style="background:#0b0c10; color:#c5c6c7; font-family:'Roboto Mono', monospace; padding:2rem;">
+<head><title>Privacy Policy</title><meta name="viewport" content="width=device-width, initial-scale=1"></head>
+<body>
+  <a href="/" style="color:#66fcf1; text-decoration:none;">&larr; Back to Diagnostics</a>
+  <h1 style="color:#66fcf1">Privacy Policy</h1>
+  <p><strong>Last Updated:</strong> 2025</p>
+  <p>This Privacy Policy applies to DeviceTestOnline.com, published by Ellie Petal Media.</p>
+  <h3>1. Client-Side Processing</h3>
+  <p>This website runs diagnostic scripts locally in your browser. When you test your microphone, the audio data is processed in your device's RAM to generate the visualizer and is never transmitted to our servers or stored.</p>
+  <h3>2. Cookies</h3>
+  <p>We may use cookies to ensure the website functions correctly. By using this site, you consent to the use of cookies.</p>
+  <h3>3. Contact</h3>
+  <p>legal@devicetestonline.com</p>
+</body>
+</html>

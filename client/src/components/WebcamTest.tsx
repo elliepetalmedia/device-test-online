@@ -13,23 +13,30 @@ export function WebcamTest() {
   const videoRef = useRef<HTMLVideoElement>(null);
   const streamRef = useRef<MediaStream | null>(null);
 
-  // Fetch available cameras
-  useEffect(() => {
-    const getDevices = async () => {
-      try {
-        const devices = await navigator.mediaDevices.enumerateDevices();
-        const videoInputs = devices.filter(device => device.kind === 'videoinput' && device.deviceId !== "");
-        setVideoDevices(videoInputs);
-        if (videoInputs.length > 0) {
-            setSelectedDeviceId(videoInputs[0].deviceId);
-        } else {
-            setSelectedDeviceId("");
-        }
-      } catch (err) {
-        console.error("Error enumerating devices:", err);
+  // Fetch available cameras - Improved handling for permission state
+  const getDevices = async () => {
+    try {
+      // Enumerate devices
+      const devices = await navigator.mediaDevices.enumerateDevices();
+      const videoInputs = devices.filter(device => device.kind === 'videoinput');
+      
+      // Log to debug
+      console.log("Devices found:", videoInputs);
+      
+      setVideoDevices(videoInputs);
+      
+      // Only update selection if we don't have a valid one yet
+      if (videoInputs.length > 0 && (!selectedDeviceId || !videoInputs.find(d => d.deviceId === selectedDeviceId))) {
+        // Prefer non-default if available to get real ID, otherwise take first
+        const defaultDevice = videoInputs.find(d => d.deviceId !== 'default') || videoInputs[0];
+        setSelectedDeviceId(defaultDevice.deviceId);
       }
-    };
+    } catch (err) {
+      console.error("Error enumerating devices:", err);
+    }
+  };
 
+  useEffect(() => {
     getDevices();
     navigator.mediaDevices.addEventListener('devicechange', getDevices);
     return () => navigator.mediaDevices.removeEventListener('devicechange', getDevices);
@@ -52,15 +59,26 @@ export function WebcamTest() {
     
     try {
       console.log("Requesting camera access...");
-      const constraints = {
-        video: selectedDeviceId ? { deviceId: { exact: selectedDeviceId } } : true
-      };
+      // If no specific device selected, just ask for video first to trigger permissions
+      const constraints = selectedDeviceId 
+        ? { video: { deviceId: { exact: selectedDeviceId } } }
+        : { video: true };
       
       const stream = await navigator.mediaDevices.getUserMedia(constraints);
+      
+      // IMPORTANT: Re-enumerate devices after permission is granted to get labels
+      await getDevices();
+      
       streamRef.current = stream;
       
       if (videoRef.current) {
         videoRef.current.srcObject = stream;
+        // Force play to ensure video starts
+        try {
+            await videoRef.current.play();
+        } catch (playErr) {
+            console.error("Error playing video:", playErr);
+        }
       }
       
       setIsActive(true);
@@ -70,6 +88,8 @@ export function WebcamTest() {
         setError("Camera permission denied. Please allow access in your browser settings.");
       } else if (err.name === 'NotFoundError' || err.name === 'DevicesNotFoundError') {
         setError("No camera found. Please connect a webcam.");
+      } else if (err.name === 'NotReadableError' || err.name === 'TrackStartError') {
+        setError("Camera is in use by another application. Please close other apps using the camera.");
       } else {
         setError(`Could not access camera: ${err.message}`);
       }
@@ -99,17 +119,21 @@ export function WebcamTest() {
             <Select 
                 value={selectedDeviceId} 
                 onValueChange={setSelectedDeviceId}
-                disabled={isActive || videoDevices.length === 0}
+                disabled={isActive}
             >
               <SelectTrigger className="w-full bg-surface border-secondary/30">
                 <SelectValue placeholder={videoDevices.length === 0 ? "No cameras found" : "Select a camera"} />
               </SelectTrigger>
               <SelectContent>
-                {videoDevices.map((device) => (
-                  <SelectItem key={device.deviceId} value={device.deviceId}>
-                    {device.label || `Camera ${videoDevices.indexOf(device) + 1}`}
-                  </SelectItem>
-                ))}
+                {videoDevices.length === 0 ? (
+                    <SelectItem value="none" disabled>No cameras found</SelectItem>
+                ) : (
+                    videoDevices.map((device, index) => (
+                      <SelectItem key={device.deviceId || `camera-${index}`} value={device.deviceId || `camera-${index}`}>
+                        {device.label || `Camera ${index + 1} (${device.deviceId.slice(0, 8)}...)`}
+                      </SelectItem>
+                    ))
+                )}
               </SelectContent>
             </Select>
           </div>
@@ -140,8 +164,8 @@ export function WebcamTest() {
                     <div className="flex justify-between">
                         <span>Resolution:</span>
                         <span className="text-foreground">
-                            {streamRef.current.getVideoTracks()[0]?.getSettings().width}x
-                            {streamRef.current.getVideoTracks()[0]?.getSettings().height}
+                            {streamRef.current.getVideoTracks()[0]?.getSettings().width || 'N/A'}x
+                            {streamRef.current.getVideoTracks()[0]?.getSettings().height || 'N/A'}
                         </span>
                     </div>
                     <div className="flex justify-between">
@@ -176,7 +200,7 @@ export function WebcamTest() {
             {isActive && (
                 <div className="absolute top-4 right-4 flex gap-2">
                     <div className="text-[10px] text-neon-green font-orbitron border border-neon-green/50 bg-neon-green/10 px-2 py-0.5 rounded animate-pulse">
-                        REC
+                        LIVE
                     </div>
                 </div>
             )}

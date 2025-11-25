@@ -60,26 +60,21 @@ export function MicrophoneTest() {
 
     try {
       const stream = await navigator.mediaDevices.getUserMedia({ 
-        audio: {
-            echoCancellation: false, // Disable to prevent chopping
-            autoGainControl: false,  // Disable to get raw levels
-            noiseSuppression: false, // Disable to hear raw noise floor
-            channelCount: 1
-        } 
+        audio: true 
       });
 
+      // Create AudioContext with fallback
       const AudioContext = window.AudioContext || (window as any).webkitAudioContext;
-      const audioContext = new AudioContext({
-        latencyHint: 'interactive',
-        sampleRate: 44100, 
-      });
+      const audioContext = new AudioContext(); // Use defaults for max compatibility
 
-      await audioContext.resume();
+      if (audioContext.state === 'suspended') {
+          await audioContext.resume();
+      }
       audioContextRef.current = audioContext;
 
       const analyser = audioContext.createAnalyser();
-      analyser.fftSize = 512; // Higher resolution
-      analyser.smoothingTimeConstant = 0.5; // More responsive
+      analyser.fftSize = 512;
+      analyser.smoothingTimeConstant = 0.5;
       analyserRef.current = analyser;
 
       const microphone = audioContext.createMediaStreamSource(stream);

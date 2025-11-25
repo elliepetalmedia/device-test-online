@@ -187,24 +187,25 @@ export function KeyboardTest() {
   // Count verifiable keys in our map
   const totalKeys = KEYBOARD_LAYOUT.flat().length + NAV_LAYOUT.flat().filter(k => !k.invisible).length + NUMPAD_LAYOUT.flat().length;
 
+  // Calculate scaling factor based on viewport width for responsive sizing
   const KeyCap = ({ k, h = 1 }: { k: any, h?: number }) => {
-    if (k.invisible) return <div className="w-12 h-12" style={{ flexGrow: k.w, width: `${k.w * 3}rem` }} />;
+    if (k.invisible) return <div className="w-8 h-8 md:w-10 md:h-10 lg:w-12 lg:h-12" style={{ flexGrow: k.w, width: `${k.w * 2.5}rem` }} />;
     
     const isVerified = verifiedKeys.has(k.key);
     const isActive = activeKeys.has(k.key);
-    const heightClass = k.h === 2 ? "h-[6.5rem]" : "h-12";
+    const heightClass = k.h === 2 ? "h-[4.25rem] md:h-[5.25rem] lg:h-[6.25rem]" : "h-8 md:h-10 lg:h-12";
 
     return (
       <div
         className={cn(
-          `${heightClass} rounded border flex items-center justify-center text-xs font-bold transition-all duration-75 select-none`,
+          `${heightClass} rounded border flex items-center justify-center text-[0.6rem] md:text-xs font-bold transition-all duration-75 select-none`,
           isActive 
             ? "bg-primary text-background border-primary shadow-[0_0_10px_var(--color-primary)] scale-95 z-10" 
             : isVerified 
               ? "bg-secondary/20 border-secondary text-secondary shadow-[0_0_5px_var(--color-secondary)]"
               : "bg-background border-muted text-muted-foreground"
         )}
-        style={{ flexGrow: k.w, width: `${k.w * 3}rem` }}
+        style={{ flexGrow: k.w, width: `${k.w * 2.5}rem` }}
       >
         {k.label}
       </div>
@@ -212,7 +213,7 @@ export function KeyboardTest() {
   };
 
   return (
-    <div className="flex flex-col gap-8">
+    <div className="flex flex-col gap-8 w-full max-w-full">
       <div className="flex justify-between items-end">
         <div className="space-y-1">
           <h3 className="text-primary font-orbitron text-xl">Keyboard Matrix Test</h3>
@@ -226,77 +227,78 @@ export function KeyboardTest() {
         </div>
       </div>
 
-      <div className="bg-surface/50 p-8 rounded-xl border border-secondary/30 overflow-x-auto">
-        <div className="min-w-[1200px] flex gap-8">
+      <div className="bg-surface/50 p-4 md:p-8 rounded-xl border border-secondary/30 overflow-x-auto">
+        {/* Reduced min-width and adjusted gap for better fitting */}
+        <div className="min-w-[900px] flex gap-4 md:gap-8 mx-auto justify-center scale-[0.85] md:scale-100 origin-top-left md:origin-center">
           
           {/* Main Block */}
-          <div className="flex flex-col gap-2">
+          <div className="flex flex-col gap-1 md:gap-2">
             {KEYBOARD_LAYOUT.map((row, rowIndex) => (
-              <div key={rowIndex} className="flex gap-2">
+              <div key={rowIndex} className="flex gap-1 md:gap-2">
                 {row.map((k) => <KeyCap key={k.key} k={k} />)}
               </div>
             ))}
           </div>
 
           {/* Nav Block */}
-          <div className="flex flex-col gap-2">
+          <div className="flex flex-col gap-1 md:gap-2">
             {/* Top Nav Row (PRT, SCR, PAU) - aligned with F-keys row (row 0) */}
-            <div className="flex gap-2 mb-4">
+            <div className="flex gap-1 md:gap-2 mb-2 md:mb-4">
                {NAV_LAYOUT[0].map(k => <KeyCap key={k.key} k={k} />)}
             </div>
             
             {/* Insert/Home/PgUp - Aligned with row 1 */}
-            <div className="flex gap-2">
+            <div className="flex gap-1 md:gap-2">
                {NAV_LAYOUT[1].map(k => <KeyCap key={k.key} k={k} />)}
             </div>
 
             {/* Del/End/PgDn - Aligned with row 2 */}
-            <div className="flex gap-2">
+            <div className="flex gap-1 md:gap-2">
                {NAV_LAYOUT[2].map(k => <KeyCap key={k.key} k={k} />)}
             </div>
 
             {/* Spacing */}
-            <div className="h-12"></div>
+            <div className="h-8 md:h-12"></div>
 
             {/* Arrow Keys Top */}
-            <div className="flex gap-2">
+            <div className="flex gap-1 md:gap-2">
                {NAV_LAYOUT[3].map((k, i) => <KeyCap key={i} k={k} />)}
             </div>
 
             {/* Arrow Keys Bottom */}
-            <div className="flex gap-2">
+            <div className="flex gap-1 md:gap-2">
                {NAV_LAYOUT[4].map(k => <KeyCap key={k.key} k={k} />)}
             </div>
           </div>
 
           {/* Numpad Block */}
-          <div className="flex flex-col gap-2">
+          <div className="flex flex-col gap-1 md:gap-2">
              {/* Numpad Row 1 */}
-             <div className="flex gap-2">
+             <div className="flex gap-1 md:gap-2">
                {NUMPAD_LAYOUT[0].map(k => <KeyCap key={k.key} k={k} />)}
              </div>
              
-             <div className="flex gap-2 h-[13.5rem]">
-                <div className="flex flex-col gap-2">
+             <div className="flex gap-1 md:gap-2 h-[13.5rem]">
+                <div className="flex flex-col gap-1 md:gap-2">
                   {/* 7 8 9 */}
-                  <div className="flex gap-2">
+                  <div className="flex gap-1 md:gap-2">
                     {NUMPAD_LAYOUT[1].slice(0,3).map(k => <KeyCap key={k.key} k={k} />)}
                   </div>
                   {/* 4 5 6 */}
-                  <div className="flex gap-2">
+                  <div className="flex gap-1 md:gap-2">
                     {NUMPAD_LAYOUT[2].map(k => <KeyCap key={k.key} k={k} />)}
                   </div>
                    {/* 1 2 3 */}
-                  <div className="flex gap-2">
+                  <div className="flex gap-1 md:gap-2">
                     {NUMPAD_LAYOUT[3].slice(0,3).map(k => <KeyCap key={k.key} k={k} />)}
                   </div>
                    {/* 0 . */}
-                  <div className="flex gap-2">
+                  <div className="flex gap-1 md:gap-2">
                     {NUMPAD_LAYOUT[4].map(k => <KeyCap key={k.key} k={k} />)}
                   </div>
                 </div>
                 
-                <div className="flex flex-col gap-2">
+                <div className="flex flex-col gap-1 md:gap-2">
                    {/* + */}
                    <KeyCap k={NUMPAD_LAYOUT[1][3]} />
                    {/* Enter */}

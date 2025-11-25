@@ -21,14 +21,23 @@ export function MouseTest() {
     e.preventDefault(); // Prevent default context menu for right click
     
     const now = Date.now();
-    const buttonId = e.button; // 0 = Left, 1 = Middle, 2 = Right
+    const buttonId = e.button; 
     
     // Update visualizer state
     setActiveButtons(prev => new Set(prev).add(buttonId));
     
     // History Log
     const timeString = new Date().toLocaleTimeString('en-US', { hour12: false, hour: '2-digit', minute: '2-digit', second: '2-digit', fractionalSecondDigits: 3 });
-    const buttonName = buttonId === 0 ? "Left Click" : buttonId === 1 ? "Middle Click" : "Right Click";
+    
+    let buttonName = "";
+    switch(buttonId) {
+        case 0: buttonName = "Left Click"; break;
+        case 1: buttonName = "Middle Click"; break;
+        case 2: buttonName = "Right Click"; break;
+        case 3: buttonName = "Back Button (Side)"; break;
+        case 4: buttonName = "Forward Button (Side)"; break;
+        default: buttonName = `Button ${buttonId}`; break;
+    }
     
     addHistoryEvent(buttonName);
     
@@ -56,7 +65,7 @@ export function MouseTest() {
   };
 
   const handleWheel = (e: React.WheelEvent) => {
-    // e.preventDefault(); // Don't prevent default scrolling entirely as it might block page nav if user intends to scroll page
+    e.preventDefault(); // Prevent default scrolling to keep page stable
     
     const direction = e.deltaY < 0 ? 'up' : 'down';
     setScrollDirection(direction);
@@ -119,6 +128,14 @@ export function MouseTest() {
               <span className="absolute bottom-4 left-0 w-full text-center text-xs font-orbitron text-foreground/70">RIGHT</span>
             </div>
             
+            {/* Side Buttons (Back/Forward) - Visualized on left side */}
+            <div className={`absolute top-48 left-[-10px] w-4 h-16 border-2 border-secondary rounded-l-lg transition-colors duration-100 flex flex-col overflow-hidden ${activeButtons.has(3) || activeButtons.has(4) ? 'shadow-[0_0_15px_var(--color-primary)]' : ''}`}>
+                 {/* Forward (Button 4) */}
+                 <div className={`h-1/2 w-full border-b border-secondary transition-colors ${activeButtons.has(4) ? 'bg-primary' : 'bg-surface'}`}></div>
+                 {/* Back (Button 3) */}
+                 <div className={`h-1/2 w-full transition-colors ${activeButtons.has(3) ? 'bg-primary' : 'bg-surface'}`}></div>
+            </div>
+
             {/* Middle Button / Scroll Wheel Area */}
             <div className={`absolute top-16 left-1/2 -translate-x-1/2 w-8 h-24 flex flex-col items-center justify-center gap-1 transition-colors duration-100`}>
                {/* Scroll Up Indicator */}

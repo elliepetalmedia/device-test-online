@@ -18,10 +18,12 @@ export function WebcamTest() {
     const getDevices = async () => {
       try {
         const devices = await navigator.mediaDevices.enumerateDevices();
-        const videoInputs = devices.filter(device => device.kind === 'videoinput');
+        const videoInputs = devices.filter(device => device.kind === 'videoinput' && device.deviceId !== "");
         setVideoDevices(videoInputs);
         if (videoInputs.length > 0) {
             setSelectedDeviceId(videoInputs[0].deviceId);
+        } else {
+            setSelectedDeviceId("");
         }
       } catch (err) {
         console.error("Error enumerating devices:", err);

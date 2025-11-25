@@ -16,6 +16,7 @@ export function MouseTest() {
   const [faultDetected, setFaultDetected] = useState(false);
   const lastClickRef = useRef<Record<number, number>>({});
   const scrollTimeoutRef = useRef<NodeJS.Timeout | null>(null);
+  const testAreaRef = useRef<HTMLDivElement>(null);
   
   const handleMouseDown = (e: React.MouseEvent) => {
     e.preventDefault(); // Prevent default context menu for right click
@@ -64,28 +65,51 @@ export function MouseTest() {
     e.preventDefault();
   };
 
-  const handleWheel = (e: React.WheelEvent) => {
-    e.preventDefault(); // Prevent default scrolling to keep page stable
-    
-    const direction = e.deltaY < 0 ? 'up' : 'down';
-    setScrollDirection(direction);
-    
-    // Throttle log events for scroll to avoid spam
-    if (!scrollTimeoutRef.current) {
-        addHistoryEvent(direction === 'up' ? "Scroll Up" : "Scroll Down");
-        scrollTimeoutRef.current = setTimeout(() => {
-            scrollTimeoutRef.current = null;
-            setScrollDirection(null); // Reset visualizer after delay
-        }, 150);
-    } else {
-        // Still reset the timeout to keep the visualizer active while scrolling
-        clearTimeout(scrollTimeoutRef.current);
-        scrollTimeoutRef.current = setTimeout(() => {
-            scrollTimeoutRef.current = null;
-            setScrollDirection(null);
-        }, 150);
-    }
-  };
+  // Use native event listener for wheel to prevent default behavior properly
+  // React's synthetic onWheel can be passive and fail to prevent scroll
+  useEffect(() => {
+    const element = testAreaRef.current;
+    if (!element) return;
+
+    const handleWheelNative = (e: WheelEvent) => {
+      e.preventDefault();
+      
+      const direction = e.deltaY < 0 ? 'up' : 'down';
+      setScrollDirection(direction);
+      
+      if (!scrollTimeoutRef.current) {
+          addHistoryEvent(direction === 'up' ? "Scroll Up" : "Scroll Down");
+          scrollTimeoutRef.current = setTimeout(() => {
+              scrollTimeoutRef.current = null;
+              setScrollDirection(null);
+          }, 150);
+      } else {
+          clearTimeout(scrollTimeoutRef.current);
+          scrollTimeoutRef.current = setTimeout(() => {
+              scrollTimeoutRef.current = null;
+              setScrollDirection(null);
+          }, 150);
+      }
+    };
+
+    // Prevent side button navigation
+    const handleMouseNative = (e: MouseEvent) => {
+        if (e.button === 3 || e.button === 4) {
+            e.preventDefault();
+            e.stopImmediatePropagation();
+        }
+    };
+
+    element.addEventListener('wheel', handleWheelNative, { passive: false });
+    window.addEventListener('mouseup', handleMouseNative);
+    window.addEventListener('mousedown', handleMouseNative);
+
+    return () => {
+      element.removeEventListener('wheel', handleWheelNative);
+      window.removeEventListener('mouseup', handleMouseNative);
+      window.removeEventListener('mousedown', handleMouseNative);
+    };
+  }, []);
 
   const addHistoryEvent = (name: string) => {
     const now = Date.now();
@@ -105,11 +129,11 @@ export function MouseTest() {
       <div className="flex flex-col gap-6">
         <Card className="p-8 bg-surface border border-secondary/50 flex items-center justify-center min-h-[400px] relative overflow-hidden glow-border">
           <div 
+            ref={testAreaRef}
             className="w-full h-full absolute inset-0 cursor-crosshair z-10"
             onMouseDown={handleMouseDown}
             onMouseUp={handleMouseUp}
             onContextMenu={handleContextMenu}
-            onWheel={handleWheel}
             data-testid="mouse-test-area"
           />
           

@@ -187,6 +187,11 @@ export function KeyboardTest() {
   // Count verifiable keys in our map
   const totalKeys = KEYBOARD_LAYOUT.flat().length + NAV_LAYOUT.flat().filter(k => !k.invisible).length + NUMPAD_LAYOUT.flat().length;
 
+  const resetTest = () => {
+    setVerifiedKeys(new Set());
+    setActiveKeys(new Set());
+  };
+
   // Calculate scaling factor based on viewport width for responsive sizing
   const KeyCap = ({ k, h = 1 }: { k: any, h?: number }) => {
     if (k.invisible) return <div className="w-8 h-8 md:w-10 md:h-10 lg:w-12 lg:h-12" style={{ flexGrow: k.w, width: `${k.w * 2.5}rem` }} />;
@@ -219,10 +224,18 @@ export function KeyboardTest() {
           <h3 className="text-primary font-orbitron text-xl">Keyboard Matrix Test</h3>
           <p className="text-sm text-muted-foreground">Press keys to verify functionality. Test your N-Key Rollover.</p>
         </div>
-        <div className="bg-surface border border-secondary px-4 py-2 rounded text-right">
-          <div className="text-xs text-muted-foreground uppercase tracking-widest">Verified</div>
-          <div className="text-2xl font-orbitron text-primary glow-text">
-            {verifiedKeys.size} <span className="text-muted-foreground text-lg">/ {totalKeys}</span>
+        <div className="bg-surface border border-secondary px-4 py-2 rounded text-right flex items-center gap-4">
+          <button 
+            onClick={resetTest}
+            className="text-xs font-orbitron text-muted-foreground hover:text-destructive border border-muted hover:border-destructive px-2 py-1 rounded transition-colors"
+          >
+            RESET
+          </button>
+          <div>
+            <div className="text-xs text-muted-foreground uppercase tracking-widest">Verified</div>
+            <div className="text-2xl font-orbitron text-primary glow-text">
+              {verifiedKeys.size} <span className="text-muted-foreground text-lg">/ {totalKeys}</span>
+            </div>
           </div>
         </div>
       </div>

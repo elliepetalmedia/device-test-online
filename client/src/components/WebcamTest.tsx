@@ -40,17 +40,10 @@ export function WebcamTest() {
         setCameraName(videoTrack.label || "Generic Camera Device");
       }
       
-      if (videoRef.current) {
-        videoRef.current.srcObject = stream;
-        // Force play to ensure video starts
-        try {
-            await videoRef.current.play();
-        } catch (playErr) {
-            console.error("Error playing video:", playErr);
-        }
-      }
-      
+      // IMPORTANT: We set the srcObject inside the state update or a useEffect
+      // But since we are using refs, we need to force a re-render or handle it carefully
       setIsActive(true);
+      
     } catch (err: any) {
       console.error("Webcam access error:", err);
       if (err.name === 'NotAllowedError' || err.name === 'PermissionDeniedError') {
@@ -64,6 +57,24 @@ export function WebcamTest() {
       }
     }
   };
+
+  // Effect to attach stream to video element when active state changes
+  useEffect(() => {
+    if (isActive && videoRef.current && streamRef.current) {
+      const videoEl = videoRef.current;
+      videoEl.srcObject = streamRef.current;
+      
+      const playVideo = async () => {
+        try {
+          await videoEl.play();
+        } catch (err) {
+          console.error("Error playing video:", err);
+        }
+      };
+      
+      playVideo();
+    }
+  }, [isActive]);
 
   // Cleanup on unmount
   useEffect(() => {

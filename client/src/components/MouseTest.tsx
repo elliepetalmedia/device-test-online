@@ -65,6 +65,34 @@ export function MouseTest() {
     e.preventDefault();
   };
 
+  useEffect(() => {
+    const handleSideButtonClick = (e: Event) => {
+        const detail = (e as CustomEvent).detail;
+        setActiveButtons(prev => new Set(prev).add(detail.buttonId));
+        
+        const newEvent: ClickEvent = {
+          button: detail.buttonName,
+          timestamp: detail.timeString,
+          rawTime: detail.rawTime
+        };
+        setHistory(prev => [newEvent, ...prev].slice(0, 10));
+
+        // Clear the active state after a short delay since there's no "mouseup" for intercepted events
+        setTimeout(() => {
+            setActiveButtons(prev => {
+                const next = new Set(prev);
+                next.delete(detail.buttonId);
+                return next;
+            });
+        }, 200);
+    };
+
+    window.addEventListener('side-button-click', handleSideButtonClick);
+    return () => {
+        window.removeEventListener('side-button-click', handleSideButtonClick);
+    };
+  }, []);
+
   // Use native event listener for wheel to prevent default behavior properly
   // React's synthetic onWheel can be passive and fail to prevent scroll
   useEffect(() => {
@@ -100,6 +128,20 @@ export function MouseTest() {
             e.stopPropagation();
             e.stopImmediatePropagation();
             console.log("Prevented side button navigation");
+            
+            // Manually trigger the visualizer logic since we stopped propagation
+            const now = Date.now();
+            const timeString = new Date().toLocaleTimeString('en-US', { hour12: false, hour: '2-digit', minute: '2-digit', second: '2-digit', fractionalSecondDigits: 3 });
+            
+            let buttonName = e.button === 3 ? "Back Button (Side)" : "Forward Button (Side)";
+            
+            // We need to manually update React state from this native event
+            // This is a bit of a hack but necessary since we kill the event before React sees it
+            // We'll dispatch a custom event that our component can listen to safely
+            const customEvent = new CustomEvent('side-button-click', { 
+                detail: { buttonId: e.button, buttonName, timeString, rawTime: now } 
+            });
+            window.dispatchEvent(customEvent);
             
             // Also try to push state to prevent back nav if it slips through
             window.history.pushState(null, document.title, window.location.href);

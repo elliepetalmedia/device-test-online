@@ -160,6 +160,8 @@ export function KeyboardTest() {
   useEffect(() => {
     const handleKeyDown = (e: KeyboardEvent) => {
       e.preventDefault();
+      e.stopPropagation();
+      e.stopImmediatePropagation();
       const code = e.code;
       setActiveKeys(prev => new Set(prev).add(code));
       setVerifiedKeys(prev => new Set(prev).add(code));
@@ -167,6 +169,8 @@ export function KeyboardTest() {
 
     const handleKeyUp = (e: KeyboardEvent) => {
       e.preventDefault();
+      e.stopPropagation();
+      e.stopImmediatePropagation();
       const code = e.code;
       setActiveKeys(prev => {
         const next = new Set(prev);
@@ -175,12 +179,12 @@ export function KeyboardTest() {
       });
     };
 
-    window.addEventListener('keydown', handleKeyDown);
-    window.addEventListener('keyup', handleKeyUp);
+    window.addEventListener('keydown', handleKeyDown, { capture: true });
+    window.addEventListener('keyup', handleKeyUp, { capture: true });
 
     return () => {
-      window.removeEventListener('keydown', handleKeyDown);
-      window.removeEventListener('keyup', handleKeyUp);
+      window.removeEventListener('keydown', handleKeyDown, { capture: true });
+      window.removeEventListener('keyup', handleKeyUp, { capture: true });
     };
   }, []);
 

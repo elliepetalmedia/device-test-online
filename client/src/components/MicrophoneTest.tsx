@@ -65,14 +65,23 @@ export function MicrophoneTest() {
   };
 
   const drawVisualizer = () => {
-    if (!analyserRef.current || !canvasRef.current) return;
-    
     const canvas = canvasRef.current;
-    const ctx = canvas.getContext('2d');
-    if (!ctx) return;
+    const analyser = analyserRef.current;
+    if (!analyser || !canvas) {
+      console.error("Canvas or analyser not available");
+      return;
+    }
     
-    const bufferLength = analyserRef.current.frequencyBinCount;
+    const ctx = canvas.getContext('2d');
+    if (!ctx) {
+      console.error("Canvas context not available");
+      return;
+    }
+    
+    const bufferLength = analyser.frequencyBinCount;
     const dataArray = new Uint8Array(bufferLength);
+    
+    console.log("Starting visualization, buffer length:", bufferLength, "canvas size:", canvas.width, "x", canvas.height);
     
     const draw = () => {
       if (!analyserRef.current) return;
@@ -88,26 +97,24 @@ export function MicrophoneTest() {
       const average = sum / bufferLength;
       setVolume(average); // 0-255
       
-      // Draw Canvas Waveform
-      ctx.fillStyle = 'rgb(11, 12, 16)'; // Background color
+      // Draw Canvas Waveform - Dark background
+      ctx.fillStyle = 'rgb(11, 12, 16)';
       ctx.fillRect(0, 0, canvas.width, canvas.height);
       
-      const barWidth = (canvas.width / bufferLength) * 2.5;
+      // Draw bars
+      const barWidth = canvas.width / bufferLength * 2.5;
       let barHeight;
       let x = 0;
       
       for (let i = 0; i < bufferLength; i++) {
-        barHeight = dataArray[i] / 2; // Scale down
+        barHeight = dataArray[i];
         
-        // Sci-fi gradient color
-        const r = 70;
-        const g = 252;
-        const b = 241;
-        
-        ctx.fillStyle = `rgba(${r},${g},${b}, ${barHeight / 100 + 0.2})`;
+        // Sci-fi cyan/teal gradient
+        const hue = (i / bufferLength) * 60 + 180; // Cyan to teal range
+        ctx.fillStyle = `hsl(${hue}, 100%, ${50 + barHeight / 5}%)`;
         ctx.fillRect(x, canvas.height - barHeight, barWidth, barHeight);
         
-        x += barWidth + 1;
+        x += barWidth + 0.5;
       }
     };
     

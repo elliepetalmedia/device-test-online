@@ -28,13 +28,22 @@ export function MicrophoneTest() {
   const startListening = async () => {
     try {
       setError(null);
+      console.log("Requesting microphone access...");
       const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
+      console.log("Microphone access granted:", stream.id);
       
-      const audioContext = new (window.AudioContext || (window as any).webkitAudioContext)();
+      const AudioContext = window.AudioContext || (window as any).webkitAudioContext;
+      const audioContext = new AudioContext();
+      
+      if (audioContext.state === 'suspended') {
+          await audioContext.resume();
+      }
+      
       audioContextRef.current = audioContext;
       
       const analyser = audioContext.createAnalyser();
       analyser.fftSize = 256;
+      analyser.smoothingTimeConstant = 0.8;
       analyserRef.current = analyser;
       
       const source = audioContext.createMediaStreamSource(stream);
@@ -43,9 +52,15 @@ export function MicrophoneTest() {
       
       setIsListening(true);
       drawVisualizer();
-    } catch (err) {
+    } catch (err: any) {
       console.error("Microphone access error:", err);
-      setError("Could not access microphone. Please check permissions.");
+      if (err.name === 'NotAllowedError' || err.name === 'PermissionDeniedError') {
+          setError("Microphone permission denied. Please allow access in your browser settings.");
+      } else if (err.name === 'NotFoundError' || err.name === 'DevicesNotFoundError') {
+          setError("No microphone found. Please connect a microphone.");
+      } else {
+          setError(`Could not access microphone: ${err.message}`);
+      }
     }
   };
 

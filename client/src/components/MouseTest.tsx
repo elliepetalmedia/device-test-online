@@ -96,8 +96,10 @@ export function MouseTest() {
         // Check if back (3) or forward (4) buttons
         if (e.button === 3 || e.button === 4) {
             e.preventDefault();
-            // e.stopPropagation(); // Don't stop propagation, just prevent default
-            // e.stopImmediatePropagation(); // This might be killing our own listeners if attached later?
+            
+            // We used to stop propagation here, but that killed our own event logic
+            // Now we just prevent default and let it bubble so our React state can update
+            
             console.log("Prevented side button navigation", e.type);
             
             const buttonId = e.button;
@@ -124,8 +126,17 @@ export function MouseTest() {
             // Also try to push state to prevent back nav if it slips through
             window.history.pushState(null, document.title, window.location.href);
             
+            // IMPORTANT: Return false to help prevent default in some browsers
             return false;
         }
+    };
+
+    // Add pointer events listener for better compatibility
+    const handlePointerNative = (e: PointerEvent) => {
+         if (e.button === 3 || e.button === 4) {
+            e.preventDefault();
+            // No stopPropagation to ensure it registers
+         }
     };
 
     // Prevent popstate if it was triggered by a side button
@@ -136,8 +147,12 @@ export function MouseTest() {
 
     // Important: use capture: true to intercept before browser default
     element.addEventListener('wheel', handleWheelNative, { passive: false });
+    
     window.addEventListener('mouseup', handleMouseNative, { capture: true });
     window.addEventListener('mousedown', handleMouseNative, { capture: true });
+    window.addEventListener('pointerup', handlePointerNative, { capture: true });
+    window.addEventListener('pointerdown', handlePointerNative, { capture: true });
+    
     window.addEventListener('click', handleMouseNative, { capture: true }); // Add click just in case
     window.addEventListener('auxclick', handleMouseNative, { capture: true }); // Add auxclick for non-primary buttons
     window.addEventListener('popstate', handlePopState);
@@ -149,6 +164,8 @@ export function MouseTest() {
       element.removeEventListener('wheel', handleWheelNative);
       window.removeEventListener('mouseup', handleMouseNative, { capture: true });
       window.removeEventListener('mousedown', handleMouseNative, { capture: true });
+      window.removeEventListener('pointerup', handlePointerNative, { capture: true });
+      window.removeEventListener('pointerdown', handlePointerNative, { capture: true });
       window.removeEventListener('click', handleMouseNative, { capture: true });
       window.removeEventListener('auxclick', handleMouseNative, { capture: true });
       window.removeEventListener('popstate', handlePopState);

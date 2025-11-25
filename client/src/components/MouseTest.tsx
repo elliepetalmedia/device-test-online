@@ -24,6 +24,9 @@ export function MouseTest() {
     const now = Date.now();
     const buttonId = e.button; 
     
+    // Skip side buttons if we aren't testing them
+    if (buttonId === 3 || buttonId === 4) return;
+
     // Update visualizer state
     setActiveButtons(prev => new Set(prev).add(buttonId));
     
@@ -35,8 +38,6 @@ export function MouseTest() {
         case 0: buttonName = "Left Click"; break;
         case 1: buttonName = "Middle Click"; break;
         case 2: buttonName = "Right Click"; break;
-        case 3: buttonName = "Back Button (Side)"; break;
-        case 4: buttonName = "Forward Button (Side)"; break;
         default: buttonName = `Button ${buttonId}`; break;
     }
     
@@ -90,88 +91,11 @@ export function MouseTest() {
       }
     };
 
-    // Mouse Event Handler
-    const handleMouseNative = (e: MouseEvent) => {
-        // Always log for debugging
-        // console.log(`Mouse Event: ${e.type}, Button: ${e.button}`);
-
-        if (e.button === 3 || e.button === 4) {
-            e.preventDefault();
-            
-            const buttonId = e.button;
-            const buttonName = e.button === 3 ? "Back Button (Side)" : "Forward Button (Side)";
-            const now = Date.now();
-
-            if (e.type === 'mousedown') {
-                setActiveButtons(prev => new Set(prev).add(buttonId));
-                addHistoryEvent(buttonName);
-            } else if (e.type === 'mouseup') {
-                setActiveButtons(prev => {
-                    const next = new Set(prev);
-                    next.delete(buttonId);
-                    return next;
-                });
-            }
-            return false;
-        }
-    };
-
-    // Pointer Event Handler - Often more reliable for modern browsers
-    const handlePointerNative = (e: PointerEvent) => {
-         // console.log(`Pointer Event: ${e.type}, Button: ${e.button}`);
-         
-         if (e.button === 3 || e.button === 4) {
-            e.preventDefault();
-            
-            const buttonId = e.button;
-            const buttonName = e.button === 3 ? "Back Button (Side)" : "Forward Button (Side)";
-            
-            if (e.type === 'pointerdown') {
-                setActiveButtons(prev => new Set(prev).add(buttonId));
-                addHistoryEvent(buttonName);
-            } else if (e.type === 'pointerup') {
-                setActiveButtons(prev => {
-                    const next = new Set(prev);
-                    next.delete(buttonId);
-                    return next;
-                });
-            }
-         }
-    };
-
-    // Prevent context menu to allow right click testing
-    const handleContextMenu = (e: MouseEvent) => {
-        e.preventDefault();
-        return false;
-    };
-
-    // Prevent popstate if it was triggered by a side button
-    const handlePopState = (e: PopStateEvent) => {
-        // Push state back to keep user on page
-        window.history.pushState(null, document.title, window.location.href);
-    };
-
-    // Attach listeners to WINDOW to capture everything
-    window.addEventListener('contextmenu', handleContextMenu);
-    window.addEventListener('mouseup', handleMouseNative);
-    window.addEventListener('mousedown', handleMouseNative);
-    window.addEventListener('pointerup', handlePointerNative);
-    window.addEventListener('pointerdown', handlePointerNative);
-    window.addEventListener('auxclick', handleMouseNative); 
-    window.addEventListener('popstate', handlePopState);
-
-    // Initial push to create history buffer
-    window.history.pushState(null, document.title, window.location.href);
+    // Only use non-passive listener for wheel to prevent scroll
+    element.addEventListener('wheel', handleWheelNative, { passive: false });
 
     return () => {
       element.removeEventListener('wheel', handleWheelNative);
-      window.removeEventListener('contextmenu', handleContextMenu);
-      window.removeEventListener('mouseup', handleMouseNative);
-      window.removeEventListener('mousedown', handleMouseNative);
-      window.removeEventListener('pointerup', handlePointerNative);
-      window.removeEventListener('pointerdown', handlePointerNative);
-      window.removeEventListener('auxclick', handleMouseNative);
-      window.removeEventListener('popstate', handlePopState);
     };
   }, []);
 
@@ -216,13 +140,8 @@ export function MouseTest() {
               <span className="absolute bottom-4 left-0 w-full text-center text-xs font-orbitron text-foreground/70">RIGHT</span>
             </div>
             
-            {/* Side Buttons (Back/Forward) - Visualized on left side */}
-            <div className={`absolute top-48 left-[-10px] w-4 h-16 border-2 border-secondary rounded-l-lg transition-colors duration-100 flex flex-col overflow-hidden ${activeButtons.has(3) || activeButtons.has(4) ? 'shadow-[0_0_15px_var(--color-primary)]' : ''}`}>
-                 {/* Forward (Button 4) */}
-                 <div className={`h-1/2 w-full border-b border-secondary transition-colors ${activeButtons.has(4) ? 'bg-primary' : 'bg-surface'}`}></div>
-                 {/* Back (Button 3) */}
-                 <div className={`h-1/2 w-full transition-colors ${activeButtons.has(3) ? 'bg-primary' : 'bg-surface'}`}></div>
-            </div>
+            {/* Side Buttons REMOVED visually as requested */}
+            <div className="absolute top-48 left-[-10px] w-4 h-16 border-2 border-secondary/30 rounded-l-lg opacity-30"></div>
 
             {/* Middle Button / Scroll Wheel Area */}
             <div className={`absolute top-16 left-1/2 -translate-x-1/2 w-8 h-24 flex flex-col items-center justify-center gap-1 transition-colors duration-100`}>

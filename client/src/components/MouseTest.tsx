@@ -96,11 +96,10 @@ export function MouseTest() {
         // Check if back (3) or forward (4) buttons
         if (e.button === 3 || e.button === 4) {
             e.preventDefault();
-            e.stopPropagation();
-            e.stopImmediatePropagation();
+            // e.stopPropagation(); // Don't stop propagation, just prevent default
+            // e.stopImmediatePropagation(); // This might be killing our own listeners if attached later?
             console.log("Prevented side button navigation", e.type);
             
-            // Directly update state here instead of dispatching custom event
             const buttonId = e.button;
             const buttonName = e.button === 3 ? "Back Button (Side)" : "Forward Button (Side)";
             const now = Date.now();

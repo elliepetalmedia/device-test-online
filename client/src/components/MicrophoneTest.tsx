@@ -26,7 +26,7 @@ export function MicrophoneTest() {
     setDebugInfo(prev => [...prev.slice(-4), `${new Date().toLocaleTimeString().split(' ')[0]} ${msg}`]);
   };
 
-  const stopListening = () => {
+  const stopListening = async () => {
     log("Stopping...");
     if (rafRef.current) cancelAnimationFrame(rafRef.current);
     
@@ -34,9 +34,12 @@ export function MicrophoneTest() {
         if (sourceRef.current) sourceRef.current.disconnect();
         if (analyserRef.current) analyserRef.current.disconnect();
         if (gainNodeRef.current) gainNodeRef.current.disconnect();
+        
         if (audioContextRef.current && audioContextRef.current.state !== 'closed') {
-            audioContextRef.current.close();
+            await audioContextRef.current.close();
+            log("AudioContext closed");
         }
+        
         if (streamRef.current) {
             streamRef.current.getTracks().forEach(track => {
                 track.stop();
@@ -57,7 +60,7 @@ export function MicrophoneTest() {
   };
 
   const startListening = async () => {
-    stopListening();
+    await stopListening();
     setError(null);
     setDebugInfo([]);
     log("Starting initialization...");
@@ -65,13 +68,7 @@ export function MicrophoneTest() {
     try {
       // 1. Get User Media
       log("Requesting permissions...");
-      const stream = await navigator.mediaDevices.getUserMedia({ 
-        audio: {
-            echoCancellation: false,
-            autoGainControl: false,
-            noiseSuppression: false
-        } 
-      });
+      const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
       streamRef.current = stream;
       log(`Stream active: ${stream.active}, ID: ${stream.id.slice(0,8)}...`);
 
@@ -90,8 +87,8 @@ export function MicrophoneTest() {
 
       // 4. Create Analyzer
       const analyser = audioContext.createAnalyser();
-      analyser.fftSize = 2048; // Larger buffer for better precision
-      analyser.smoothingTimeConstant = 0.8;
+      analyser.fftSize = 256; 
+      analyser.smoothingTimeConstant = 0.5;
       analyserRef.current = analyser;
 
       // 5. Create Source & Gain
@@ -103,9 +100,7 @@ export function MicrophoneTest() {
       gainNodeRef.current = gainNode;
 
       // 6. Connect Graph
-      // Path A: Source -> Analyser (Visuals)
       source.connect(analyser);
-      // Path B: Source -> Gain -> Destination (Playback)
       source.connect(gainNode);
       gainNode.connect(audioContext.destination);
       
@@ -145,41 +140,33 @@ export function MicrophoneTest() {
         if (!analyserRef.current) return;
         
         rafRef.current = requestAnimationFrame(animate);
-        analyserRef.current.getByteTimeDomainData(dataArray); // Waveform data
+        analyserRef.current.getByteFrequencyData(dataArray);
 
-        // Calculate Volume (RMS)
+        // Calculate Volume
         let sum = 0;
         for(let i = 0; i < bufferLength; i++) {
-            const x = (dataArray[i] - 128) / 128.0;
-            sum += x * x;
+            sum += dataArray[i];
         }
-        const rms = Math.sqrt(sum / bufferLength);
-        const vol = Math.min(rms * 400, 100); // Scale up for visibility
-        setVolume(vol);
+        const avg = sum / bufferLength;
+        setVolume(avg);
 
-        // Draw Waveform
+        // Draw Frequency Bars
         ctx.fillStyle = 'rgb(10, 10, 12)';
         ctx.fillRect(0, 0, canvas.width, canvas.height);
         
-        ctx.lineWidth = 2;
-        ctx.strokeStyle = 'rgb(70, 252, 241)'; // Neon Cyan
-        ctx.beginPath();
-
-        const sliceWidth = canvas.width * 1.0 / bufferLength;
+        const barWidth = (canvas.width / bufferLength) * 2.5;
         let x = 0;
 
         for(let i = 0; i < bufferLength; i++) {
-            const v = dataArray[i] / 128.0;
-            const y = v * canvas.height / 2;
+            const barHeight = (dataArray[i] / 255) * canvas.height;
 
-            if(i === 0) ctx.moveTo(x, y);
-            else ctx.lineTo(x, y);
+            const hue = 160 + (barHeight / canvas.height) * 60;
+            ctx.fillStyle = `hsl(${hue}, 100%, 50%)`;
 
-            x += sliceWidth;
+            ctx.fillRect(x, canvas.height - barHeight, barWidth, barHeight);
+
+            x += barWidth + 1;
         }
-
-        ctx.lineTo(canvas.width, canvas.height / 2);
-        ctx.stroke();
     };
 
     animate();

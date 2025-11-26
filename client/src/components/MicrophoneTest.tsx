@@ -1,13 +1,12 @@
 import React, { useState, useEffect, useRef } from 'react';
-import { Mic, MicOff, Volume2, Activity, Play, Square } from 'lucide-react';
+import { Mic, MicOff, Volume2, Play } from 'lucide-react';
 import { Button } from '@/components/ui/button';
-import { Card } from '@/components/ui/card';
 
 export function MicrophoneTest() {
   const [isRecording, setIsRecording] = useState(false);
   const [hasRecording, setHasRecording] = useState(false);
   const [error, setError] = useState<string | null>(null);
-  const [recordingTime, setRecordingTime] = useState(0);
+  const [recordingTime, setRecordingTime] = useState(5);
   const [amplitude, setAmplitude] = useState(0);
   
   const mediaRecorderRef = useRef<MediaRecorder | null>(null);
@@ -20,11 +19,10 @@ export function MicrophoneTest() {
   const audioElementRef = useRef<HTMLAudioElement | null>(null);
   const timerRef = useRef<NodeJS.Timeout | null>(null);
 
-  const stopRecording = () => {
+  const stopRecording = async () => {
     if (mediaRecorderRef.current && isRecording) {
       mediaRecorderRef.current.stop();
       setIsRecording(false);
-      setRecordingTime(0);
       
       if (timerRef.current) clearTimeout(timerRef.current);
       if (animationRef.current) cancelAnimationFrame(animationRef.current);
@@ -32,6 +30,20 @@ export function MicrophoneTest() {
       if (streamRef.current) {
         streamRef.current.getTracks().forEach(track => track.stop());
       }
+    }
+  };
+
+  const reset = () => {
+    stopRecording();
+    setHasRecording(false);
+    setAmplitude(0);
+    setRecordingTime(5);
+    setError(null);
+    chunksRef.current = [];
+    audioUrlRef.current = '';
+    if (audioElementRef.current) {
+      audioElementRef.current.pause();
+      audioElementRef.current = null;
     }
   };
 
@@ -46,7 +58,6 @@ export function MicrophoneTest() {
       const mediaRecorder = new MediaRecorder(stream);
       mediaRecorderRef.current = mediaRecorder;
 
-      // Set up analyser for amplitude visualization
       const audioContext = new (window.AudioContext || (window as any).webkitAudioContext)();
       audioContextRef.current = audioContext;
 
@@ -92,17 +103,20 @@ export function MicrophoneTest() {
         if (audioContextRef.current) {
           audioContextRef.current.close();
         }
+
+        setTimeout(() => playRecording(), 500);
       };
 
       mediaRecorder.start();
       setIsRecording(true);
-      setRecordingTime(0);
+      setRecordingTime(5);
 
-      let time = 0;
+      let time = 5;
       timerRef.current = setInterval(() => {
-        time += 1;
+        time -= 1;
         setRecordingTime(time);
-        if (time >= 5) {
+        if (time <= 0) {
+          if (timerRef.current) clearTimeout(timerRef.current);
           stopRecording();
         }
       }, 1000);
@@ -184,12 +198,7 @@ export function MicrophoneTest() {
             )}
 
             {isRecording && (
-              <>
-                <Button onClick={stopRecording} variant="destructive" className="font-orbitron w-full">
-                  <Square className="mr-2 w-4 h-4" /> Stop Recording
-                </Button>
-                <div className="text-center text-primary font-orbitron text-lg">{recordingTime}s</div>
-              </>
+              <div className="text-center text-primary font-orbitron text-3xl font-bold">{recordingTime}</div>
             )}
 
             {hasRecording && (
@@ -197,8 +206,8 @@ export function MicrophoneTest() {
                 <Button onClick={playRecording} variant="outline" className="w-full font-orbitron">
                   <Play className="mr-2 w-4 h-4" /> Play Your Recording
                 </Button>
-                <Button onClick={() => { setHasRecording(false); setAmplitude(0); }} variant="secondary" className="w-full font-orbitron">
-                  <Mic className="mr-2 w-4 h-4" /> Record Again
+                <Button onClick={reset} variant="secondary" className="w-full font-orbitron">
+                  <Mic className="mr-2 w-4 h-4" /> Reset
                 </Button>
               </>
             )}
@@ -231,21 +240,10 @@ export function MicrophoneTest() {
           {hasRecording && (
             <div className="p-3 bg-surface border border-green-500/30 rounded">
               <p className="text-xs font-orbitron text-green-400">
-                ✓ Recording saved. Click "Play Your Recording" to hear it back.
+                ✓ Recording saved and now playing back.
               </p>
             </div>
           )}
-        </div>
-
-        <div className="relative">
-          <Card className="bg-black border-primary/50 p-2 overflow-hidden h-[250px] flex items-center justify-center glow-border">
-            <div className="text-center text-muted-foreground">
-              <Activity className="w-12 h-12 mx-auto mb-2 opacity-20" />
-              <p className="text-sm font-orbitron opacity-50">
-                {isRecording ? 'RECORDING' : hasRecording ? 'RECORDING SAVED' : 'Ready to Record'}
-              </p>
-            </div>
-          </Card>
         </div>
       </div>
 
@@ -253,13 +251,13 @@ export function MicrophoneTest() {
         <h3 className="text-primary font-orbitron text-2xl mb-4 uppercase tracking-widest">How to Test Your Microphone</h3>
         <div className="space-y-4 text-lg text-muted-foreground font-roboto-mono leading-relaxed">
           <p>
-            <strong className="text-primary">Record Your Voice:</strong> Click "Start Recording" and speak into your microphone for up to 5 seconds. You'll see a green amplitude bar fill up as sound is detected. This bar shows the volume level of your microphone input in real-time.
+            <strong className="text-primary">Record Your Voice:</strong> Click "Start Recording" and speak into your microphone. The timer will countdown from 5 seconds. Once it reaches zero, the recording automatically stops and plays back your voice.
           </p>
           <p>
-            <strong className="text-primary">Play It Back:</strong> After recording, click "Play Your Recording" to hear your voice played back through your speakers. If you can hear yourself, your microphone is working perfectly. This is the definitive test—if audio is captured and played back, the microphone is functional.
+            <strong className="text-primary">Hear Your Recording:</strong> After the countdown finishes, your voice will automatically play back through your speakers. If you can hear yourself, your microphone is working perfectly. This is the definitive test—if audio is captured and played back, the microphone is functional.
           </p>
           <p>
-            <strong className="text-primary">Test Again:</strong> Click "Record Again" to run another test with a fresh recording.
+            <strong className="text-primary">Reset:</strong> Click "Reset" to clear everything and record again. This will stop playback and prepare you for a fresh recording.
           </p>
           <p>
             <strong className="text-primary">Speaker Test:</strong> Click "Test Speakers" to play a 5-second musical chord. This verifies your speaker output is working.

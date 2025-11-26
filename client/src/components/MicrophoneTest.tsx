@@ -193,7 +193,7 @@ export function MicrophoneTest() {
 
           <div className="space-y-3">
             {!isRecording && !hasRecording && (
-              <Button onClick={startRecording} className="bg-primary text-background hover:bg-primary/80 font-orbitron w-full">
+              <Button onClick={startRecording} className="bg-primary text-background hover:bg-primary/80 font-orbitron w-full transition-transform hover:scale-105">
                 <Mic className="mr-2 w-4 h-4" /> Start Recording (5 seconds)
               </Button>
             )}
@@ -203,18 +203,17 @@ export function MicrophoneTest() {
             )}
 
             {hasRecording && (
-              <>
-                <Button onClick={playRecording} variant="outline" className="w-full font-orbitron">
-                  <Play className="mr-2 w-4 h-4" /> Play Your Recording
-                </Button>
-                <Button onClick={reset} variant="secondary" className="w-full font-orbitron">
-                  <Mic className="mr-2 w-4 h-4" /> Reset
-                </Button>
-              </>
+              <Button onClick={playRecording} variant="outline" className="w-full font-orbitron transition-transform hover:scale-105">
+                <Play className="mr-2 w-4 h-4" /> Play Your Recording
+              </Button>
             )}
 
-            <Button onClick={playTestTone} variant="outline" className="w-full font-orbitron">
+            <Button onClick={playTestTone} variant="outline" className="w-full font-orbitron transition-transform hover:scale-105">
               <Volume2 className="mr-2 w-4 h-4" /> Test Speakers (5s Tone)
+            </Button>
+
+            <Button onClick={reset} variant="outline" className="w-full font-orbitron transition-transform hover:scale-105">
+              <MicOff className="mr-2 w-4 h-4" /> Reset
             </Button>
           </div>
 

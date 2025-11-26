@@ -80,29 +80,37 @@ export function DeadPixelTest() {
   }
 
   return (
-    <div className="flex flex-col items-center justify-center py-16 gap-8 text-center">
-      <div className="max-w-lg space-y-4">
-        <h3 className="text-2xl font-orbitron text-primary">Dead Pixel Locator</h3>
-        <p className="text-muted-foreground">
-          This tool cycles your screen through primary colors (Red, Green, Blue) and extremes (Black, White) 
-          to help you spot stuck or dead pixels.
-        </p>
-        <div className="p-4 bg-surface border border-secondary/30 rounded text-left text-sm font-mono space-y-2">
-          <p><strong className="text-primary">Dead Pixel:</strong> Usually black dot (transistor failed off).</p>
-          <p><strong className="text-primary">Stuck Pixel:</strong> Usually red, green, or blue (transistor failed on).</p>
-        </div>
+    <div className="flex flex-col gap-8">
+      <div className="flex flex-col items-center justify-center py-8 gap-6 text-center">
+        <Button 
+          size="lg" 
+          onClick={enterFullscreen}
+          className="bg-primary text-background hover:bg-primary/80 hover:scale-105 transition-all font-orbitron text-lg px-8 py-6 shadow-[0_0_20px_rgba(102,252,241,0.3)]"
+        >
+          <Maximize className="mr-2 w-5 h-5" />
+          Start Color Cycle
+        </Button>
+        
+        <p className="text-sm text-muted-foreground">Press ESC to exit full screen mode</p>
       </div>
 
-      <Button 
-        size="lg" 
-        onClick={enterFullscreen}
-        className="bg-primary text-background hover:bg-primary/80 hover:scale-105 transition-all font-orbitron text-lg px-8 py-6 shadow-[0_0_20px_rgba(102,252,241,0.3)]"
-      >
-        <Maximize className="mr-2 w-5 h-5" />
-        Start Color Cycle
-      </Button>
-      
-      <p className="text-xs text-muted-foreground">Press ESC to exit full screen mode</p>
+      <div className="p-8 bg-surface border border-secondary/30 rounded-lg">
+        <h3 className="text-primary font-orbitron text-2xl mb-4 uppercase tracking-widest">Dead Pixel Detection Guide</h3>
+        <div className="space-y-4 text-lg text-muted-foreground font-roboto-mono leading-relaxed">
+          <p>
+            Dead pixels are a common defect in LCD and LED displays. A dead pixel is a single picture element (pixel) that fails to change color or remain illuminated. This tool helps you detect them by cycling through different colors at full-screen brightness.
+          </p>
+          <p>
+            <strong className="text-primary">What to look for:</strong> Watch carefully for any pixels that don't match the current color. A dead pixel will appear as a different color (usually black or a stuck color) against the uniform background.
+          </p>
+          <p>
+            <strong className="text-primary">Dead Pixel vs. Stuck Pixel:</strong> A dead pixel is a transistor that failed in the "off" position—it will appear as a black dot on any colored background. A stuck pixel is a transistor that failed in the "on" position—it will always be red, green, or blue, no matter what color is displayed.
+          </p>
+          <p>
+            Click the button above to enter full-screen mode. The screen will cycle through Red, Green, Blue, Black, and White. Press the right arrow, spacebar, or Enter to move to the next color. Press ESC or left arrow to go back. Examine each color carefully, paying special attention to monitor edges and corners where manufacturing defects often occur.
+          </p>
+        </div>
+      </div>
     </div>
   );
 }

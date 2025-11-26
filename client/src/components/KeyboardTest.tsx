@@ -225,8 +225,8 @@ export function KeyboardTest() {
     <div className="flex flex-col gap-8 w-full max-w-full">
       <div className="flex flex-col md:flex-row justify-between items-end gap-4">
         <div className="space-y-1">
-          <h3 className="text-primary font-orbitron text-xl">Keyboard Matrix Test</h3>
-          <p className="text-sm text-muted-foreground">Press keys to verify functionality. Test your N-Key Rollover.</p>
+          <h3 className="text-primary font-orbitron text-2xl uppercase tracking-widest">Keyboard Matrix Test</h3>
+          <p className="text-sm text-muted-foreground">Press any key on your keyboard to see it light up below</p>
         </div>
         
         <div className="flex items-center gap-6">
@@ -329,7 +329,7 @@ export function KeyboardTest() {
         </div>
       </div>
       
-      <div className="flex justify-center gap-4 text-xs text-muted-foreground font-mono">
+      <div className="flex justify-center gap-4 text-xs text-muted-foreground font-mono mb-4">
         <div className="flex items-center gap-2">
           <div className="w-3 h-3 rounded bg-background border border-muted"></div>
           <span>Untested</span>
@@ -341,6 +341,24 @@ export function KeyboardTest() {
         <div className="flex items-center gap-2">
           <div className="w-3 h-3 rounded bg-primary border border-primary"></div>
           <span>Pressed</span>
+        </div>
+      </div>
+
+      <div className="p-8 bg-surface border border-secondary/30 rounded-lg">
+        <h3 className="text-primary font-orbitron text-2xl mb-4 uppercase tracking-widest">How This Test Works</h3>
+        <div className="space-y-4 text-lg text-muted-foreground font-roboto-mono leading-relaxed">
+          <p>
+            This keyboard diagnostic tests every key on your keyboard, including the main QWERTY section, numpad, navigation cluster, and function keys. Each key is displayed above in the exact layout of your keyboard.
+          </p>
+          <p>
+            <strong className="text-primary">Key Status:</strong> Keys start as gray (untested). When you press a key, it turns bright cyan (pressed) and lights up. Once pressed at least once, it remains highlighted in a dimmer cyan (verified) until you reset the test.
+          </p>
+          <p>
+            <strong className="text-primary">N-Key Rollover (NKRO):</strong> This test also verifies your keyboard's NKRO capability. NKRO means how many keys your keyboard can register simultaneously. Try pressing multiple keys at once—if they all light up, your keyboard supports true multi-key registration, which is essential for gaming and fast typing. If only some keys register, your keyboard may have ghosting limitations.
+          </p>
+          <p>
+            <strong className="text-primary">Progress Tracker:</strong> The "Verified" counter at the top right shows how many unique keys you've pressed out of the total available. Use the "RESET MATRIX" button to start fresh and test all keys again.
+          </p>
         </div>
       </div>
     </div>

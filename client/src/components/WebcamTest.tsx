@@ -84,14 +84,15 @@ export function WebcamTest() {
   }, []);
 
   return (
-    <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
-      <div className="lg:col-span-1 space-y-6">
-        <div>
-          <h3 className="text-primary font-orbitron text-xl mb-2">Webcam Diagnostics</h3>
-          <p className="text-muted-foreground text-sm">
-            Test your camera functionality, resolution, and frame rate. Video is processed locally and never transmitted.
-          </p>
-        </div>
+    <div className="flex flex-col gap-8">
+      <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
+        <div className="lg:col-span-1 space-y-6">
+          <div>
+            <h3 className="text-primary font-orbitron text-2xl uppercase tracking-widest">Webcam Diagnostics</h3>
+            <p className="text-muted-foreground text-sm mt-2">
+              Test your camera functionality, resolution, and frame rate
+            </p>
+          </div>
 
         <div className="space-y-4">
           <div className="flex gap-4">
@@ -172,13 +173,26 @@ export function WebcamTest() {
                 </div>
             )}
         </Card>
-        
-        <div className="mt-4 p-4 border-l-4 border-secondary bg-background/50">
-            <h4 className="text-primary font-orbitron text-sm mb-2">Privacy Note</h4>
-            <p className="text-xs text-muted-foreground">
-            This tool streams your webcam directly to your browser's local memory. 
-            No video data is recorded or sent to any server.
-            </p>
+      </div>
+
+      <div className="p-8 bg-surface border border-secondary/30 rounded-lg">
+        <h3 className="text-primary font-orbitron text-2xl mb-4 uppercase tracking-widest">Webcam Diagnostics Guide</h3>
+        <div className="space-y-4 text-lg text-muted-foreground font-roboto-mono leading-relaxed">
+          <p>
+            This tool tests your webcam's connection, power, and video stream quality. Click "Start Camera" to request access to your camera. The browser will ask for permission—approve it to proceed.
+          </p>
+          <p>
+            <strong className="text-primary">What you'll see:</strong> Once started, a live mirrored video feed appears showing what your camera sees. This preview helps you verify the camera is functioning and positioned correctly. A green "LIVE" indicator appears in the top-right corner when the stream is actively transmitting.
+          </p>
+          <p>
+            <strong className="text-primary">Stream Statistics:</strong> Below the camera controls, you'll see real-time stats including the camera's resolution (width x height in pixels) and frame rate (frames per second). A healthy webcam typically streams at 30 FPS or higher. Lower frame rates may indicate a slower connection or older hardware.
+          </p>
+          <p>
+            <strong className="text-primary">Device Information:</strong> The active camera's name appears in a green box when recording. This tells you which camera input the system detected (e.g., "Integrated Webcam" or "USB Camera 1"). If you have multiple cameras, try plugging them in one at a time to test each individually.
+          </p>
+          <p>
+            <strong className="text-primary">Privacy & Security:</strong> No video is recorded, saved, or transmitted to any server. Your webcam stream flows directly through your browser's local memory only. All data remains on your computer.
+          </p>
         </div>
       </div>
     </div>

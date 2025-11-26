@@ -113,15 +113,10 @@ export function MouseTest() {
   };
 
   return (
-    <div className="w-full grid grid-cols-1 lg:grid-cols-2 gap-8">
-      <div className="flex flex-col gap-6">
-        <div className="p-4 bg-surface border border-secondary/30 rounded">
-          <h3 className="text-primary font-orbitron text-sm mb-2 uppercase tracking-wide">About This Test</h3>
-          <p className="text-xs text-muted-foreground font-mono space-y-1">
-            Tests left, right, and middle mouse buttons plus scroll wheel functionality. If two rapid clicks register as a double-click fault (under 80ms), it indicates a failing microswitch that needs replacement.
-          </p>
-        </div>
-        <Card className="p-8 bg-surface border border-secondary/50 flex items-center justify-center min-h-[400px] relative overflow-hidden glow-border">
+    <div className="w-full flex flex-col gap-8">
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
+        <div className="flex flex-col gap-6">
+          <Card className="p-8 bg-surface border border-secondary/50 flex items-center justify-center min-h-[400px] relative overflow-hidden glow-border">
           <div 
             ref={testAreaRef}
             className="w-full h-full absolute inset-0 cursor-crosshair z-10"
@@ -198,23 +193,42 @@ export function MouseTest() {
         )}
       </div>
 
-      <div className="bg-surface border border-secondary/30 rounded-lg p-6 h-full">
-        <h3 className="text-primary font-orbitron mb-4 flex items-center gap-2">
-          <div className="w-2 h-2 bg-primary rounded-full animate-pulse" />
-          Event Log
-        </h3>
-        <div className="space-y-2 font-roboto-mono text-sm">
-          {history.length === 0 && (
-            <div className="text-muted-foreground italic py-4 text-center border border-dashed border-secondary/20 rounded">
-              Waiting for input...
-            </div>
-          )}
-          {history.map((event, i) => (
-            <div key={event.rawTime + i} className="flex justify-between items-center p-2 bg-background/50 border-l-2 border-secondary animate-in fade-in slide-in-from-left-2">
-              <span className="text-foreground">{event.button}</span>
-              <span className="text-primary">{event.timestamp}</span>
-            </div>
-          ))}
+        <div className="bg-surface border border-secondary/30 rounded-lg p-6 h-full">
+          <h3 className="text-primary font-orbitron mb-4 flex items-center gap-2">
+            <div className="w-2 h-2 bg-primary rounded-full animate-pulse" />
+            Event Log
+          </h3>
+          <div className="space-y-2 font-roboto-mono text-sm">
+            {history.length === 0 && (
+              <div className="text-muted-foreground italic py-4 text-center border border-dashed border-secondary/20 rounded">
+                Waiting for input...
+              </div>
+            )}
+            {history.map((event, i) => (
+              <div key={event.rawTime + i} className="flex justify-between items-center p-2 bg-background/50 border-l-2 border-secondary animate-in fade-in slide-in-from-left-2">
+                <span className="text-foreground">{event.button}</span>
+                <span className="text-primary">{event.timestamp}</span>
+              </div>
+            ))}
+          </div>
+        </div>
+      </div>
+
+      <div className="p-8 bg-surface border border-secondary/30 rounded-lg">
+        <h3 className="text-primary font-orbitron text-2xl mb-4 uppercase tracking-widest">Mouse Diagnostics Explained</h3>
+        <div className="space-y-4 text-lg text-muted-foreground font-roboto-mono leading-relaxed">
+          <p>
+            This tool tests all mouse buttons and scroll wheel functionality. Click the left, right, and middle buttons in the testing area above, and scroll to verify each component responds correctly.
+          </p>
+          <p>
+            <strong className="text-primary">Double-Click Fault Detection:</strong> The most common mouse failure is the "double-click fault." This occurs when the copper tension spring inside the microswitch degrades, causing a single physical click to register as two rapid electrical signals. Our tool detects this by measuring the milliseconds between signals—anything under 80ms indicates a likely hardware failure.
+          </p>
+          <p>
+            <strong className="text-primary">How it works:</strong> When you click, we record the timestamp. If the same button registers another click within 80 milliseconds, it's flagged as a potential fault. Watch the "Event Log" above to see all input history with precise timing.
+          </p>
+          <p>
+            <strong className="text-primary">Scroll Wheel Testing:</strong> Scroll up and down in the testing area to verify your scroll wheel is working smoothly. The direction indicators will light up green when scrolling is detected.
+          </p>
         </div>
       </div>
     </div>

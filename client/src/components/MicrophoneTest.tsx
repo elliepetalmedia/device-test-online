@@ -136,18 +136,15 @@ export function MicrophoneTest() {
   }, []);
 
   return (
-    <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
-      <div className="space-y-6">
-        <div>
-          <h3 className="text-primary font-orbitron text-xl mb-2">Microphone Test</h3>
-          <p className="text-muted-foreground text-sm mb-3">
-            Test your microphone input and speakers.
-          </p>
-          <div className="p-3 bg-surface border border-secondary/30 rounded text-sm font-mono space-y-1 text-muted-foreground text-xs">
-            <p><strong className="text-primary">Microphone:</strong> Displays real-time frequency visualization when audio input is detected. Speak, tap the mic, or make noise to see the bars react.</p>
-            <p><strong className="text-primary">Speakers:</strong> Click "Test Speakers" to play a 5-second musical tone. This confirms your audio output is working.</p>
+    <div className="flex flex-col gap-8">
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
+        <div className="space-y-6">
+          <div>
+            <h3 className="text-primary font-orbitron text-2xl uppercase tracking-widest">Microphone & Speaker Test</h3>
+            <p className="text-muted-foreground text-sm mt-2">
+              Test your audio input and output devices
+            </p>
           </div>
-        </div>
 
         <div className="space-y-3">
           <div className="flex gap-3">
@@ -205,6 +202,24 @@ export function MicrophoneTest() {
             </div>
           )}
         </Card>
+      </div>
+
+      <div className="p-8 bg-surface border border-secondary/30 rounded-lg">
+        <h3 className="text-primary font-orbitron text-2xl mb-4 uppercase tracking-widest">Audio Diagnostics Explained</h3>
+        <div className="space-y-4 text-lg text-muted-foreground font-roboto-mono leading-relaxed">
+          <p>
+            <strong className="text-primary">Microphone Test:</strong> Click "Start Microphone" to begin capturing audio. The visualization displays real-time frequency data from your microphone input. Speak into your mic, tap it, clap your hands, or make any noise to see the frequency bars light up and react. The taller the bars, the stronger the audio signal. This helps verify your microphone is connected, has permissions enabled, and is functioning properly.
+          </p>
+          <p>
+            <strong className="text-primary">What the bars show:</strong> The green-to-blue frequency visualization shows the distribution of sound across different frequency ranges. Low frequencies (bass) appear on the left, high frequencies (treble) on the right. A healthy microphone will show activity across the spectrum when you speak or make noise.
+          </p>
+          <p>
+            <strong className="text-primary">Speaker Test:</strong> Click "Test Speakers (1s Tone)" to play a pleasant 5-second musical chord through your speakers. This verifies that audio output is working on your system. You should hear a smooth, ascending musical tone. If you hear nothing, check your system volume, speaker connections, and audio output settings.
+          </p>
+          <p>
+            <strong className="text-primary">Privacy Note:</strong> No audio is recorded, saved, or transmitted. All analysis happens locally in your browser memory only. Your microphone and speaker data never leaves your computer.
+          </p>
+        </div>
       </div>
     </div>
   );

@@ -67,6 +67,7 @@ export function MicrophoneTest() {
     if (!ctx) return;
 
     const analyser = analyserRef.current;
+    analyser.fftSize = 256;
     const bufferLength = analyser.frequencyBinCount;
     const dataArray = new Uint8Array(bufferLength);
 
@@ -78,17 +79,18 @@ export function MicrophoneTest() {
       ctx.fillStyle = 'rgb(10, 10, 12)';
       ctx.fillRect(0, 0, canvas.width, canvas.height);
 
-      const barWidth = (canvas.width / bufferLength) * 2.5;
-      let x = 0;
+      const barWidth = Math.max(1, (canvas.width / bufferLength) * 2.5);
+      let xPos = 0;
 
       for (let i = 0; i < bufferLength; i++) {
-        const barHeight = (dataArray[i] / 255) * canvas.height;
-        const hue = 160 + (dataArray[i] / 255) * 60;
+        const value = dataArray[i] / 255;
+        const barHeight = value * canvas.height;
         
+        const hue = 160 + (value * 60);
         ctx.fillStyle = `hsl(${hue}, 100%, 50%)`;
-        ctx.fillRect(x, canvas.height - barHeight, barWidth, barHeight);
+        ctx.fillRect(xPos, canvas.height - barHeight, barWidth, barHeight);
         
-        x += barWidth + 1;
+        xPos += barWidth + 1;
       }
     };
 
@@ -181,7 +183,7 @@ export function MicrophoneTest() {
       </div>
 
       <div className="relative">
-        <Card className="bg-black border-secondary/30 p-2 overflow-hidden min-h-[400px] flex items-center justify-center glow-border">
+        <Card className="bg-black border-secondary/30 p-2 overflow-hidden min-h-[200px] flex items-center justify-center glow-border">
           {!isListening ? (
             <div className="text-center text-muted-foreground">
               <Activity className="w-12 h-12 mx-auto mb-2 opacity-20" />
@@ -190,10 +192,10 @@ export function MicrophoneTest() {
           ) : (
             <canvas
               ref={canvasRef}
-              width={500}
-              height={350}
+              width={250}
+              height={175}
               className="w-full h-full"
-              style={{ display: 'block', backgroundColor: 'rgb(10, 10, 12)' }}
+              style={{ display: 'block', backgroundColor: 'rgb(10, 10, 12)', maxWidth: '250px', maxHeight: '175px' }}
             />
           )}
 

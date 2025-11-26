@@ -196,5 +196,6 @@ export function WebcamTest() {
         </div>
       </div>
     </div>
+    </div>
   );
 }

@@ -177,6 +177,7 @@ export function MicrophoneTest() {
             </p>
           </div>
         )}
+        </div>
       </div>
 
       <div className="relative">
@@ -221,6 +222,7 @@ export function MicrophoneTest() {
           </p>
         </div>
       </div>
+    </div>
     </div>
   );
 }

@@ -100,19 +100,6 @@ export default function Home() {
               {activeModule === 'webcam' && <WebcamTest />}
             </div>
 
-            {/* SEO Content Article - EXACT HTML Content Requested */}
-            <article className="mt-24 border-t border-secondary/20 pt-12">
-               <div style={{ maxWidth: '800px', margin: '0 auto', color: '#c5c6c7' }}>
-                <h2 className="text-2xl text-primary font-orbitron mb-4">Diagnosing Mouse Double-Click Issues</h2>
-                <p className="mb-8 leading-relaxed">One of the most common failures in modern gaming mice is the "double-click" fault. This occurs when the copper tension spring inside the microswitch degrades, causing a single physical click to register as two rapid electrical signals. Our tool detects this by measuring the milliseconds between signals; anything under 80ms is typically a hardware failure.</p>
-
-                <h2 className="text-2xl text-primary font-orbitron mb-4">What is Keyboard Ghosting?</h2>
-                <p className="mb-8 leading-relaxed">"Ghosting" happens when a keyboard cannot register multiple keys pressed simultaneously. This is critical for gamers and fast typists. Use our Keyboard Test to verify your N-Key Rollover (NKRO) capabilities by pressing multiple keys at once.</p>
-
-                <h2 className="text-2xl text-primary font-orbitron mb-4">Checking for Dead Pixels</h2>
-                <p className="mb-8 leading-relaxed">A dead pixel is a picture element that fails to change color. By cycling through primary colors (Red, Green, Blue) and extremes (Black, White) in full-screen mode, you can easily spot stuck or dead pixels on your monitor.</p>
-              </div>
-            </article>
 
             <footer className="mt-16 py-8 border-t border-secondary/10 text-center text-sm text-muted-foreground font-mono">
               <div className="flex justify-center gap-6 mb-4">

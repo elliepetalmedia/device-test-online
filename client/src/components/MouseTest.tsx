@@ -115,6 +115,12 @@ export function MouseTest() {
   return (
     <div className="w-full grid grid-cols-1 lg:grid-cols-2 gap-8">
       <div className="flex flex-col gap-6">
+        <div className="p-4 bg-surface border border-secondary/30 rounded">
+          <h3 className="text-primary font-orbitron text-sm mb-2 uppercase tracking-wide">About This Test</h3>
+          <p className="text-xs text-muted-foreground font-mono space-y-1">
+            Tests left, right, and middle mouse buttons plus scroll wheel functionality. If two rapid clicks register as a double-click fault (under 80ms), it indicates a failing microswitch that needs replacement.
+          </p>
+        </div>
         <Card className="p-8 bg-surface border border-secondary/50 flex items-center justify-center min-h-[400px] relative overflow-hidden glow-border">
           <div 
             ref={testAreaRef}

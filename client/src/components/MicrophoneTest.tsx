@@ -103,20 +103,29 @@ export function MicrophoneTest() {
         audioContext.resume();
       }
 
-      const oscillator = audioContext.createOscillator();
       const gainNode = audioContext.createGain();
-
-      oscillator.frequency.value = 440;
-      oscillator.type = 'sine';
-
-      gainNode.gain.setValueAtTime(0.3, audioContext.currentTime);
-      gainNode.gain.exponentialRampToValueAtTime(0.01, audioContext.currentTime + 1);
-
-      oscillator.connect(gainNode);
       gainNode.connect(audioContext.destination);
+      gainNode.gain.setValueAtTime(0.3, audioContext.currentTime);
+      gainNode.gain.exponentialRampToValueAtTime(0.01, audioContext.currentTime + 5);
 
-      oscillator.start(audioContext.currentTime);
-      oscillator.stop(audioContext.currentTime + 1);
+      // Pleasant major chord progression: E-G-B (5 seconds)
+      const notes = [
+        { freq: 329.63, start: 0, duration: 1.2 },     // E
+        { freq: 392.00, start: 0.4, duration: 1.2 },   // G
+        { freq: 493.88, start: 0.8, duration: 1.2 },   // B
+        { freq: 329.63, start: 1.5, duration: 0.8 },   // E
+        { freq: 392.00, start: 2.0, duration: 0.8 },   // G
+        { freq: 493.88, start: 2.5, duration: 2.0 },   // B (long hold)
+      ];
+
+      notes.forEach(({ freq, start, duration }) => {
+        const osc = audioContext.createOscillator();
+        osc.type = 'sine';
+        osc.frequency.value = freq;
+        osc.connect(gainNode);
+        osc.start(audioContext.currentTime + start);
+        osc.stop(audioContext.currentTime + start + duration);
+      });
     } catch (err) {
       console.error("Test tone error:", err);
     }
@@ -131,9 +140,13 @@ export function MicrophoneTest() {
       <div className="space-y-6">
         <div>
           <h3 className="text-primary font-orbitron text-xl mb-2">Microphone Test</h3>
-          <p className="text-muted-foreground text-sm">
+          <p className="text-muted-foreground text-sm mb-3">
             Test your microphone input and speakers.
           </p>
+          <div className="p-3 bg-surface border border-secondary/30 rounded text-sm font-mono space-y-1 text-muted-foreground text-xs">
+            <p><strong className="text-primary">Microphone:</strong> Displays real-time frequency visualization when audio input is detected. Speak, tap the mic, or make noise to see the bars react.</p>
+            <p><strong className="text-primary">Speakers:</strong> Click "Test Speakers" to play a 5-second musical tone. This confirms your audio output is working.</p>
+          </div>
         </div>
 
         <div className="space-y-3">

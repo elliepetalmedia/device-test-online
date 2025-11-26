@@ -251,13 +251,13 @@ export function MicrophoneTest() {
         <h3 className="text-primary font-orbitron text-2xl mb-4 uppercase tracking-widest">How to Test Your Microphone</h3>
         <div className="space-y-4 text-lg text-muted-foreground font-roboto-mono leading-relaxed">
           <p>
-            <strong className="text-primary">Record Your Voice:</strong> Click "Start Recording" and speak into your microphone. The timer will countdown from 5 seconds. Once it reaches zero, the recording automatically stops and plays back your voice.
+            <strong className="text-primary">Record Your Voice:</strong> Click "Start Recording" and speak into your microphone. The timer will countdown from 5 seconds. Once it reaches zero, the recording automatically stops.
           </p>
           <p>
-            <strong className="text-primary">Hear Your Recording:</strong> After the countdown finishes, your voice will automatically play back through your speakers. If you can hear yourself, your microphone is working perfectly. This is the definitive test—if audio is captured and played back, the microphone is functional.
+            <strong className="text-primary">Play Your Recording:</strong> After the recording stops, click "Play Your Recording" to hear your voice played back through your speakers. If you can hear yourself, your microphone is working perfectly. This is the definitive test—if audio is captured and played back, the microphone is functional.
           </p>
           <p>
-            <strong className="text-primary">Reset:</strong> Click "Reset" to clear everything and record again. This will stop playback and prepare you for a fresh recording.
+            <strong className="text-primary">Reset:</strong> Click "Reset" to clear everything and record again. This will prepare you for a fresh recording.
           </p>
           <p>
             <strong className="text-primary">Speaker Test:</strong> Click "Test Speakers" to play a 5-second musical chord. This verifies your speaker output is working.

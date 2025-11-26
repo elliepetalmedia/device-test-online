@@ -97,14 +97,9 @@ export function MicrophoneTest() {
         audioUrlRef.current = url;
         setHasRecording(true);
 
-        if (streamRef.current) {
-          streamRef.current.getTracks().forEach(track => track.stop());
-        }
         if (audioContextRef.current) {
           audioContextRef.current.close();
         }
-
-        setTimeout(() => playRecording(), 500);
       };
 
       mediaRecorder.start();
@@ -112,14 +107,20 @@ export function MicrophoneTest() {
       setRecordingTime(5);
 
       let time = 5;
-      timerRef.current = setInterval(() => {
+      const interval = setInterval(() => {
         time -= 1;
         setRecordingTime(time);
         if (time <= 0) {
-          if (timerRef.current) clearTimeout(timerRef.current);
-          stopRecording();
+          clearInterval(interval);
+          mediaRecorder.stop();
+          setIsRecording(false);
+          
+          if (streamRef.current) {
+            streamRef.current.getTracks().forEach(track => track.stop());
+          }
         }
       }, 1000);
+      timerRef.current = interval as any;
 
     } catch (err: any) {
       setError(err.message || "Could not access microphone");

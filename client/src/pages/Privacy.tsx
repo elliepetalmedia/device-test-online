@@ -24,11 +24,6 @@ export default function Privacy() {
             <h3 className="text-xl font-bold text-foreground mb-2">2. Cookies</h3>
             <p>We may use cookies to ensure the website functions correctly. By using this site, you consent to the use of cookies.</p>
           </div>
-
-          <div>
-            <h3 className="text-xl font-bold text-foreground mb-2">3. Contact</h3>
-            <p>legal@devicetestonline.com</p>
-          </div>
         </div>
       </div>
     </div>

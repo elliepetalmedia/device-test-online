@@ -223,6 +223,5 @@ export function MicrophoneTest() {
         </div>
       </div>
     </div>
-    </div>
   );
 }

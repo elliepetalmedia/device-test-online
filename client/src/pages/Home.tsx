@@ -42,6 +42,7 @@ export default function Home() {
             Device Test online
           </h1>
           <p className="text-[10px] text-muted-foreground uppercase tracking-[0.2em] mt-1">Hardware Suite</p>
+          <p className="text-sm text-muted-foreground mt-4 leading-relaxed">Diagnose and test your computer peripherals with interactive hardware diagnostics.</p>
         </div>
         
         <nav className="p-4 space-y-2">

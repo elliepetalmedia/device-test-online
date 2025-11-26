@@ -38,25 +38,38 @@ export function MicrophoneTest() {
     try {
       const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
       streamRef.current = stream;
+      console.log("[MicTest] Stream obtained");
 
       const audioContext = new (window.AudioContext || (window as any).webkitAudioContext)();
       audioContextRef.current = audioContext;
+      console.log("[MicTest] AudioContext created");
 
       if (audioContext.state === 'suspended') {
         await audioContext.resume();
+        console.log("[MicTest] Context resumed");
       }
 
       const source = audioContext.createMediaStreamSource(stream);
       const analyser = audioContext.createAnalyser();
       analyser.fftSize = 2048;
       analyser.smoothingTimeConstant = 0.85;
+
+      // IMPORTANT: Connect analyser to a muted output so audio flows through the graph
+      // This is necessary for the analyser to receive data
+      const silentGain = audioContext.createGain();
+      silentGain.gain.value = 0; // Mute so user doesn't hear loopback
       
       source.connect(analyser);
+      analyser.connect(silentGain);
+      silentGain.connect(audioContext.destination);
+      
       analyserRef.current = analyser;
+      console.log("[MicTest] Audio graph connected with muted output");
 
       setIsListening(true);
       visualize();
     } catch (err: any) {
+      console.error("[MicTest] Error:", err);
       setError(err.message || "Could not access microphone");
     }
   };
@@ -75,10 +88,8 @@ export function MicrophoneTest() {
     const draw = () => {
       animationRef.current = requestAnimationFrame(draw);
 
-      // Get waveform data (time domain)
       analyser.getByteTimeDomainData(dataArray);
 
-      // Calculate RMS for amplitude
       let sum = 0;
       for (let i = 0; i < bufferLength; i++) {
         const normalized = (dataArray[i] - 128) / 128;
@@ -87,17 +98,11 @@ export function MicrophoneTest() {
       const rms = Math.sqrt(sum / bufferLength);
       setAmplitude(Math.min(100, rms * 300));
 
-      // Find peak for indicator
-      let peak = 0;
-      for (let i = 0; i < bufferLength; i++) {
-        if (dataArray[i] > peak) peak = dataArray[i];
-      }
-
       // Clear canvas
       ctx.fillStyle = 'rgb(10, 10, 12)';
       ctx.fillRect(0, 0, canvas.width, canvas.height);
 
-      // Draw grid lines
+      // Draw grid
       ctx.strokeStyle = 'rgba(102, 252, 241, 0.1)';
       ctx.lineWidth = 0.5;
       for (let i = 0; i < 5; i++) {
@@ -133,13 +138,7 @@ export function MicrophoneTest() {
 
       ctx.lineTo(canvas.width, canvas.height / 2);
       ctx.stroke();
-
-      // Draw peak indicator
-      const peakNorm = peak / 255;
-      if (peakNorm > 0.1) {
-        ctx.fillStyle = `rgba(102, 252, 241, ${Math.min(1, peakNorm)})`;
-        ctx.fillRect(canvas.width - 20, 5, 15, 15);
-      }
+      ctx.shadowColor = 'transparent';
     };
 
     draw();

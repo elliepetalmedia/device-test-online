@@ -1,15 +1,16 @@
 import React, { useState } from 'react';
 import { Link } from "wouter";
-import { MousePointer2, Keyboard, Monitor, Mic, Camera, Menu, X } from 'lucide-react';
+import { MousePointer2, Keyboard, Monitor, Mic, Camera, Gamepad2, Menu, X } from 'lucide-react';
 import { MouseTest } from '@/components/MouseTest';
 import { KeyboardTest } from '@/components/KeyboardTest';
 import { DeadPixelTest } from '@/components/DeadPixelTest';
 import { MicrophoneTest } from '@/components/MicrophoneTest';
 import { WebcamTest } from '@/components/WebcamTest';
+import { GamepadTest } from '@/components/GamepadTest';
 import { cn } from '@/lib/utils';
 
 export default function Home() {
-  const [activeModule, setActiveModule] = useState<'mouse' | 'keyboard' | 'pixel' | 'mic' | 'webcam'>('mouse');
+  const [activeModule, setActiveModule] = useState<'mouse' | 'keyboard' | 'pixel' | 'mic' | 'webcam' | 'gamepad'>('mouse');
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
 
   const NavItem = ({ id, icon: Icon, label }: { id: typeof activeModule, icon: any, label: string }) => (
@@ -51,6 +52,7 @@ export default function Home() {
           <NavItem id="pixel" icon={Monitor} label="PIXEL CHECK" />
           <NavItem id="mic" icon={Mic} label="MICROPHONE" />
           <NavItem id="webcam" icon={Camera} label="WEBCAM TEST" />
+          <NavItem id="gamepad" icon={Gamepad2} label="GAMEPAD TEST" />
         </nav>
 
         <div className="absolute bottom-0 left-0 w-full p-6 border-t border-secondary/20 bg-black/20">
@@ -89,6 +91,7 @@ export default function Home() {
                 {activeModule === 'pixel' && 'Dead Pixel Locator'}
                 {activeModule === 'mic' && 'Audio Input Check'}
                 {activeModule === 'webcam' && 'Webcam Diagnostics'}
+                {activeModule === 'gamepad' && 'Controller Input'}
               </h2>
               <div className="h-1 w-24 bg-gradient-to-r from-primary to-transparent rounded-full"></div>
             </header>
@@ -99,6 +102,7 @@ export default function Home() {
               {activeModule === 'pixel' && <DeadPixelTest />}
               {activeModule === 'mic' && <MicrophoneTest />}
               {activeModule === 'webcam' && <WebcamTest />}
+              {activeModule === 'gamepad' && <GamepadTest />}
             </div>
 
 

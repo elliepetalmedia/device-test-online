@@ -39,8 +39,8 @@ const MODULE_META: Record<ModuleType, { title: string, desc: string, icon?: any 
     icon: Keyboard
   },
   pixel: { 
-    title: 'Dead Pixel Test - Check Monitor for Defects', 
-    desc: 'Free online tool to detect dead or stuck pixels on your screen.',
+    title: 'Monitor Test - Dead Pixels & Refresh Rate', 
+    desc: 'Free online tool to detect dead or stuck pixels and verify monitor refresh rate.',
     icon: Monitor
   },
   mic: { 
@@ -176,7 +176,7 @@ export default function Home() {
         <nav className="p-4 space-y-2">
           <NavItem id="mouse" icon={MousePointer2} label="MOUSE TEST" />
           <NavItem id="keyboard" icon={Keyboard} label="KEYBOARD TEST" />
-          <NavItem id="pixel" icon={Monitor} label="PIXEL CHECK" />
+          <NavItem id="pixel" icon={Monitor} label="MONITOR TEST" />
           <NavItem id="mic" icon={Mic} label="MICROPHONE" />
           <NavItem id="webcam" icon={Camera} label="WEBCAM TEST" />
           <NavItem id="gamepad" icon={Gamepad2} label="GAMEPAD TEST" />
@@ -223,7 +223,7 @@ export default function Home() {
                 {activeModule === 'dashboard' && 'Hardware Diagnostic Suite'}
                 {activeModule === 'mouse' && 'Mouse Diagnostics'}
                 {activeModule === 'keyboard' && 'Keyboard Matrix'}
-                {activeModule === 'pixel' && 'Dead Pixel Locator'}
+                {activeModule === 'pixel' && 'Monitor Test & Refresh Rate'}
                 {activeModule === 'mic' && 'Audio Input Check'}
                 {activeModule === 'webcam' && 'Webcam Diagnostics'}
                 {activeModule === 'gamepad' && 'Controller Input'}

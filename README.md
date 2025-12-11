@@ -20,8 +20,7 @@ Whether you are buying a used monitor, setting up a new gaming rig, or troublesh
 - **Gamepad / Controller Tester:** Full API support for Xbox, PlayStation, and generic USB controllers (Buttons, Joysticks, and Triggers).
 
 ### 🖥️ Display & Camera
-- **Dead Pixel Locator:** High-contrast color cycling to spot stuck or dead pixels on LCD/OLED panels.
-- **Monitor Refresh Rate:** Validates the *actual* browser frame rate to ensure your 144Hz/240Hz monitor is configured correctly in OS settings.
+- **Monitor Test (Pixels & Refresh):** Combined tool to spot dead/stuck pixels with high-contrast color cycling AND validate your *actual* browser refresh rate (Hz) in real-time.
 - **Webcam & Microphone:** Instant feedback on audio levels and video clarity without joining a call.
 
 ### 🛡️ Privacy & Architecture

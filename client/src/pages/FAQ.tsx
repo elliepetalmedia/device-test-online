@@ -93,7 +93,7 @@ export default function FAQ() {
           {/* Monitor Section */}
           <section>
             <h2 className="text-2xl font-orbitron text-primary mb-4 flex items-center gap-3 border-b border-primary/20 pb-2">
-              <Monitor className="w-6 h-6" /> Monitor & Pixels
+              <Monitor className="w-6 h-6" /> Monitor Test (Pixels & Refresh)
             </h2>
             <Accordion type="single" collapsible className="w-full">
               <AccordionItem value="dead-vs-stuck">

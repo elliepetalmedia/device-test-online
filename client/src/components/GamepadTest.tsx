@@ -330,7 +330,7 @@ export function GamepadTest() {
                   >
                     Test Vibration
                   </button>
-                  <div className="flex flex-col text-[10px] leading-tight text-muted-foreground/80 font-mono">
+                  <div className="flex flex-col text-base leading-tight text-muted-foreground/80 font-mono">
                     <span className="text-green-400">Chrome/Edge: Supported</span>
                     <span className="text-orange-400">Firefox: Limited</span>
                     <span className="text-red-400">Safari: Not Supported</span>

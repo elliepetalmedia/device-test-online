@@ -2,6 +2,7 @@ import React, { useEffect, useState, useRef } from 'react';
 import { Gamepad2, AlertCircle, CheckCircle2 } from 'lucide-react';
 import { Card } from '@/components/ui/card';
 import { cn } from '@/lib/utils';
+import { useToast } from "@/hooks/use-toast";
 
 interface GamepadState {
   id: string;
@@ -16,6 +17,7 @@ export function GamepadTest() {
   const [gamepads, setGamepads] = useState<Record<number, GamepadState>>({});
   const [selectedLayout, setSelectedLayout] = useState<'generic' | 'xbox' | 'playstation'>('generic');
   const requestRef = useRef<number>();
+  const { toast } = useToast();
 
   const scanGamepads = () => {
     // @ts-ignore
@@ -190,21 +192,64 @@ export function GamepadTest() {
   };
 
   const testVibration = async (gamepad: GamepadState) => {
-    // @ts-ignore - vibrationActuator is not fully typed in all TS versions yet
     const gp = navigator.getGamepads()[gamepad.index];
-    if (gp && gp.vibrationActuator) {
+    
+    if (!gp) {
+      toast({
+        variant: "destructive",
+        title: "Controller Not Found",
+        description: "Could not find the gamepad instance. Try reconnecting.",
+      });
+      return;
+    }
+
+    // @ts-ignore - vibrationActuator is not fully typed in all TS versions yet
+    if (gp.vibrationActuator) {
       try {
+        // @ts-ignore
         await gp.vibrationActuator.playEffect("dual-rumble", {
           startDelay: 0,
           duration: 1000,
           weakMagnitude: 1.0,
           strongMagnitude: 1.0,
         });
-        console.log("Vibration command sent successfully");
-      } catch (error) {
+        toast({
+          title: "Vibration Sent",
+          description: "Sent dual-rumble command to controller.",
+        });
+      } catch (error: any) {
         console.error("Vibration failed:", error);
+        toast({
+          variant: "destructive",
+          title: "Vibration Failed",
+          description: `Error: ${error.message || "Unknown error"}`,
+        });
       }
+    } 
+    // Fallback for older implementations (Firefox often uses hapticActuators)
+    // @ts-ignore
+    else if (gp.hapticActuators && gp.hapticActuators.length > 0) {
+       try {
+         // @ts-ignore
+         await gp.hapticActuators[0].pulse(1.0, 1000);
+         toast({
+          title: "Vibration Sent",
+          description: "Sent haptic pulse command to controller.",
+        });
+       } catch (error: any) {
+         console.error("Haptic pulse failed", error);
+         toast({
+            variant: "destructive",
+            title: "Haptic Pulse Failed",
+            description: `Error: ${error.message || "Unknown error"}`,
+        });
+       }
     } else {
+      toast({
+        variant: "destructive",
+        title: "Not Supported",
+        description: "Vibration API is not supported by this browser or controller.",
+      });
       console.warn("Vibration not supported on this device or browser");
     }
   };

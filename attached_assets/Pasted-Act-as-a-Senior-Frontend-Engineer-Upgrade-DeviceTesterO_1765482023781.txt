@@ -1,0 +1,39 @@
+Act as a Senior Frontend Engineer. Upgrade "DeviceTesterOnline" to use "Virtual Routing" (SPA Mode) to improve SEO without changing the single-page layout.
+
+### 1. NETLIFY CONFIGURATION (Crucial)
+- Create a file named `public/_redirects` (or just `_redirects` in the root).
+- Add this single line to it: `/* /index.html 200`
+- *Reason:* This tells Netlify to send all traffic (like /mic-test) to index.html instead of showing a 404 error.
+
+### 2. JAVASCRIPT ROUTER (script.js)
+Implement a client-side router that runs on page load and on tab clicks.
+
+**A. Define Routes:**
+Create a mapping object connecting URL paths to your existing Tab IDs and specific SEO metadata.
+Example structure:
+const routes = {
+  '/': { tabId: 'home', title: 'DeviceTesterOnline - Free Hardware Testing Tools', desc: 'Test your microphone, screen, keyboard, and webcam online.' },
+  '/dead-pixel-test': { tabId: 'pixel-tab', title: 'Dead Pixel Test - Check Monitor for Defects', desc: 'Free online tool to detect dead or stuck pixels on your screen.' },
+  '/microphone-test': { tabId: 'mic-tab', title: 'Mic Test - Check Microphone Online', desc: 'Test your microphone quality and volume instantly.' },
+  '/keyboard-test': { tabId: 'keyboard-tab', title: 'Keyboard Tester - Ghosting & Key Check', desc: 'Check for broken keys and ghosting on your keyboard.' }
+  // Add other tools as needed
+};
+
+**B. Handle Initial Load:**
+- On `window.load`, check `window.location.pathname`.
+- If the path matches a route, automatically `click()` that tab to open it.
+- If no match, default to Home.
+
+**C. Handle Tab Clicks (Update URL):**
+- Update your existing "Tab Click" event listener.
+- When a user clicks a tab, use `history.pushState(null, '', '/new-path')` to change the URL in the browser bar without reloading.
+- Update `document.title` and the `<meta name="description">` content immediately to match the new tool.
+
+**D. Handle Back Button:**
+- Listen for the `popstate` event. When the user hits Back, switch to the correct tab based on the previous URL.
+
+### 3. SEO CONTENT INJECTION
+- Ensure that even though the tools are on one page, the `<h1 id="main-title">` text changes dynamically when the tab changes (e.g., change "Device Tester" to "Microphone Tester").
+
+### GOAL
+The site should feel exactly the same (fast, no reloads), but if I refresh `/microphone-test`, it should load directly to the Mic tool with the correct Title tag for Google.

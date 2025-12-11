@@ -1,5 +1,5 @@
-import React, { useState } from 'react';
-import { Link } from "wouter";
+import React, { useState, useEffect } from 'react';
+import { Link, useLocation } from "wouter";
 import { MousePointer2, Keyboard, Monitor, Mic, Camera, Gamepad2, Menu, X, HelpCircle } from 'lucide-react';
 import { MouseTest } from '@/components/MouseTest';
 import { KeyboardTest } from '@/components/KeyboardTest';
@@ -9,27 +9,100 @@ import { WebcamTest } from '@/components/WebcamTest';
 import { GamepadTest } from '@/components/GamepadTest';
 import { cn } from '@/lib/utils';
 
+type ModuleType = 'mouse' | 'keyboard' | 'pixel' | 'mic' | 'webcam' | 'gamepad';
+
+const MODULE_ROUTES: Record<ModuleType, string> = {
+  mouse: '/mouse-test',
+  keyboard: '/keyboard-test',
+  pixel: '/dead-pixel-test',
+  mic: '/microphone-test',
+  webcam: '/webcam-test',
+  gamepad: '/gamepad-test'
+};
+
+const MODULE_META: Record<ModuleType, { title: string, desc: string }> = {
+  mouse: { 
+    title: 'Mouse Test - Check Clicks & Polling Rate', 
+    desc: 'Test your mouse double-click, polling rate, and scroll wheel online.' 
+  },
+  keyboard: { 
+    title: 'Keyboard Tester - Ghosting & Key Check', 
+    desc: 'Check for broken keys and ghosting on your keyboard.' 
+  },
+  pixel: { 
+    title: 'Dead Pixel Test - Check Monitor for Defects', 
+    desc: 'Free online tool to detect dead or stuck pixels on your screen.' 
+  },
+  mic: { 
+    title: 'Mic Test - Check Microphone Online', 
+    desc: 'Test your microphone quality and volume instantly.' 
+  },
+  webcam: { 
+    title: 'Webcam Test - Check Camera Online', 
+    desc: 'Test your webcam resolution and functionality online.' 
+  },
+  gamepad: { 
+    title: 'Gamepad Tester - Controller Input', 
+    desc: 'Test your game controller buttons, axes, and vibration.' 
+  }
+};
+
 export default function Home() {
-  const [activeModule, setActiveModule] = useState<'mouse' | 'keyboard' | 'pixel' | 'mic' | 'webcam' | 'gamepad'>('mouse');
+  const [location] = useLocation();
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
 
-  const NavItem = ({ id, icon: Icon, label }: { id: typeof activeModule, icon: any, label: string }) => (
-    <button
-      onClick={() => {
-        setActiveModule(id);
-        setMobileMenuOpen(false);
-      }}
-      className={cn(
-        "w-full flex items-center gap-3 px-4 py-3 rounded transition-all duration-200 font-orbitron text-sm tracking-wide group",
-        activeModule === id 
-          ? "bg-primary/10 text-primary border-l-4 border-primary shadow-[inset_10px_0_20px_-10px_rgba(102,252,241,0.2)]" 
-          : "text-muted-foreground hover:text-foreground hover:bg-surface"
-      )}
-    >
-      <Icon className={cn("w-5 h-5 transition-colors", activeModule === id ? "text-primary drop-shadow-[0_0_5px_rgba(102,252,241,0.8)]" : "group-hover:text-foreground")} />
-      {label}
-    </button>
-  );
+  const getModuleFromPath = (path: string): ModuleType => {
+    switch (path) {
+      case '/keyboard-test': return 'keyboard';
+      case '/dead-pixel-test': return 'pixel';
+      case '/microphone-test': return 'mic';
+      case '/webcam-test': return 'webcam';
+      case '/gamepad-test': return 'gamepad';
+      case '/mouse-test': return 'mouse';
+      default: return 'mouse'; 
+    }
+  };
+
+  const activeModule = getModuleFromPath(location);
+
+  useEffect(() => {
+    const meta = MODULE_META[activeModule];
+    document.title = meta.title + ' | Device Test Online';
+    
+    // Update meta description if it exists, or create it if not? 
+    // Usually it exists in index.html. We just update it.
+    const metaDesc = document.querySelector('meta[name="description"]');
+    if (metaDesc) {
+      metaDesc.setAttribute('content', meta.desc);
+    }
+    
+    // Also update OG tags for social sharing
+    const ogTitle = document.querySelector('meta[property="og:title"]');
+    if (ogTitle) ogTitle.setAttribute('content', meta.title);
+    
+    const ogDesc = document.querySelector('meta[property="og:description"]');
+    if (ogDesc) ogDesc.setAttribute('content', meta.desc);
+
+  }, [activeModule]);
+
+  const NavItem = ({ id, icon: Icon, label }: { id: ModuleType, icon: any, label: string }) => {
+    const isActive = activeModule === id;
+    const href = MODULE_ROUTES[id];
+    
+    return (
+      <Link href={href} onClick={() => setMobileMenuOpen(false)}>
+        <a className={cn(
+          "w-full flex items-center gap-3 px-4 py-3 rounded transition-all duration-200 font-orbitron text-sm tracking-wide group cursor-pointer",
+          isActive 
+            ? "bg-primary/10 text-primary border-l-4 border-primary shadow-[inset_10px_0_20px_-10px_rgba(102,252,241,0.2)]" 
+            : "text-muted-foreground hover:text-foreground hover:bg-surface"
+        )}>
+          <Icon className={cn("w-5 h-5 transition-colors", isActive ? "text-primary drop-shadow-[0_0_5px_rgba(102,252,241,0.8)]" : "group-hover:text-foreground")} />
+          {label}
+        </a>
+      </Link>
+    );
+  };
 
   return (
     <div className="min-h-screen bg-background text-foreground flex flex-col md:flex-row">

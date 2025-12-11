@@ -189,16 +189,23 @@ export function GamepadTest() {
     );
   };
 
-  const testVibration = (gamepad: GamepadState) => {
+  const testVibration = async (gamepad: GamepadState) => {
     // @ts-ignore - vibrationActuator is not fully typed in all TS versions yet
     const gp = navigator.getGamepads()[gamepad.index];
     if (gp && gp.vibrationActuator) {
-      gp.vibrationActuator.playEffect("dual-rumble", {
-        startDelay: 0,
-        duration: 1000,
-        weakMagnitude: 1.0,
-        strongMagnitude: 1.0,
-      });
+      try {
+        await gp.vibrationActuator.playEffect("dual-rumble", {
+          startDelay: 0,
+          duration: 1000,
+          weakMagnitude: 1.0,
+          strongMagnitude: 1.0,
+        });
+        console.log("Vibration command sent successfully");
+      } catch (error) {
+        console.error("Vibration failed:", error);
+      }
+    } else {
+      console.warn("Vibration not supported on this device or browser");
     }
   };
 
@@ -268,13 +275,13 @@ export function GamepadTest() {
                 <h4 className="font-orbitron text-lg text-primary truncate max-w-md" title={gamepad.id}>
                   {gamepad.id}
                 </h4>
-                <div className="flex gap-4 items-center mt-1">
+                <div className="flex gap-4 items-center mt-2">
                   <div className="text-xs font-mono text-muted-foreground">
                     Index: {gamepad.index} | Buttons: {gamepad.buttons.length} | Axes: {gamepad.axes.length}
                   </div>
                   <button 
                     onClick={() => testVibration(gamepad)}
-                    className="text-[10px] bg-primary/20 hover:bg-primary/40 text-primary border border-primary/50 px-2 py-0.5 rounded transition-colors uppercase font-bold tracking-wider"
+                    className="text-sm bg-primary/20 hover:bg-primary/40 text-primary border border-primary/50 px-4 py-2 rounded transition-colors uppercase font-bold tracking-wider"
                   >
                     Test Vibration
                   </button>

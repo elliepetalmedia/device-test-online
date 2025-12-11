@@ -330,17 +330,10 @@ export function GamepadTest() {
                   >
                     Test Vibration
                   </button>
-                  <div className="group relative">
-                    <AlertCircle className="w-4 h-4 text-muted-foreground cursor-help" />
-                    <div className="absolute left-1/2 bottom-full mb-2 -translate-x-1/2 w-64 p-3 bg-black/90 border border-white/10 rounded text-xs text-muted-foreground opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none z-50">
-                      <p className="font-bold text-white mb-1">Vibration Support</p>
-                      <ul className="list-disc pl-3 space-y-1">
-                        <li><strong className="text-green-400">Chrome/Edge:</strong> Best support</li>
-                        <li><strong className="text-orange-400">Firefox:</strong> Limited (requires settings)</li>
-                        <li><strong className="text-red-400">macOS/Safari:</strong> Not supported</li>
-                      </ul>
-                      <p className="mt-2 opacity-80">This is a browser limitation, not a bug in the tool.</p>
-                    </div>
+                  <div className="flex flex-col text-[10px] leading-tight text-muted-foreground/80 font-mono">
+                    <span className="text-green-400">Chrome/Edge: Supported</span>
+                    <span className="text-orange-400">Firefox: Limited</span>
+                    <span className="text-red-400">Safari: Not Supported</span>
                   </div>
                 </div>
               </div>

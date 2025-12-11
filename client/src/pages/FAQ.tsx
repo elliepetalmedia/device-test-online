@@ -179,6 +179,22 @@ export default function FAQ() {
                   </p>
                 </AccordionContent>
               </AccordionItem>
+              <AccordionItem value="browser-vibration">
+                <AccordionTrigger className="font-bold text-lg text-foreground hover:text-primary transition-colors">Vibration Test not working?</AccordionTrigger>
+                <AccordionContent className="text-gray-300 leading-relaxed text-base">
+                  <p className="mb-2">
+                    The vibration test relies on the <strong>Gamepad API's vibrationActuator</strong> feature, which is not supported by all browsers or operating systems.
+                  </p>
+                  <ul className="list-disc pl-6 space-y-1 mb-2">
+                     <li><strong>Chrome / Edge / Opera:</strong> Excellent support. Vibration works on most Xbox and PlayStation controllers.</li>
+                     <li><strong>Firefox:</strong> Limited support. May require enabling experimental flags or specific controller drivers.</li>
+                     <li><strong>Safari (macOS/iOS):</strong> No support. Apple does not currently allow websites to trigger controller vibration.</li>
+                  </ul>
+                  <p>
+                    <strong>Solution:</strong> If you need to test vibration, please try opening this website in <strong>Google Chrome</strong> or <strong>Microsoft Edge</strong>.
+                  </p>
+                </AccordionContent>
+              </AccordionItem>
             </Accordion>
           </section>
         </div>

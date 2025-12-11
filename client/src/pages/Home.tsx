@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { Link, useLocation } from "wouter";
-import { MousePointer2, Keyboard, Monitor, Mic, Camera, Gamepad2, Menu, X, HelpCircle } from 'lucide-react';
+import { MousePointer2, Keyboard, Monitor, Mic, Camera, Gamepad2, Menu, X, HelpCircle, LayoutGrid, ArrowRight } from 'lucide-react';
 import { MouseTest } from '@/components/MouseTest';
 import { KeyboardTest } from '@/components/KeyboardTest';
 import { DeadPixelTest } from '@/components/DeadPixelTest';
@@ -8,10 +8,12 @@ import { MicrophoneTest } from '@/components/MicrophoneTest';
 import { WebcamTest } from '@/components/WebcamTest';
 import { GamepadTest } from '@/components/GamepadTest';
 import { cn } from '@/lib/utils';
+import { Card } from '@/components/ui/card';
 
-type ModuleType = 'mouse' | 'keyboard' | 'pixel' | 'mic' | 'webcam' | 'gamepad';
+type ModuleType = 'mouse' | 'keyboard' | 'pixel' | 'mic' | 'webcam' | 'gamepad' | 'dashboard';
 
 const MODULE_ROUTES: Record<ModuleType, string> = {
+  dashboard: '/',
   mouse: '/mouse-test',
   keyboard: '/keyboard-test',
   pixel: '/dead-pixel-test',
@@ -20,30 +22,41 @@ const MODULE_ROUTES: Record<ModuleType, string> = {
   gamepad: '/gamepad-test'
 };
 
-const MODULE_META: Record<ModuleType, { title: string, desc: string }> = {
+const MODULE_META: Record<ModuleType, { title: string, desc: string, icon?: any }> = {
+  dashboard: {
+    title: 'Device Test Online - Free Hardware Diagnostic Suite',
+    desc: 'Test your mouse, keyboard, monitor, microphone, webcam, and gamepad online instantly. Privacy-first, no installs required.',
+    icon: LayoutGrid
+  },
   mouse: { 
     title: 'Mouse Test - Check Clicks & Polling Rate', 
-    desc: 'Test your mouse double-click, polling rate, and scroll wheel online.' 
+    desc: 'Test your mouse double-click, polling rate, and scroll wheel online.',
+    icon: MousePointer2
   },
   keyboard: { 
     title: 'Keyboard Tester - Ghosting & Key Check', 
-    desc: 'Check for broken keys and ghosting on your keyboard.' 
+    desc: 'Check for broken keys and ghosting on your keyboard.',
+    icon: Keyboard
   },
   pixel: { 
     title: 'Dead Pixel Test - Check Monitor for Defects', 
-    desc: 'Free online tool to detect dead or stuck pixels on your screen.' 
+    desc: 'Free online tool to detect dead or stuck pixels on your screen.',
+    icon: Monitor
   },
   mic: { 
     title: 'Mic Test - Check Microphone Online', 
-    desc: 'Test your microphone quality and volume instantly.' 
+    desc: 'Test your microphone quality and volume instantly.',
+    icon: Mic
   },
   webcam: { 
     title: 'Webcam Test - Check Camera Online', 
-    desc: 'Test your webcam resolution and functionality online.' 
+    desc: 'Test your webcam resolution and functionality online.',
+    icon: Camera
   },
   gamepad: { 
     title: 'Gamepad Tester - Controller Input', 
-    desc: 'Test your game controller buttons, axes, and vibration.' 
+    desc: 'Test your game controller buttons, axes, and vibration.',
+    icon: Gamepad2
   }
 };
 
@@ -53,13 +66,14 @@ export default function Home() {
 
   const getModuleFromPath = (path: string): ModuleType => {
     switch (path) {
+      case '/': return 'dashboard';
       case '/keyboard-test': return 'keyboard';
       case '/dead-pixel-test': return 'pixel';
       case '/microphone-test': return 'mic';
       case '/webcam-test': return 'webcam';
       case '/gamepad-test': return 'gamepad';
       case '/mouse-test': return 'mouse';
-      default: return 'mouse'; 
+      default: return 'dashboard'; 
     }
   };
 
@@ -67,7 +81,7 @@ export default function Home() {
 
   useEffect(() => {
     const meta = MODULE_META[activeModule];
-    document.title = meta.title + ' | Device Test Online';
+    document.title = meta.title;
     
     // Update meta description if it exists, or create it if not? 
     // Usually it exists in index.html. We just update it.
@@ -103,6 +117,46 @@ export default function Home() {
       </Link>
     );
   };
+
+  const DashboardView = () => (
+    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+      {(Object.keys(MODULE_ROUTES) as ModuleType[])
+        .filter(key => key !== 'dashboard')
+        .map((key) => {
+          const meta = MODULE_META[key];
+          const Icon = meta.icon;
+          return (
+            <Link key={key} href={MODULE_ROUTES[key]}>
+              <a className="group block h-full">
+                <Card className="h-full bg-black/40 border-primary/20 hover:border-primary/50 hover:bg-primary/5 transition-all duration-300 p-6 flex flex-col backdrop-blur-sm relative overflow-hidden">
+                  <div className="absolute top-0 right-0 p-4 opacity-5 group-hover:opacity-10 transition-opacity">
+                    <Icon className="w-32 h-32 text-primary" />
+                  </div>
+                  
+                  <div className="flex items-center gap-4 mb-4 z-10">
+                    <div className="p-3 rounded-lg bg-primary/10 border border-primary/20 group-hover:bg-primary/20 transition-colors">
+                      <Icon className="w-8 h-8 text-primary" />
+                    </div>
+                  </div>
+                  
+                  <h3 className="text-xl font-orbitron font-bold text-foreground mb-2 group-hover:text-primary transition-colors z-10">
+                    {meta.title.split(' - ')[0]}
+                  </h3>
+                  
+                  <p className="text-muted-foreground text-sm leading-relaxed mb-6 flex-1 z-10">
+                    {meta.desc}
+                  </p>
+                  
+                  <div className="flex items-center text-primary text-sm font-bold uppercase tracking-wider z-10">
+                    Start Test <ArrowRight className="w-4 h-4 ml-2 group-hover:translate-x-1 transition-transform" />
+                  </div>
+                </Card>
+              </a>
+            </Link>
+          );
+      })}
+    </div>
+  );
 
   return (
     <div className="min-h-screen bg-background text-foreground flex flex-col md:flex-row">
@@ -166,6 +220,7 @@ export default function Home() {
             
             <header className="mb-8 animate-in fade-in slide-in-from-top-4 duration-500">
               <h2 className="text-3xl md:text-4xl font-orbitron text-foreground glow-text mb-2">
+                {activeModule === 'dashboard' && 'Hardware Diagnostic Suite'}
                 {activeModule === 'mouse' && 'Mouse Diagnostics'}
                 {activeModule === 'keyboard' && 'Keyboard Matrix'}
                 {activeModule === 'pixel' && 'Dead Pixel Locator'}
@@ -177,6 +232,7 @@ export default function Home() {
             </header>
 
             <div className="min-h-[500px] animate-in fade-in zoom-in-95 duration-300">
+              {activeModule === 'dashboard' && <DashboardView />}
               {activeModule === 'mouse' && <MouseTest />}
               {activeModule === 'keyboard' && <KeyboardTest />}
               {activeModule === 'pixel' && <DeadPixelTest />}

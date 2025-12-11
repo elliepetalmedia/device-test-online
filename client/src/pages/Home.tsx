@@ -113,7 +113,7 @@ export default function Home() {
       )}>
         <div className="p-6 border-b border-secondary/20">
           <h1 className="font-orbitron font-black text-2xl text-transparent bg-clip-text bg-gradient-to-r from-primary to-secondary drop-shadow-[0_0_10px_rgba(102,252,241,0.3)]">
-            Device Test online
+            Device Test Online
           </h1>
           <p className="text-[10px] text-muted-foreground uppercase tracking-[0.2em] mt-1">Hardware Suite</p>
           <p className="text-sm text-muted-foreground mt-4 leading-relaxed">Diagnose and test your computer peripherals with interactive hardware diagnostics.</p>
@@ -155,7 +155,7 @@ export default function Home() {
       <main className="flex-1 flex flex-col h-screen overflow-hidden">
         {/* Mobile Header */}
         <header className="md:hidden p-4 border-b border-secondary/20 flex justify-between items-center bg-background/80 backdrop-blur sticky top-0 z-20">
-          <span className="font-orbitron font-bold text-primary">Device Test online</span>
+          <span className="font-orbitron font-bold text-primary">Device Test Online</span>
           <button onClick={() => setMobileMenuOpen(true)} className="text-foreground">
             <Menu />
           </button>

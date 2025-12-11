@@ -189,6 +189,19 @@ export function GamepadTest() {
     );
   };
 
+  const testVibration = (gamepad: GamepadState) => {
+    // @ts-ignore - vibrationActuator is not fully typed in all TS versions yet
+    const gp = navigator.getGamepads()[gamepad.index];
+    if (gp && gp.vibrationActuator) {
+      gp.vibrationActuator.playEffect("dual-rumble", {
+        startDelay: 0,
+        duration: 1000,
+        weakMagnitude: 1.0,
+        strongMagnitude: 1.0,
+      });
+    }
+  };
+
   return (
     <div className="space-y-6">
       <Card className="p-6 bg-black/40 border-primary/20 backdrop-blur-sm">
@@ -255,8 +268,16 @@ export function GamepadTest() {
                 <h4 className="font-orbitron text-lg text-primary truncate max-w-md" title={gamepad.id}>
                   {gamepad.id}
                 </h4>
-                <div className="text-xs font-mono text-muted-foreground mt-1">
-                  Index: {gamepad.index} | Buttons: {gamepad.buttons.length} | Axes: {gamepad.axes.length}
+                <div className="flex gap-4 items-center mt-1">
+                  <div className="text-xs font-mono text-muted-foreground">
+                    Index: {gamepad.index} | Buttons: {gamepad.buttons.length} | Axes: {gamepad.axes.length}
+                  </div>
+                  <button 
+                    onClick={() => testVibration(gamepad)}
+                    className="text-[10px] bg-primary/20 hover:bg-primary/40 text-primary border border-primary/50 px-2 py-0.5 rounded transition-colors uppercase font-bold tracking-wider"
+                  >
+                    Test Vibration
+                  </button>
                 </div>
               </div>
               <div className="px-2 py-1 bg-primary/20 border border-primary text-primary text-xs font-bold rounded uppercase tracking-wider animate-pulse">
@@ -313,8 +334,8 @@ export function GamepadTest() {
       )}
 
       <Card className="p-6 bg-black/20 border-white/5">
-        <h4 className="font-orbitron text-sm font-bold text-white mb-3">How this test works</h4>
-        <div className="space-y-2 text-sm text-muted-foreground font-mono leading-relaxed">
+        <h4 className="font-orbitron text-base font-bold text-white mb-3">How this test works</h4>
+        <div className="space-y-2 text-base text-muted-foreground font-mono leading-relaxed">
           <p>
             1. <strong className="text-primary">Connect your controller:</strong> Plug in your controller via USB or connect via Bluetooth.
           </p>
@@ -327,7 +348,7 @@ export function GamepadTest() {
           <p>
             4. <strong className="text-primary">Select Layout:</strong> Use the buttons at the top to switch between Generic, Xbox, and PlayStation visual layouts to match your specific controller.
           </p>
-          <p className="pt-2 italic opacity-70">
+          <p className="pt-2 italic opacity-70 text-sm">
             Note: Axis values range from -1.0 to 1.0. If your analog sticks show "drift" (movement when not touched), it indicates hardware wear.
           </p>
         </div>

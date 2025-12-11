@@ -2,10 +2,6 @@
 
 **A privacy-first, client-side suite for testing hardware peripherals directly in the browser.**
 
-[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
-[![Website Status](https://img.shields.io/website-up-down-green-red/http/devicetesteronline.com.svg)](https://devicetesteronline.com)
-[![PRs Welcome](https://img.shields.io/badge/PRs-welcome-brightgreen.svg)](http://makeapullrequest.com)
-
 **Live Demo:** [https://devicetesteronline.com](https://devicetesteronline.com)
 
 ---
@@ -31,3 +27,4 @@ Whether you are buying a used monitor, setting up a new gaming rig, or troublesh
 ### 🛡️ Privacy & Architecture
 - **Zero-Knowledge:** All tests run locally using standard HTML5 APIs (`Navigator`, `Gamepad API`, `AudioContext`).
 - **No Installs:** Works instantly in Chrome, Firefox, Edge, and Safari.
+- **MIT License.

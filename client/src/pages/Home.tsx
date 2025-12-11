@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { Link } from "wouter";
-import { MousePointer2, Keyboard, Monitor, Mic, Camera, Gamepad2, Menu, X } from 'lucide-react';
+import { MousePointer2, Keyboard, Monitor, Mic, Camera, Gamepad2, Menu, X, HelpCircle } from 'lucide-react';
 import { MouseTest } from '@/components/MouseTest';
 import { KeyboardTest } from '@/components/KeyboardTest';
 import { DeadPixelTest } from '@/components/DeadPixelTest';
@@ -53,6 +53,13 @@ export default function Home() {
           <NavItem id="mic" icon={Mic} label="MICROPHONE" />
           <NavItem id="webcam" icon={Camera} label="WEBCAM TEST" />
           <NavItem id="gamepad" icon={Gamepad2} label="GAMEPAD TEST" />
+          
+          <div className="pt-4 mt-4 border-t border-secondary/20">
+            <Link href="/faq" className="w-full flex items-center gap-3 px-4 py-3 rounded transition-all duration-200 font-orbitron text-sm tracking-wide group text-muted-foreground hover:text-primary hover:bg-surface">
+              <HelpCircle className="w-5 h-5 group-hover:text-primary transition-colors" />
+              FAQ & GUIDE
+            </Link>
+          </div>
         </nav>
 
         <div className="absolute bottom-0 left-0 w-full p-6 border-t border-secondary/20 bg-black/20">

@@ -136,7 +136,7 @@ export function MouseTest() {
       rawTime: now
     };
     
-    setHistory(prev => [newEvent, ...prev].slice(0, 10));
+    setHistory(prev => [newEvent, ...prev].slice(0, 5));
   };
 
   return (
@@ -258,12 +258,12 @@ export function MouseTest() {
           </p>
       </div>
 
-      <div className="bg-surface border border-secondary/30 rounded-lg p-6 h-full">
+      <div className="bg-surface border border-secondary/30 rounded-lg p-6 h-full col-span-1 lg:col-span-2">
           <h3 className="text-primary font-orbitron mb-4 flex items-center gap-2">
             <div className="w-2 h-2 bg-primary rounded-full animate-pulse" />
             Event Log
           </h3>
-          <div className="space-y-2 font-roboto-mono text-sm">
+          <div className="space-y-2 font-roboto-mono text-sm max-h-[200px] overflow-y-auto">
             {history.length === 0 && (
               <div className="text-muted-foreground italic py-4 text-center border border-dashed border-secondary/20 rounded">
                 Waiting for input...
@@ -283,13 +283,13 @@ export function MouseTest() {
         <h3 className="text-primary font-orbitron text-2xl mb-4 uppercase tracking-widest">Mouse Diagnostics Explained</h3>
         <div className="space-y-4 text-lg text-muted-foreground font-roboto-mono leading-relaxed">
           <p>
-            This tool tests all mouse buttons and scroll wheel functionality. Click the left, right, and middle buttons in the testing area above, and scroll to verify each component responds correctly.
+            This tool tests all mouse buttons, scroll wheel functionality, and sensor performance. Click buttons in the testing area to verify they register correctly, and move your mouse to check its polling rate consistency.
           </p>
           <p>
             <strong className="text-primary">Double-Click Fault Detection:</strong> The most common mouse failure is the "double-click fault." This occurs when the copper tension spring inside the microswitch degrades, causing a single physical click to register as two rapid electrical signals. Our tool detects this by measuring the milliseconds between signals—anything under 80ms indicates a likely hardware failure.
           </p>
           <p>
-            <strong className="text-primary">How it works:</strong> When you click, we record the timestamp. If the same button registers another click within 80 milliseconds, it's flagged as a potential fault. Watch the "Event Log" above to see all input history with precise timing.
+            <strong className="text-primary">Polling Rate & Jitter Test:</strong> The "Polling Rate" measures how often your mouse reports its position to the computer (measured in Hz). A higher rate (1000Hz) feels smoother. The "Jitter Graph" visualizes the stability of this rate—consistent height bars mean a stable sensor, while erratic bars indicate potential sensor issues or USB instability.
           </p>
           <p>
             <strong className="text-primary">Scroll Wheel Testing:</strong> Scroll up and down in the testing area to verify your scroll wheel is working smoothly. The direction indicators will light up green when scrolling is detected.

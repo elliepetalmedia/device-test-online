@@ -1,6 +1,7 @@
-import React, { useState, useEffect, useCallback } from 'react';
-import { Maximize, X } from 'lucide-react';
+import React, { useState, useEffect, useCallback, useRef } from 'react';
+import { Maximize, X, Activity } from 'lucide-react';
 import { Button } from '@/components/ui/button';
+import { Card } from '@/components/ui/card';
 
 const COLORS = [
   { name: 'Black', value: '#000000' },
@@ -13,6 +14,10 @@ const COLORS = [
 export function DeadPixelTest() {
   const [isFullscreen, setIsFullscreen] = useState(false);
   const [colorIndex, setColorIndex] = useState(0);
+  const [fps, setFps] = useState(0);
+  const [frameCount, setFrameCount] = useState(0);
+  const lastTimeRef = useRef(performance.now());
+  const requestRef = useRef<number>();
 
   const enterFullscreen = () => {
     const elem = document.documentElement;
@@ -35,6 +40,28 @@ export function DeadPixelTest() {
 
   const cycleColor = useCallback(() => {
     setColorIndex((prev) => (prev + 1) % COLORS.length);
+  }, []);
+
+  const animate = (time: number) => {
+    setFrameCount(prev => {
+      const newCount = prev + 1;
+      const elapsed = time - lastTimeRef.current;
+      
+      if (elapsed >= 1000) {
+        setFps(Math.round((newCount * 1000) / elapsed));
+        lastTimeRef.current = time;
+        return 0;
+      }
+      return newCount;
+    });
+    requestRef.current = requestAnimationFrame(animate);
+  };
+
+  useEffect(() => {
+    requestRef.current = requestAnimationFrame(animate);
+    return () => {
+      if (requestRef.current) cancelAnimationFrame(requestRef.current);
+    };
   }, []);
 
   useEffect(() => {
@@ -81,33 +108,45 @@ export function DeadPixelTest() {
 
   return (
     <div className="flex flex-col gap-8">
-      <div className="flex flex-col items-center justify-center py-8 gap-6 text-center">
-        <Button 
-          size="lg" 
-          onClick={enterFullscreen}
-          className="bg-primary text-background hover:bg-primary/80 hover:scale-105 transition-all font-orbitron text-lg px-8 py-6 shadow-[0_0_20px_rgba(102,252,241,0.3)]"
-        >
-          <Maximize className="mr-2 w-5 h-5" />
-          Start Color Cycle
-        </Button>
-        
-        <p className="text-sm text-muted-foreground">Press ESC to exit full screen mode</p>
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
+        <div className="flex flex-col items-center justify-center py-8 gap-6 text-center bg-surface border border-secondary/30 rounded-lg p-8">
+          <Button 
+            size="lg" 
+            onClick={enterFullscreen}
+            className="bg-primary text-background hover:bg-primary/80 hover:scale-105 transition-all font-orbitron text-lg px-8 py-6 shadow-[0_0_20px_rgba(102,252,241,0.3)] w-full md:w-auto"
+          >
+            <Maximize className="mr-2 w-5 h-5" />
+            Start Color Cycle
+          </Button>
+          
+          <p className="text-sm text-muted-foreground">Press ESC to exit full screen mode</p>
+        </div>
+
+        <Card className="p-8 bg-surface border border-secondary/30 flex flex-col items-center justify-center relative overflow-hidden">
+          <div className="absolute top-0 right-0 p-4 opacity-20">
+            <Activity className="w-24 h-24 text-primary" />
+          </div>
+          <h3 className="text-muted-foreground font-orbitron text-sm uppercase tracking-widest mb-2 z-10">Monitor Refresh Rate</h3>
+          <div className="text-6xl font-orbitron text-primary glow-text z-10 mb-2">
+            {fps} <span className="text-xl text-muted-foreground">Hz</span>
+          </div>
+          <div className="text-xs text-muted-foreground font-mono z-10 bg-black/40 px-3 py-1 rounded-full border border-white/5">
+            Real-time Detection
+          </div>
+        </Card>
       </div>
 
       <div className="p-8 bg-surface border border-secondary/30 rounded-lg">
-        <h3 className="text-primary font-orbitron text-2xl mb-4 uppercase tracking-widest">Dead Pixel Detection Guide</h3>
+        <h3 className="text-primary font-orbitron text-2xl mb-4 uppercase tracking-widest">Monitor Diagnostics Explained</h3>
         <div className="space-y-4 text-lg text-muted-foreground font-roboto-mono leading-relaxed">
           <p>
-            Dead pixels are a common defect in LCD and LED displays. A dead pixel is a single picture element (pixel) that fails to change color or remain illuminated. This tool helps you detect them by cycling through different colors at full-screen brightness.
+            <strong className="text-primary">Dead Pixel Check:</strong> Dead pixels are picture elements that fail to light up or change color. Use the "Start Color Cycle" button to flash your screen with solid colors (Red, Green, Blue, Black, White). Look closely for any tiny dots that don't match the background color.
           </p>
           <p>
-            <strong className="text-primary">What to look for:</strong> Watch carefully for any pixels that don't match the current color. A dead pixel will appear as a different color (usually black or a stuck color) against the uniform background.
+            <strong className="text-primary">Refresh Rate (Hz):</strong> This number represents how many times per second your monitor updates the image. A higher number (like 144Hz or 240Hz) means smoother motion in games and scrolling. If this number is lower than your monitor's advertised speed, check your display settings in Windows/macOS.
           </p>
           <p>
-            <strong className="text-primary">Dead Pixel vs. Stuck Pixel:</strong> A dead pixel is a transistor that failed in the "off" position—it will appear as a black dot on any colored background. A stuck pixel is a transistor that failed in the "on" position—it will always be red, green, or blue, no matter what color is displayed.
-          </p>
-          <p>
-            Click the button above to enter full-screen mode. The screen will cycle through Red, Green, Blue, Black, and White. Press the right arrow, spacebar, or Enter to move to the next color. Press ESC or left arrow to go back. Examine each color carefully, paying special attention to monitor edges and corners where manufacturing defects often occur.
+            <strong className="text-primary">Stuck vs. Dead Pixels:</strong> A "dead" pixel is usually black (off), while a "stuck" pixel is frozen on a specific color (red, green, or blue). Stuck pixels can sometimes be fixed with rapid flashing tools, but dead pixels are often permanent hardware defects.
           </p>
         </div>
       </div>

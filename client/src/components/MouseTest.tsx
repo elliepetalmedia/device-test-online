@@ -14,10 +14,37 @@ export function MouseTest() {
   const [activeButtons, setActiveButtons] = useState<Set<number>>(new Set());
   const [scrollDirection, setScrollDirection] = useState<'up' | 'down' | null>(null);
   const [faultDetected, setFaultDetected] = useState(false);
+  const [pollingRate, setPollingRate] = useState<number>(0);
+  const [peakPollingRate, setPeakPollingRate] = useState<number>(0);
+  const [pollingHistory, setPollingHistory] = useState<number[]>([]);
+  
   const lastClickRef = useRef<Record<number, number>>({});
+  const lastMoveTimeRef = useRef<number>(0);
+  const moveCountRef = useRef<number>(0);
+  const lastRateCheckRef = useRef<number>(0);
   const scrollTimeoutRef = useRef<NodeJS.Timeout | null>(null);
   const testAreaRef = useRef<HTMLDivElement>(null);
   
+  const handleMouseMove = (e: React.MouseEvent) => {
+    const now = performance.now();
+    moveCountRef.current++;
+    
+    // Update Polling Rate every 1000ms (1 second) or rolling window
+    if (now - lastRateCheckRef.current >= 250) { // Check every 250ms for responsiveness
+      const timeDiff = now - lastRateCheckRef.current;
+      const rate = Math.round((moveCountRef.current / timeDiff) * 1000);
+      
+      if (rate > 10) { // Filter out idle/slow movements
+        setPollingRate(rate);
+        setPeakPollingRate(prev => Math.max(prev, rate));
+        setPollingHistory(prev => [...prev, rate].slice(-50)); // Keep last 50 points
+      }
+      
+      moveCountRef.current = 0;
+      lastRateCheckRef.current = now;
+    }
+  };
+
   const handleMouseDown = (e: React.MouseEvent) => {
     e.preventDefault(); // Prevent default context menu for right click
     
@@ -122,6 +149,7 @@ export function MouseTest() {
             className="w-full h-full absolute inset-0 cursor-crosshair z-10"
             onMouseDown={handleMouseDown}
             onMouseUp={handleMouseUp}
+            onMouseMove={handleMouseMove}
             onContextMenu={handleContextMenu}
             data-testid="mouse-test-area"
           />
@@ -193,7 +221,44 @@ export function MouseTest() {
         )}
       </div>
 
-        <div className="bg-surface border border-secondary/30 rounded-lg p-6 h-full">
+      <div className="bg-surface border border-secondary/30 rounded-lg p-6 h-full">
+          <h3 className="text-primary font-orbitron mb-4 flex items-center gap-2">
+            <div className="w-2 h-2 bg-primary rounded-full animate-pulse" />
+            Polling Rate Test
+          </h3>
+          
+          <div className="grid grid-cols-2 gap-4 mb-6">
+            <div className="bg-background/50 p-4 rounded border border-secondary/20 text-center">
+              <div className="text-xs text-muted-foreground font-mono uppercase mb-1">Current Rate</div>
+              <div className="text-3xl font-orbitron text-primary glow-text">{pollingRate} <span className="text-sm text-muted-foreground">Hz</span></div>
+            </div>
+            <div className="bg-background/50 p-4 rounded border border-secondary/20 text-center">
+              <div className="text-xs text-muted-foreground font-mono uppercase mb-1">Peak Rate</div>
+              <div className="text-3xl font-orbitron text-neon-green">{peakPollingRate} <span className="text-sm text-muted-foreground">Hz</span></div>
+            </div>
+          </div>
+
+          <div className="h-24 w-full bg-black/40 rounded border border-secondary/20 relative overflow-hidden flex items-end px-1 gap-0.5">
+             {pollingHistory.map((rate, i) => {
+                const height = Math.min((rate / 1000) * 100, 100); // Normalize 1000hz to 100% height
+                const colorClass = rate > 900 ? 'bg-neon-green' : rate > 400 ? 'bg-primary' : 'bg-yellow-500';
+                return (
+                  <div 
+                    key={i} 
+                    className={`flex-1 min-w-[4px] rounded-t-sm ${colorClass} transition-all duration-300`}
+                    style={{ height: `${height}%` }}
+                    title={`${rate} Hz`}
+                  />
+                )
+             })}
+             <div className="absolute top-2 left-2 text-[10px] text-muted-foreground font-mono">Live Jitter Graph</div>
+          </div>
+          <p className="text-xs text-muted-foreground mt-4 font-mono text-center">
+            Move your mouse continuously in circles inside the test area to measure.
+          </p>
+      </div>
+
+      <div className="bg-surface border border-secondary/30 rounded-lg p-6 h-full">
           <h3 className="text-primary font-orbitron mb-4 flex items-center gap-2">
             <div className="w-2 h-2 bg-primary rounded-full animate-pulse" />
             Event Log

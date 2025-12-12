@@ -175,7 +175,7 @@ export function WebcamTest() {
         </Card>
       </div>
 
-      <div className="p-8 bg-surface border border-secondary/30 rounded-lg">
+      <div className="p-8 bg-surface border border-secondary/30 rounded-lg lg:col-span-3">
         <h3 className="text-primary font-orbitron text-2xl mb-4 uppercase tracking-widest">Webcam Diagnostics Guide</h3>
         <div className="space-y-4 text-lg text-muted-foreground font-roboto-mono leading-relaxed">
           <p>

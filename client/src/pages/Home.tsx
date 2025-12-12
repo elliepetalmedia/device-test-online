@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { Link, useLocation } from "wouter";
 import { MousePointer2, Keyboard, Monitor, Mic, Camera, Gamepad2, Menu, X, HelpCircle, LayoutGrid, ArrowRight } from 'lucide-react';
 import { MouseTest } from '@/components/MouseTest';
@@ -63,6 +63,7 @@ const MODULE_META: Record<ModuleType, { title: string, desc: string, icon?: any 
 export default function Home() {
   const [location] = useLocation();
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
+  const scrollContainerRef = useRef<HTMLDivElement>(null);
 
   const getModuleFromPath = (path: string): ModuleType => {
     switch (path) {
@@ -97,6 +98,10 @@ export default function Home() {
     const ogDesc = document.querySelector('meta[property="og:description"]');
     if (ogDesc) ogDesc.setAttribute('content', meta.desc);
 
+    // Scroll to top when changing modules
+    if (scrollContainerRef.current) {
+      scrollContainerRef.current.scrollTo(0, 0);
+    }
   }, [activeModule]);
 
   const NavItem = ({ id, icon: Icon, label }: { id: ModuleType, icon: any, label: string }) => {
@@ -225,7 +230,10 @@ export default function Home() {
           </button>
         </header>
 
-        <div className="flex-1 overflow-y-auto p-4 md:p-8 lg:p-12 scroll-smooth">
+        <div 
+          ref={scrollContainerRef}
+          className="flex-1 overflow-y-auto p-4 md:p-8 lg:p-12 scroll-smooth"
+        >
           <div className="max-w-6xl mx-auto space-y-12">
             
             <header className="mb-8 animate-in fade-in slide-in-from-top-4 duration-500">

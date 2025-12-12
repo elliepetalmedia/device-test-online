@@ -390,26 +390,26 @@ export function GamepadTest() {
         </Card>
       )}
 
-      <Card className="p-6 bg-black/20 border-white/5">
-        <h4 className="font-orbitron text-base font-bold text-white mb-3">How this test works</h4>
-        <div className="space-y-2 text-base text-muted-foreground font-mono leading-relaxed">
+      <div className="p-8 bg-surface border border-secondary/30 rounded-lg">
+        <h3 className="text-primary font-orbitron text-2xl mb-4 uppercase tracking-widest">Gamepad Diagnostics Guide</h3>
+        <div className="space-y-4 text-lg text-muted-foreground font-roboto-mono leading-relaxed">
           <p>
-            1. <strong className="text-primary">Connect your controller:</strong> Plug in your controller via USB or connect via Bluetooth.
+            <strong className="text-primary">1. Connect your controller:</strong> Plug in your controller via USB or connect via Bluetooth to get started.
           </p>
           <p>
-            2. <strong className="text-primary">Wake it up:</strong> Most browsers require you to press a button on the controller before it can be detected for privacy reasons.
+            <strong className="text-primary">2. Wake it up:</strong> For privacy reasons, browsers won't detect your controller until you interact with it. Press any button to "wake" it up and register it on this page.
           </p>
           <p>
-            3. <strong className="text-primary">Test Inputs:</strong> Press all buttons and move all analog sticks to verify they are registering correctly. The visualizer above will light up corresponding to your inputs.
+            <strong className="text-primary">3. Test Inputs:</strong> Systematically press every button and move both analog sticks. The visualizer above will light up to confirm each input is registering correctly.
           </p>
           <p>
-            4. <strong className="text-primary">Select Layout:</strong> Use the buttons at the top to switch between Generic, Xbox, and PlayStation visual layouts to match your specific controller.
+            <strong className="text-primary">4. Select Layout:</strong> Use the toggle buttons at the top to switch between Generic, Xbox, and PlayStation visual styles to match your specific hardware.
           </p>
-          <p className="pt-2 italic opacity-70 text-sm">
-            Note: Axis values range from -1.0 to 1.0. If your analog sticks show "drift" (movement when not touched), it indicates hardware wear.
+           <p>
+            <strong className="text-primary">Note on Drift:</strong> Axis values range from -1.0 to 1.0. If your analog sticks show movement values when you aren't touching them (stick drift), it typically indicates hardware wear on the potentiometer.
           </p>
         </div>
-      </Card>
+      </div>
     </div>
   );
 }

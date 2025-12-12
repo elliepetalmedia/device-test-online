@@ -119,7 +119,16 @@ export default function Home() {
   };
 
   const DashboardView = () => (
-    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+    <div className="space-y-8">
+      <div className="text-center max-w-3xl mx-auto mb-8">
+        <p className="text-lg text-muted-foreground leading-relaxed font-roboto-mono">
+          Welcome to <span className="text-primary font-bold">Device Test Online</span>, the privacy-first suite for testing your hardware directly in the browser. 
+          Select any diagnostic tool below to instantly check your mouse, keyboard, monitor, or controller. 
+          For detailed explanations of common issues and test results, please consult our <Link href="/faq" className="text-primary hover:underline underline-offset-4">FAQ & Guide</Link>.
+        </p>
+      </div>
+      
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
       {(Object.keys(MODULE_ROUTES) as ModuleType[])
         .filter(key => key !== 'dashboard')
         .map((key) => {

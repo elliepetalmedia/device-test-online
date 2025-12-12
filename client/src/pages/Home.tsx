@@ -120,7 +120,7 @@ export default function Home() {
 
   const DashboardView = () => (
     <div className="space-y-8">
-      <div className="text-center max-w-3xl mx-auto mb-8">
+      <div className="text-center w-full mb-8">
         <p className="text-lg text-muted-foreground leading-relaxed font-roboto-mono">
           Welcome to <span className="text-primary font-bold">Device Test Online</span>, the privacy-first suite for testing your hardware directly in the browser. 
           Select any diagnostic tool below to instantly check your mouse, keyboard, monitor, or controller. 

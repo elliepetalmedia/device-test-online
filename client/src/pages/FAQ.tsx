@@ -153,13 +153,21 @@ export default function FAQ() {
             </h2>
             <Accordion type="single" collapsible className="w-full">
               <AccordionItem value="drift">
-                <AccordionTrigger className="font-bold text-lg text-foreground hover:text-primary transition-colors">What is Stick Drift?</AccordionTrigger>
+                <AccordionTrigger className="font-bold text-lg text-foreground hover:text-primary transition-colors">What is Stick Drift and how do you test it?</AccordionTrigger>
                 <AccordionContent className="text-gray-300 leading-relaxed text-base">
                   <p className="mb-2">
-                    Stick drift happens when the analog sticks on your controller register movement even when you aren't touching them. This is caused by wear and tear on the internal potentiometers.
+                    Stick drift happens when the analog sticks on your controller register movement even when you aren't touching them. This is usually caused by wear and tear on the internal potentiometers or Hall Effect sensor calibration issues.
                   </p>
+                  <p className="mb-2">
+                    Our <strong>Advanced Drift Analysis Protocol</strong> performs a rigorous 3-stage statistical test:
+                  </p>
+                  <ol className="list-decimal pl-6 space-y-1 mb-2">
+                    <li><strong>Agitate Phase:</strong> You vigorously rotate the sticks to "wake up" the sensors and move them away from the dead center.</li>
+                    <li><strong>Settle Phase:</strong> You release the sticks completely, allowing them to snap back to their natural resting position.</li>
+                    <li><strong>Sampling Phase:</strong> We capture 60 samples per second to calculate the exact coordinate mean (drift) and variance (jitter/noise).</li>
+                  </ol>
                   <p>
-                    Check the "Analog Axes" section of our Gamepad Test. If the values aren't settling at exactly <strong>0.0000</strong> (or very close to it) when you let go of the stick, you have some drift. Small amounts are normal; large amounts will affect gameplay.
+                    A drift percentage above <strong>5%</strong> generally indicates a hardware fault that requires repair or a deadzone adjustment in your game settings.
                   </p>
                 </AccordionContent>
               </AccordionItem>

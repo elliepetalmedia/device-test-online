@@ -181,9 +181,13 @@ export default function Home() {
         mobileMenuOpen ? "translate-x-0" : "-translate-x-full"
       )}>
         <div className="p-6 border-b border-secondary/20">
-          <h1 className="font-orbitron font-black text-2xl text-transparent bg-clip-text bg-gradient-to-r from-primary to-secondary drop-shadow-[0_0_10px_rgba(102,252,241,0.3)]">
-            Device Test Online
-          </h1>
+          <Link href="/" onClick={() => setMobileMenuOpen(false)}>
+            <a className="block hover:opacity-80 transition-opacity cursor-pointer">
+              <h1 className="font-orbitron font-black text-2xl text-transparent bg-clip-text bg-gradient-to-r from-primary to-secondary drop-shadow-[0_0_10px_rgba(102,252,241,0.3)]">
+                Device Test Online
+              </h1>
+            </a>
+          </Link>
           <p className="text-[10px] text-muted-foreground uppercase tracking-[0.2em] mt-1">Hardware Suite</p>
           <p className="text-sm text-muted-foreground mt-4 leading-relaxed">Diagnose and test your computer peripherals with interactive hardware diagnostics.</p>
         </div>

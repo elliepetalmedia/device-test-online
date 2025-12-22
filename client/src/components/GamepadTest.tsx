@@ -206,9 +206,9 @@ export function GamepadTest() {
   const [activeTestIndex, setActiveTestIndex] = useState<number | null>(null);
   const [testState, setTestState] = useState<TestState>('IDLE');
   const [countdown, setCountdown] = useState(3);
-  const [samples, setSamples] = useState<Record<number, DriftSample[]>>({}); // Key: Stick Index (0, 1)
   const [results, setResults] = useState<Record<number, StickResult>>({}); // Key: Stick Index
   
+  const samplesRef = useRef<Record<number, DriftSample[]>>({}); // Use Ref for synchronous sample collection
   const requestRef = useRef<number | null>(null);
   const testTimerRef = useRef<NodeJS.Timeout | null>(null);
   const frameCountRef = useRef(0);
@@ -256,10 +256,10 @@ export function GamepadTest() {
                   y: gamepad.axes[yIndex]
               };
               
-              setSamples(prev => ({
-                  ...prev,
-                  [stickIdx]: [...(prev[stickIdx] || []), sample]
-              }));
+              if (!samplesRef.current[stickIdx]) {
+                samplesRef.current[stickIdx] = [];
+              }
+              samplesRef.current[stickIdx].push(sample);
           }
       });
 
@@ -276,7 +276,7 @@ export function GamepadTest() {
       const newResults: Record<number, StickResult> = {};
       
       [0, 1].forEach(stickIdx => {
-          const stickSamples = samples[stickIdx];
+          const stickSamples = samplesRef.current[stickIdx];
           if (!stickSamples || stickSamples.length === 0) return;
           
           // Calculate Mean
@@ -306,7 +306,7 @@ export function GamepadTest() {
       setActiveTestIndex(gamepadIndex);
       setTestState('AGITATE');
       setCountdown(3);
-      setSamples({});
+      samplesRef.current = {}; // Reset samples
       setResults({});
       frameCountRef.current = 0;
       
@@ -647,43 +647,51 @@ export function GamepadTest() {
                 </div>
                 </div>
 
-                <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
-                <div className="space-y-6">
-                    <h5 className="font-orbitron text-sm text-muted-foreground uppercase tracking-widest border-l-2 border-primary pl-3">
-                    Button State
-                    </h5>
-                    {renderLayoutButtons(gamepad)}
-                </div>
+          {/* Two Column Layout for Compactness */}
+          <div className="grid grid-cols-1 lg:grid-cols-12 gap-6">
+            <div className="lg:col-span-7 space-y-6">
+                 {/* Visualizer */}
+                 <div className="grid grid-cols-1 gap-6">
+                    <div className="space-y-4">
+                        <h5 className="font-orbitron text-sm text-muted-foreground uppercase tracking-widest border-l-2 border-primary pl-3">
+                        Button State
+                        </h5>
+                        {renderLayoutButtons(gamepad)}
+                    </div>
 
-                <div className="space-y-6">
-                    <h5 className="font-orbitron text-sm text-muted-foreground uppercase tracking-widest border-l-2 border-secondary pl-3">
-                    Analog Axes
-                    </h5>
-                    {renderLayoutAxes(gamepad)}
-                </div>
-                </div>
-            </Card>
-
-            {/* Drift Test Container */}
-            <Card className="p-0 bg-black/40 border-white/10 backdrop-blur-sm relative overflow-hidden min-h-[400px] flex flex-col">
-                <div className="p-6 border-b border-white/10 flex justify-between items-center">
-                    <div>
-                        <h4 className="font-orbitron text-lg text-white">Advanced Drift Analysis</h4>
-                        <p className="text-sm text-muted-foreground font-mono">Statistical analysis of sensor resting points</p>
+                    <div className="space-y-4">
+                        <h5 className="font-orbitron text-sm text-muted-foreground uppercase tracking-widest border-l-2 border-secondary pl-3">
+                        Analog Axes
+                        </h5>
+                        {renderLayoutAxes(gamepad)}
                     </div>
                 </div>
-                
-                <div className="flex-1 relative bg-black/50">
-                     <DriftTestOverlay 
-                        gamepad={gamepad}
-                        testState={activeTestIndex === gamepad.index ? testState : 'IDLE'}
-                        countdown={countdown}
-                        results={results}
-                        onStartTest={startDriftTest}
-                        onResetTest={() => setTestState('IDLE')}
-                     />
-                </div>
-            </Card>
+            </div>
+
+            {/* Drift Test Sidebar */}
+            <div className="lg:col-span-5">
+                 <Card className="h-full bg-black/40 border-white/10 backdrop-blur-sm relative overflow-hidden flex flex-col min-h-[500px]">
+                    <div className="p-4 border-b border-white/10 flex justify-between items-center bg-white/5">
+                        <div>
+                            <h4 className="font-orbitron text-base text-white">Drift Analysis</h4>
+                            <p className="text-xs text-muted-foreground font-mono">Statistical sensor check</p>
+                        </div>
+                    </div>
+                    
+                    <div className="flex-1 relative bg-black/50">
+                         <DriftTestOverlay 
+                            gamepad={gamepad}
+                            testState={activeTestIndex === gamepad.index ? testState : 'IDLE'}
+                            countdown={countdown}
+                            results={results}
+                            onStartTest={startDriftTest}
+                            onResetTest={() => setTestState('IDLE')}
+                         />
+                    </div>
+                </Card>
+            </div>
+          </div>
+          </Card>
           </React.Fragment>
         ))
       ) : (

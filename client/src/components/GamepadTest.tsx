@@ -707,19 +707,45 @@ export function GamepadTest() {
             </div>
           </div>
 
-          <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 pointer-events-none grayscale">
-            <div className="space-y-6">
-              <h5 className="font-orbitron text-sm text-muted-foreground uppercase tracking-widest border-l-2 border-white/20 pl-3">
-                Button State
-              </h5>
-              {renderLayoutButtons()}
+          <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 pointer-events-none grayscale">
+            <div className="lg:col-span-7 space-y-6">
+                <div className="grid grid-cols-1 gap-6">
+                    <div className="space-y-4">
+                        <h5 className="font-orbitron text-sm text-muted-foreground uppercase tracking-widest border-l-2 border-white/20 pl-3">
+                            Button State
+                        </h5>
+                        {renderLayoutButtons()}
+                    </div>
+
+                    <div className="space-y-4">
+                        <h5 className="font-orbitron text-sm text-muted-foreground uppercase tracking-widest border-l-2 border-white/20 pl-3">
+                            Analog Axes
+                        </h5>
+                        {renderLayoutAxes()}
+                    </div>
+                </div>
             </div>
 
-            <div className="space-y-6">
-              <h5 className="font-orbitron text-sm text-muted-foreground uppercase tracking-widest border-l-2 border-white/20 pl-3">
-                Analog Axes
-              </h5>
-              {renderLayoutAxes()}
+            <div className="lg:col-span-5">
+                 <Card className="h-full bg-black/40 border-white/10 backdrop-blur-sm relative overflow-hidden flex flex-col min-h-[500px]">
+                    <div className="p-4 border-b border-white/10 flex justify-between items-center bg-white/5">
+                        <div>
+                            <h4 className="font-orbitron text-base text-white">Drift Analysis</h4>
+                            <p className="text-xs text-muted-foreground font-mono">Statistical sensor check</p>
+                        </div>
+                    </div>
+                    
+                    <div className="flex-1 relative bg-black/50 flex flex-col items-center justify-center p-8 text-center">
+                        <Crosshair className="w-16 h-16 text-muted-foreground mb-4 opacity-30" />
+                        <h3 className="text-2xl font-orbitron font-bold text-muted-foreground mb-2">Drift Analysis Protocol</h3>
+                        <p className="text-muted-foreground max-w-md mb-6 font-mono text-sm opacity-50">
+                            Connect a controller to enable the drift analysis test sequence.
+                        </p>
+                        <Button disabled className="font-orbitron tracking-widest bg-white/10 text-muted-foreground">
+                            <Play className="w-4 h-4 mr-2" /> BEGIN TEST sequence
+                        </Button>
+                    </div>
+                </Card>
             </div>
           </div>
         </Card>

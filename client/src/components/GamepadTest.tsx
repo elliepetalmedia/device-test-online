@@ -34,6 +34,170 @@ interface StickResult {
   passed: boolean;
 }
 
+interface DriftTestOverlayProps {
+  gamepad: GamepadState;
+  testState: TestState;
+  countdown: number;
+  results: Record<number, StickResult>;
+  onStartTest: (index: number) => void;
+  onResetTest: () => void;
+}
+
+const DriftTestOverlay = ({ 
+  gamepad, 
+  testState, 
+  countdown, 
+  results, 
+  onStartTest, 
+  onResetTest 
+}: DriftTestOverlayProps) => {
+  if (testState === 'IDLE') {
+    return (
+      <div className="absolute inset-0 bg-black/80 backdrop-blur-sm z-20 flex flex-col items-center justify-center p-8 text-center">
+        <Crosshair className="w-16 h-16 text-primary mb-4 opacity-50" />
+        <h3 className="text-2xl font-orbitron font-bold text-white mb-2">Drift Analysis Protocol</h3>
+        <p className="text-muted-foreground max-w-md mb-6 font-mono text-sm">
+          This test measures the precise resting position and signal noise (jitter) of your analog sticks to detect hardware drift.
+        </p>
+        <Button onClick={() => onStartTest(gamepad.index)} className="font-orbitron tracking-widest bg-primary text-black hover:bg-primary/80 relative z-30 pointer-events-auto">
+          <Play className="w-4 h-4 mr-2" /> BEGIN TEST sequence
+        </Button>
+      </div>
+    );
+  }
+
+  if (testState === 'AGITATE') {
+    return (
+      <div className="absolute inset-0 bg-primary/10 backdrop-blur-sm z-20 flex flex-col items-center justify-center p-8 text-center animate-in fade-in">
+        <Activity className="w-16 h-16 text-primary mb-4 animate-bounce" />
+        <h3 className="text-3xl font-orbitron font-bold text-primary mb-2">AGITATE STICKS</h3>
+        <p className="text-white max-w-md font-bold text-lg">
+          Rotate both sticks in circles vigorously!
+        </p>
+        <p className="text-muted-foreground mt-2 text-sm">Warming up sensors...</p>
+      </div>
+    );
+  }
+
+  if (testState === 'SETTLE') {
+    return (
+      <div className="absolute inset-0 bg-black/90 z-20 flex flex-col items-center justify-center p-8 text-center">
+        <div className="text-8xl font-orbitron font-black text-white mb-4 animate-pulse">{countdown}</div>
+        <h3 className="text-2xl font-orbitron font-bold text-neon-red mb-2">RELEASE STICKS NOW!</h3>
+        <p className="text-muted-foreground">Do not touch the controller.</p>
+      </div>
+    );
+  }
+
+  if (testState === 'SAMPLING') {
+    return (
+      <div className="absolute inset-0 bg-black/90 z-20 flex flex-col items-center justify-center p-8 text-center">
+        <div className="w-16 h-16 border-4 border-primary border-t-transparent rounded-full animate-spin mb-6"></div>
+        <h3 className="text-xl font-orbitron font-bold text-white tracking-widest">SAMPLING SENSOR DATA</h3>
+        <p className="text-primary font-mono mt-2">Recording micro-movements...</p>
+      </div>
+    );
+  }
+
+  if (testState === 'RESULT') {
+    const leftStick = results[0];
+    const rightStick = results[1];
+    
+    return (
+      <div className="absolute inset-0 bg-black/95 z-20 flex flex-col items-center justify-center p-4 md:p-8 animate-in zoom-in-95">
+        <h3 className="text-xl font-orbitron font-bold text-white mb-6 flex items-center gap-2">
+          <CheckCircle2 className="text-primary" /> ANALYSIS COMPLETE
+        </h3>
+        
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-6 w-full max-w-2xl">
+          {/* Left Stick Report */}
+          <div className={cn("p-4 rounded border", leftStick?.passed ? "border-green-500/30 bg-green-500/5" : "border-red-500/30 bg-red-500/5")}>
+            <h4 className="font-orbitron text-sm text-muted-foreground mb-4 uppercase">Left Stick</h4>
+            <div className="flex items-center gap-4 mb-4">
+              <div className="relative w-24 h-24 bg-black rounded-full border border-white/10">
+                {/* Deadzone */}
+                <div className="absolute inset-0 m-auto w-1/2 h-1/2 rounded-full border border-green-500/30 bg-green-500/5"></div>
+                {/* Center */}
+                <div className="absolute inset-0 m-auto w-1 h-1 bg-white/20 rounded-full"></div>
+                {/* Result Point */}
+                {leftStick && (
+                  <div 
+                    className={cn("absolute w-2 h-2 rounded-full shadow-[0_0_10px]", leftStick.passed ? "bg-green-500 shadow-green-500" : "bg-red-500 shadow-red-500")}
+                    style={{ 
+                      left: `calc(50% + ${leftStick.x.avg * 50}%)`, 
+                      top: `calc(50% + ${leftStick.y.avg * 50}%)`,
+                      transform: 'translate(-50%, -50%)'
+                    }}
+                  ></div>
+                )}
+              </div>
+              <div>
+                <div className="text-2xl font-bold font-orbitron mb-1">
+                  {leftStick?.driftPercentage.toFixed(1)}%
+                </div>
+                <div className={cn("text-xs font-bold uppercase px-2 py-0.5 rounded inline-block", leftStick?.passed ? "bg-green-500 text-black" : "bg-red-500 text-white")}>
+                  {leftStick?.passed ? "PASS" : "FAIL"}
+                </div>
+              </div>
+            </div>
+            <div className="space-y-1 text-xs font-mono text-muted-foreground">
+              <div className="flex justify-between"><span>Jitter X:</span> <span>{leftStick?.x.jitter.toFixed(5)}</span></div>
+              <div className="flex justify-between"><span>Jitter Y:</span> <span>{leftStick?.y.jitter.toFixed(5)}</span></div>
+            </div>
+          </div>
+
+          {/* Right Stick Report */}
+          <div className={cn("p-4 rounded border", rightStick?.passed ? "border-green-500/30 bg-green-500/5" : "border-red-500/30 bg-red-500/5")}>
+            <h4 className="font-orbitron text-sm text-muted-foreground mb-4 uppercase">Right Stick</h4>
+            <div className="flex items-center gap-4 mb-4">
+              <div className="relative w-24 h-24 bg-black rounded-full border border-white/10">
+                {/* Deadzone */}
+                <div className="absolute inset-0 m-auto w-1/2 h-1/2 rounded-full border border-green-500/30 bg-green-500/5"></div>
+                {/* Center */}
+                <div className="absolute inset-0 m-auto w-1 h-1 bg-white/20 rounded-full"></div>
+                {/* Result Point */}
+                {rightStick && (
+                  <div 
+                    className={cn("absolute w-2 h-2 rounded-full shadow-[0_0_10px]", rightStick.passed ? "bg-green-500 shadow-green-500" : "bg-red-500 shadow-red-500")}
+                    style={{ 
+                      left: `calc(50% + ${rightStick.x.avg * 50}%)`, 
+                      top: `calc(50% + ${rightStick.y.avg * 50}%)`,
+                      transform: 'translate(-50%, -50%)'
+                    }}
+                  ></div>
+                )}
+              </div>
+              <div>
+                <div className="text-2xl font-bold font-orbitron mb-1">
+                  {rightStick?.driftPercentage.toFixed(1)}%
+                </div>
+                <div className={cn("text-xs font-bold uppercase px-2 py-0.5 rounded inline-block", rightStick?.passed ? "bg-green-500 text-black" : "bg-red-500 text-white")}>
+                  {rightStick?.passed ? "PASS" : "FAIL"}
+                </div>
+              </div>
+            </div>
+            <div className="space-y-1 text-xs font-mono text-muted-foreground">
+              <div className="flex justify-between"><span>Jitter X:</span> <span>{rightStick?.x.jitter.toFixed(5)}</span></div>
+              <div className="flex justify-between"><span>Jitter Y:</span> <span>{rightStick?.y.jitter.toFixed(5)}</span></div>
+            </div>
+          </div>
+        </div>
+        
+        <div className="mt-8 flex gap-4">
+          <Button variant="outline" onClick={onResetTest} className="border-white/20 hover:bg-white/10 relative z-30 pointer-events-auto">
+            Close
+          </Button>
+          <Button onClick={() => onStartTest(gamepad.index)} className="bg-primary text-black hover:bg-primary/80 relative z-30 pointer-events-auto">
+            <RefreshCw className="w-4 h-4 mr-2" /> Retest
+          </Button>
+        </div>
+      </div>
+    );
+  }
+  
+  return null;
+};
+
 export function GamepadTest() {
   const [gamepads, setGamepads] = useState<Record<number, GamepadState>>({});
   const [selectedLayout, setSelectedLayout] = useState<'generic' | 'xbox' | 'playstation'>('generic');
@@ -45,8 +209,8 @@ export function GamepadTest() {
   const [samples, setSamples] = useState<Record<number, DriftSample[]>>({}); // Key: Stick Index (0, 1)
   const [results, setResults] = useState<Record<number, StickResult>>({}); // Key: Stick Index
   
-  const requestRef = useRef<number>();
-  const testTimerRef = useRef<NodeJS.Timeout>();
+  const requestRef = useRef<number | null>(null);
+  const testTimerRef = useRef<NodeJS.Timeout | null>(null);
   const frameCountRef = useRef(0);
   const { toast } = useToast();
 
@@ -68,7 +232,7 @@ export function GamepadTest() {
 
         // Drift Sampling Logic
         if (activeTestIndex === gamepad.index && testState === 'SAMPLING') {
-           collectSamples(gamepad);
+           collectSamples(newGamepads[gamepad.index]);
         }
       }
     }
@@ -199,11 +363,10 @@ export function GamepadTest() {
           clearTimeout(testTimerRef.current);
       }
     };
-  }, [activeTestIndex, testState]); // Re-bind when test state changes to ensure closure captures latest state? Actually refs should handle it.
+  }, [activeTestIndex, testState]);
 
   const hasGamepads = Object.keys(gamepads).length > 0;
 
-  // Placeholder buttons for rendering layout when no controller is connected
   const renderLayoutButtons = (gamepad?: GamepadState) => {
     const buttons = gamepad ? gamepad.buttons : Array.from({ length: 16 }).map(() => ({ pressed: false, value: 0 }));
     
@@ -330,155 +493,8 @@ export function GamepadTest() {
     );
   };
 
-  const DriftTestOverlay = ({ gamepad }: { gamepad: GamepadState }) => {
-     if (testState === 'IDLE') {
-         return (
-             <div className="absolute inset-0 bg-black/80 backdrop-blur-sm z-20 flex flex-col items-center justify-center p-8 text-center">
-                 <Crosshair className="w-16 h-16 text-primary mb-4 opacity-50" />
-                 <h3 className="text-2xl font-orbitron font-bold text-white mb-2">Drift Analysis Protocol</h3>
-                 <p className="text-muted-foreground max-w-md mb-6 font-mono text-sm">
-                     This test measures the precise resting position and signal noise (jitter) of your analog sticks to detect hardware drift.
-                 </p>
-                 <Button onClick={() => startDriftTest(gamepad.index)} className="font-orbitron tracking-widest bg-primary text-black hover:bg-primary/80">
-                     <Play className="w-4 h-4 mr-2" /> BEGIN TEST sequence
-                 </Button>
-             </div>
-         );
-     }
-
-     if (testState === 'AGITATE') {
-         return (
-             <div className="absolute inset-0 bg-primary/10 backdrop-blur-sm z-20 flex flex-col items-center justify-center p-8 text-center animate-in fade-in">
-                 <Activity className="w-16 h-16 text-primary mb-4 animate-bounce" />
-                 <h3 className="text-3xl font-orbitron font-bold text-primary mb-2">AGITATE STICKS</h3>
-                 <p className="text-white max-w-md font-bold text-lg">
-                     Rotate both sticks in circles vigorously!
-                 </p>
-                 <p className="text-muted-foreground mt-2 text-sm">Warming up sensors...</p>
-             </div>
-         );
-     }
-
-     if (testState === 'SETTLE') {
-         return (
-             <div className="absolute inset-0 bg-black/90 z-20 flex flex-col items-center justify-center p-8 text-center">
-                 <div className="text-8xl font-orbitron font-black text-white mb-4 animate-pulse">{countdown}</div>
-                 <h3 className="text-2xl font-orbitron font-bold text-neon-red mb-2">RELEASE STICKS NOW!</h3>
-                 <p className="text-muted-foreground">Do not touch the controller.</p>
-             </div>
-         );
-     }
-
-     if (testState === 'SAMPLING') {
-         return (
-             <div className="absolute inset-0 bg-black/90 z-20 flex flex-col items-center justify-center p-8 text-center">
-                 <div className="w-16 h-16 border-4 border-primary border-t-transparent rounded-full animate-spin mb-6"></div>
-                 <h3 className="text-xl font-orbitron font-bold text-white tracking-widest">SAMPLING SENSOR DATA</h3>
-                 <p className="text-primary font-mono mt-2">Recording micro-movements...</p>
-             </div>
-         );
-     }
-
-     if (testState === 'RESULT') {
-         const leftStick = results[0];
-         const rightStick = results[1];
-         
-         return (
-             <div className="absolute inset-0 bg-black/95 z-20 flex flex-col items-center justify-center p-4 md:p-8 animate-in zoom-in-95">
-                 <h3 className="text-xl font-orbitron font-bold text-white mb-6 flex items-center gap-2">
-                     <CheckCircle2 className="text-primary" /> ANALYSIS COMPLETE
-                 </h3>
-                 
-                 <div className="grid grid-cols-1 md:grid-cols-2 gap-6 w-full max-w-2xl">
-                    {/* Left Stick Report */}
-                     <div className={cn("p-4 rounded border", leftStick?.passed ? "border-green-500/30 bg-green-500/5" : "border-red-500/30 bg-red-500/5")}>
-                         <h4 className="font-orbitron text-sm text-muted-foreground mb-4 uppercase">Left Stick</h4>
-                         <div className="flex items-center gap-4 mb-4">
-                             <div className="relative w-24 h-24 bg-black rounded-full border border-white/10">
-                                 {/* Deadzone */}
-                                 <div className="absolute inset-0 m-auto w-1/2 h-1/2 rounded-full border border-green-500/30 bg-green-500/5"></div>
-                                 {/* Center */}
-                                 <div className="absolute inset-0 m-auto w-1 h-1 bg-white/20 rounded-full"></div>
-                                 {/* Result Point */}
-                                 {leftStick && (
-                                     <div 
-                                         className={cn("absolute w-2 h-2 rounded-full shadow-[0_0_10px]", leftStick.passed ? "bg-green-500 shadow-green-500" : "bg-red-500 shadow-red-500")}
-                                         style={{ 
-                                             left: `calc(50% + ${leftStick.x.avg * 50}%)`, 
-                                             top: `calc(50% + ${leftStick.y.avg * 50}%)`,
-                                             transform: 'translate(-50%, -50%)'
-                                         }}
-                                     ></div>
-                                 )}
-                             </div>
-                             <div>
-                                 <div className="text-2xl font-bold font-orbitron mb-1">
-                                     {leftStick?.driftPercentage.toFixed(1)}%
-                                 </div>
-                                 <div className={cn("text-xs font-bold uppercase px-2 py-0.5 rounded inline-block", leftStick?.passed ? "bg-green-500 text-black" : "bg-red-500 text-white")}>
-                                     {leftStick?.passed ? "PASS" : "FAIL"}
-                                 </div>
-                             </div>
-                         </div>
-                         <div className="space-y-1 text-xs font-mono text-muted-foreground">
-                            <div className="flex justify-between"><span>Jitter X:</span> <span>{leftStick?.x.jitter.toFixed(5)}</span></div>
-                            <div className="flex justify-between"><span>Jitter Y:</span> <span>{leftStick?.y.jitter.toFixed(5)}</span></div>
-                         </div>
-                     </div>
-
-                    {/* Right Stick Report */}
-                     <div className={cn("p-4 rounded border", rightStick?.passed ? "border-green-500/30 bg-green-500/5" : "border-red-500/30 bg-red-500/5")}>
-                         <h4 className="font-orbitron text-sm text-muted-foreground mb-4 uppercase">Right Stick</h4>
-                         <div className="flex items-center gap-4 mb-4">
-                             <div className="relative w-24 h-24 bg-black rounded-full border border-white/10">
-                                 {/* Deadzone */}
-                                 <div className="absolute inset-0 m-auto w-1/2 h-1/2 rounded-full border border-green-500/30 bg-green-500/5"></div>
-                                 {/* Center */}
-                                 <div className="absolute inset-0 m-auto w-1 h-1 bg-white/20 rounded-full"></div>
-                                 {/* Result Point */}
-                                 {rightStick && (
-                                     <div 
-                                         className={cn("absolute w-2 h-2 rounded-full shadow-[0_0_10px]", rightStick.passed ? "bg-green-500 shadow-green-500" : "bg-red-500 shadow-red-500")}
-                                         style={{ 
-                                             left: `calc(50% + ${rightStick.x.avg * 50}%)`, 
-                                             top: `calc(50% + ${rightStick.y.avg * 50}%)`,
-                                             transform: 'translate(-50%, -50%)'
-                                         }}
-                                     ></div>
-                                 )}
-                             </div>
-                             <div>
-                                 <div className="text-2xl font-bold font-orbitron mb-1">
-                                     {rightStick?.driftPercentage.toFixed(1)}%
-                                 </div>
-                                 <div className={cn("text-xs font-bold uppercase px-2 py-0.5 rounded inline-block", rightStick?.passed ? "bg-green-500 text-black" : "bg-red-500 text-white")}>
-                                     {rightStick?.passed ? "PASS" : "FAIL"}
-                                 </div>
-                             </div>
-                         </div>
-                         <div className="space-y-1 text-xs font-mono text-muted-foreground">
-                            <div className="flex justify-between"><span>Jitter X:</span> <span>{rightStick?.x.jitter.toFixed(5)}</span></div>
-                            <div className="flex justify-between"><span>Jitter Y:</span> <span>{rightStick?.y.jitter.toFixed(5)}</span></div>
-                         </div>
-                     </div>
-                 </div>
-                 
-                 <div className="mt-8 flex gap-4">
-                     <Button variant="outline" onClick={() => setTestState('IDLE')} className="border-white/20 hover:bg-white/10">
-                        Close
-                     </Button>
-                     <Button onClick={() => startDriftTest(gamepad.index)} className="bg-primary text-black hover:bg-primary/80">
-                        <RefreshCw className="w-4 h-4 mr-2" /> Retest
-                     </Button>
-                 </div>
-             </div>
-         );
-     }
-     
-     return null;
-  };
-
   const testVibration = async (gamepad: GamepadState) => {
+    // @ts-ignore
     const gp = navigator.getGamepads()[gamepad.index];
     
     if (!gp) {
@@ -540,6 +556,7 @@ export function GamepadTest() {
       console.warn("Vibration not supported on this device or browser");
     }
   };
+
 
   return (
     <div className="space-y-6">
@@ -657,7 +674,14 @@ export function GamepadTest() {
                 </div>
                 
                 <div className="flex-1 relative bg-black/50">
-                     <DriftTestOverlay gamepad={gamepad} />
+                     <DriftTestOverlay 
+                        gamepad={gamepad}
+                        testState={activeTestIndex === gamepad.index ? testState : 'IDLE'}
+                        countdown={countdown}
+                        results={results}
+                        onStartTest={startDriftTest}
+                        onResetTest={() => setTestState('IDLE')}
+                     />
                 </div>
             </Card>
           </React.Fragment>

@@ -17,6 +17,8 @@ function Router() {
       <Route path="/microphone-test" component={Home} />
       <Route path="/webcam-test" component={Home} />
       <Route path="/gamepad-test" component={Home} />
+      <Route path="/typing-test" component={Home} />
+      <Route path="/audio-sync-test" component={Home} />
       <Route path="/about" component={About} />
       <Route path="/contact" component={Contact} />
       <Route path="/privacy" component={Privacy} />

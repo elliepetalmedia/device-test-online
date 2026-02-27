@@ -1,6 +1,7 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { Mic, MicOff, Volume2, Play } from 'lucide-react';
 import { Button } from '@/components/ui/button';
+import { testStore } from '@/lib/store';
 
 export function MicrophoneTest() {
   const [isRecording, setIsRecording] = useState(false);
@@ -8,7 +9,7 @@ export function MicrophoneTest() {
   const [error, setError] = useState<string | null>(null);
   const [recordingTime, setRecordingTime] = useState(5);
   const [amplitude, setAmplitude] = useState(0);
-  
+
   const mediaRecorderRef = useRef<MediaRecorder | null>(null);
   const streamRef = useRef<MediaStream | null>(null);
   const audioContextRef = useRef<AudioContext | null>(null);
@@ -23,10 +24,10 @@ export function MicrophoneTest() {
     if (mediaRecorderRef.current && isRecording) {
       mediaRecorderRef.current.stop();
       setIsRecording(false);
-      
+
       if (timerRef.current) clearTimeout(timerRef.current);
       if (animationRef.current) cancelAnimationFrame(animationRef.current);
-      
+
       if (streamRef.current) {
         streamRef.current.getTracks().forEach(track => track.stop());
       }
@@ -50,7 +51,7 @@ export function MicrophoneTest() {
   const startRecording = async () => {
     setError(null);
     chunksRef.current = [];
-    
+
     try {
       const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
       streamRef.current = stream;
@@ -64,14 +65,14 @@ export function MicrophoneTest() {
       const source = audioContext.createMediaStreamSource(stream);
       const analyser = audioContext.createAnalyser();
       analyser.fftSize = 2048;
-      
+
       const silentGain = audioContext.createGain();
       silentGain.gain.value = 0;
-      
+
       source.connect(analyser);
       analyser.connect(silentGain);
       silentGain.connect(audioContext.destination);
-      
+
       analyserRef.current = analyser;
 
       const dataArray = new Uint8Array(analyser.frequencyBinCount);
@@ -96,6 +97,7 @@ export function MicrophoneTest() {
         const url = URL.createObjectURL(blob);
         audioUrlRef.current = url;
         setHasRecording(true);
+        testStore.addResult('mic', 'passed', { description: '5s Audio Recorded' });
 
         if (audioContextRef.current) {
           audioContextRef.current.close();
@@ -114,7 +116,7 @@ export function MicrophoneTest() {
           clearInterval(interval);
           mediaRecorder.stop();
           setIsRecording(false);
-          
+
           if (streamRef.current) {
             streamRef.current.getTracks().forEach(track => track.stop());
           }
@@ -139,7 +141,7 @@ export function MicrophoneTest() {
   const playTestTone = () => {
     try {
       const audioContext = new (window.AudioContext || (window as any).webkitAudioContext)();
-      
+
       if (audioContext.state === 'suspended') {
         audioContext.resume();
       }
@@ -229,8 +231,8 @@ export function MicrophoneTest() {
                 Recording... Speak now
               </div>
               <div className="w-full bg-background rounded overflow-hidden h-2 border border-primary/50">
-                <div 
-                  className="h-full bg-primary transition-all duration-75" 
+                <div
+                  className="h-full bg-primary transition-all duration-75"
                   style={{ width: `${amplitude}%` }}
                 />
               </div>
@@ -248,23 +250,43 @@ export function MicrophoneTest() {
       </div>
 
       <div className="p-8 bg-surface border border-secondary/30 rounded-lg">
-        <h3 className="text-primary font-orbitron text-2xl mb-4 uppercase tracking-widest">How to Test Your Microphone</h3>
-        <div className="space-y-4 text-lg text-muted-foreground font-roboto-mono leading-relaxed">
-          <p>
-            <strong className="text-primary">Record Your Voice:</strong> Click "Start Recording" and speak into your microphone. The timer will countdown from 5 seconds. Once it reaches zero, the recording automatically stops.
-          </p>
-          <p>
-            <strong className="text-primary">Play Your Recording:</strong> After the recording stops, click "Play Your Recording" to hear your voice played back through your speakers. If you can hear yourself, your microphone is working perfectly. This is the definitive test—if audio is captured and played back, the microphone is functional.
-          </p>
-          <p>
-            <strong className="text-primary">Reset:</strong> Click "Reset" to clear everything and record again. This will prepare you for a fresh recording.
-          </p>
-          <p>
-            <strong className="text-primary">Speaker Test:</strong> Click "Test Speakers" to play a 5-second musical chord. This verifies your speaker output is working.
-          </p>
-          <p>
-            <strong className="text-primary">Privacy:</strong> All audio is processed locally. Nothing is recorded to a server or saved to your device.
-          </p>
+        <h2 className="text-primary font-orbitron text-2xl mb-6 uppercase tracking-widest border-b border-secondary/30 pb-4">Comprehensive Mic & Audio Diagnostic Guide</h2>
+        <div className="space-y-8 text-lg text-muted-foreground font-roboto-mono leading-relaxed">
+
+          <section>
+            <h3 className="text-xl font-orbitron text-white mb-2">How to Use the Online Microphone Tester</h3>
+            <p>
+              This free online microphone and speaker tester provides a secure, private way to verify your audio equipment is working perfectly before your next Zoom call, Discord session, or podcast recording. Just click "Start Recording" to begin a seamless loopback test right in your browser.
+            </p>
+          </section>
+
+          <section>
+            <h3 className="text-xl font-orbitron text-white mb-2">Diagnosing Common Microphone Issues</h3>
+            <ul className="list-disc pl-6 space-y-2">
+              <li><strong>Microphone extremely quiet?</strong> If the blue amplitude bar barely moves when you speak loudly, your input volume is too low. In Windows, go to Sound Settings &gt; Recording &gt; Properties &gt; Levels and increase the slider. You may also need to increase the "Microphone Boost" if you are using an analog headset.</li>
+              <li><strong>Static or Buzzing noise?</strong> If you hear a constant hum during playback, your microphone cable might be picking up electromagnetic interference (EMI), or you have a "ground loop" issue. Try plugging your headset into the back motherboard ports instead of the front panel of your PC case.</li>
+              <li><strong>Browser permission denied?</strong> If the tool immediately throws an error, your browser is blocking microphone access. Click the padlock icon in your browser's URL bar (next to the website address) and ensure "Microphone" is set to "Allow".</li>
+            </ul>
+          </section>
+
+          <section>
+            <h3 className="text-xl font-orbitron text-white mb-2">How the "Loopback Test" Works</h3>
+            <p>
+              The most reliable way to test a microphone isn't just looking at a volume meter—it's hearing yourself exactly as others hear you.
+            </p>
+            <ul className="list-disc pl-6 space-y-2">
+              <li><strong>Record Phase:</strong> We capture exactly 5 seconds of raw audio from your default input device.</li>
+              <li><strong>Playback Phase:</strong> By clicking "Play Your Recording," you hear the uncompressed, raw audio file. If your voice sounds robotic, muffled, or delayed in the recording, that is exactly how your teammates or coworkers hear you.</li>
+            </ul>
+          </section>
+
+          <section>
+            <h3 className="text-xl font-orbitron text-white mb-2">100% Privacy Guarantee</h3>
+            <p>
+              Unlike other mic testing websites, <strong>Device Tester Online processes all audio entirely on your device.</strong> Your voice recordings never leave your computer, are never sent to a server, and are instantly deleted from your RAM the moment you click "Reset" or close the tab.
+            </p>
+          </section>
+
         </div>
       </div>
     </div>

@@ -1,6 +1,6 @@
 import React from 'react';
 import { Link } from 'wouter';
-import { HelpCircle, ArrowLeft, MousePointer2, Keyboard, Monitor, Mic, Camera, Gamepad2 } from 'lucide-react';
+import { HelpCircle, ArrowLeft, MousePointer2, Keyboard, Monitor, Mic, Camera, Gamepad2, Type, Volume2, FileText } from 'lucide-react';
 import { Card } from '@/components/ui/card';
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from "@/components/ui/accordion";
 
@@ -47,7 +47,7 @@ export default function FAQ() {
                 <AccordionTrigger className="font-bold text-lg text-foreground hover:text-primary transition-colors">What is Polling Rate and why does it matter?</AccordionTrigger>
                 <AccordionContent className="text-gray-300 leading-relaxed text-base">
                   <p className="mb-2">
-                    Polling rate (measured in Hz) is how often your mouse reports its position to your computer. 
+                    Polling rate (measured in Hz) is how often your mouse reports its position to your computer.
                   </p>
                   <ul className="list-disc pl-6 space-y-1 mb-2">
                     <li><strong>125Hz:</strong> Standard office mouse (reports every 8ms).</li>
@@ -103,7 +103,10 @@ export default function FAQ() {
                     <strong className="text-white">Dead Pixel:</strong> Appears as a black dot. The transistor is dead and blocks light. These are usually permanent.
                   </p>
                   <p>
-                    <strong className="text-white">Stuck Pixel:</strong> Appears as a bright red, green, or blue dot. The transistor is stuck in the "on" position. These can sometimes be fixed by gently massaging the area or using software that rapidly flashes colors.
+                    <strong className="text-white">Stuck Pixel:</strong> Appears as a bright red, green, or blue dot. The transistor is stuck in the "on" position.
+                  </p>
+                  <p className="mt-2 text-primary">
+                    <strong className="mr-1">Solution:</strong> Use our <strong>Stuck Pixel Fixer</strong> located on the Monitor Test page. It rapidly flashes primary colors to attempt to massage the crystal back into place. Note: Do not use this if you have Photosensitive Epilepsy.
                   </p>
                 </AccordionContent>
               </AccordionItem>
@@ -194,12 +197,66 @@ export default function FAQ() {
                     The vibration test relies on the <strong>Gamepad API's vibrationActuator</strong> feature, which is not supported by all browsers or operating systems.
                   </p>
                   <ul className="list-disc pl-6 space-y-1 mb-2">
-                     <li><strong>Chrome / Edge / Opera:</strong> Excellent support. Vibration works on most Xbox and PlayStation controllers.</li>
-                     <li><strong>Firefox:</strong> Limited support. May require enabling experimental flags or specific controller drivers.</li>
-                     <li><strong>Safari (macOS/iOS):</strong> No support. Apple does not currently allow websites to trigger controller vibration.</li>
+                    <li><strong>Chrome / Edge / Opera:</strong> Excellent support. Vibration works on most Xbox and PlayStation controllers.</li>
+                    <li><strong>Firefox:</strong> Limited support. May require enabling experimental flags or specific controller drivers.</li>
+                    <li><strong>Safari (macOS/iOS):</strong> No support. Apple does not currently allow websites to trigger controller vibration.</li>
                   </ul>
                   <p>
                     <strong>Solution:</strong> If you need to test vibration, please try opening this website in <strong>Google Chrome</strong> or <strong>Microsoft Edge</strong>.
+                  </p>
+                </AccordionContent>
+              </AccordionItem>
+            </Accordion>
+          </section>
+
+          {/* Typing Speed Section */}
+          <section>
+            <h2 className="text-2xl font-orbitron text-primary mb-4 flex items-center gap-3 border-b border-primary/20 pb-2">
+              <Type className="w-6 h-6" /> Typing Speed & Accuracy
+            </h2>
+            <Accordion type="single" collapsible className="w-full">
+              <AccordionItem value="wpm-calc">
+                <AccordionTrigger className="font-bold text-lg text-foreground hover:text-primary transition-colors">How is WPM calculated?</AccordionTrigger>
+                <AccordionContent className="text-gray-300 leading-relaxed text-base">
+                  <p>
+                    We use the standardized calculation for Words Per Minute. Rather than counting literal words (which vary in length), we count the total number of correct keystrokes over 60 seconds and divide by 5 (the standard length of a "word").
+                  </p>
+                </AccordionContent>
+              </AccordionItem>
+            </Accordion>
+          </section>
+
+          {/* Audio Sync Section */}
+          <section>
+            <h2 className="text-2xl font-orbitron text-primary mb-4 flex items-center gap-3 border-b border-primary/20 pb-2">
+              <Volume2 className="w-6 h-6" /> Audio Latency Test
+            </h2>
+            <Accordion type="single" collapsible className="w-full">
+              <AccordionItem value="bluetooth-delay">
+                <AccordionTrigger className="font-bold text-lg text-foreground hover:text-primary transition-colors">Why do my Bluetooth headphones have delay?</AccordionTrigger>
+                <AccordionContent className="text-gray-300 leading-relaxed text-base">
+                  <p className="mb-2">
+                    Bluetooth audio must be encoded, transmitted, received, and decoded before you hear it. This introduces latency.
+                  </p>
+                  <p>
+                    Our Audio Sync test visually flashes the screen whilst emitting a sharp beep. By reacting to both stimuli, you can determine how many milliseconds of delay your headset introduces. Over 150ms is usually noticeable in gaming and video playback.
+                  </p>
+                </AccordionContent>
+              </AccordionItem>
+            </Accordion>
+          </section>
+
+          {/* Test Summary Section */}
+          <section>
+            <h2 className="text-2xl font-orbitron text-primary mb-4 flex items-center gap-3 border-b border-primary/20 pb-2">
+              <FileText className="w-6 h-6" /> Test Summary Export
+            </h2>
+            <Accordion type="single" collapsible className="w-full">
+              <AccordionItem value="hardware-scorecard">
+                <AccordionTrigger className="font-bold text-lg text-foreground hover:text-primary transition-colors">Where can I see all my test results?</AccordionTrigger>
+                <AccordionContent className="text-gray-300 leading-relaxed text-base">
+                  <p>
+                    As you complete various diagnostics throughout this site, your results are saved locally. You can click the <strong>Test Summary / Export</strong> button on the sidebar to view a unified Hardware Scorecard, which can be copied directly to your clipboard for sharing with technicians or online support forums.
                   </p>
                 </AccordionContent>
               </AccordionItem>

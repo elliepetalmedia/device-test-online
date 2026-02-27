@@ -4,6 +4,7 @@ import { Card } from '@/components/ui/card';
 import { cn } from '@/lib/utils';
 import { useToast } from "@/hooks/use-toast";
 import { Button } from "@/components/ui/button";
+import { testStore } from '@/lib/store';
 
 interface GamepadState {
   id: string;
@@ -43,13 +44,13 @@ interface DriftTestOverlayProps {
   onResetTest: () => void;
 }
 
-const DriftTestOverlay = ({ 
-  gamepad, 
-  testState, 
-  countdown, 
-  results, 
-  onStartTest, 
-  onResetTest 
+const DriftTestOverlay = ({
+  gamepad,
+  testState,
+  countdown,
+  results,
+  onStartTest,
+  onResetTest
 }: DriftTestOverlayProps) => {
   if (testState === 'IDLE') {
     return (
@@ -102,13 +103,13 @@ const DriftTestOverlay = ({
   if (testState === 'RESULT') {
     const leftStick = results[0];
     const rightStick = results[1];
-    
+
     return (
       <div className="absolute inset-0 bg-black/95 z-20 flex flex-col items-center justify-center p-4 md:p-8 animate-in zoom-in-95">
         <h3 className="text-xl font-orbitron font-bold text-white mb-6 flex items-center gap-2">
           <CheckCircle2 className="text-primary" /> ANALYSIS COMPLETE
         </h3>
-        
+
         <div className="grid grid-cols-1 md:grid-cols-2 gap-6 w-full max-w-2xl">
           {/* Left Stick Report */}
           <div className={cn("p-4 rounded border", leftStick?.passed ? "border-green-500/30 bg-green-500/5" : "border-red-500/30 bg-red-500/5")}>
@@ -121,10 +122,10 @@ const DriftTestOverlay = ({
                 <div className="absolute inset-0 m-auto w-1 h-1 bg-white/20 rounded-full"></div>
                 {/* Result Point */}
                 {leftStick && (
-                  <div 
+                  <div
                     className={cn("absolute w-2 h-2 rounded-full shadow-[0_0_10px]", leftStick.passed ? "bg-green-500 shadow-green-500" : "bg-red-500 shadow-red-500")}
-                    style={{ 
-                      left: `calc(50% + ${leftStick.x.avg * 50}%)`, 
+                    style={{
+                      left: `calc(50% + ${leftStick.x.avg * 50}%)`,
                       top: `calc(50% + ${leftStick.y.avg * 50}%)`,
                       transform: 'translate(-50%, -50%)'
                     }}
@@ -157,10 +158,10 @@ const DriftTestOverlay = ({
                 <div className="absolute inset-0 m-auto w-1 h-1 bg-white/20 rounded-full"></div>
                 {/* Result Point */}
                 {rightStick && (
-                  <div 
+                  <div
                     className={cn("absolute w-2 h-2 rounded-full shadow-[0_0_10px]", rightStick.passed ? "bg-green-500 shadow-green-500" : "bg-red-500 shadow-red-500")}
-                    style={{ 
-                      left: `calc(50% + ${rightStick.x.avg * 50}%)`, 
+                    style={{
+                      left: `calc(50% + ${rightStick.x.avg * 50}%)`,
                       top: `calc(50% + ${rightStick.y.avg * 50}%)`,
                       transform: 'translate(-50%, -50%)'
                     }}
@@ -182,7 +183,7 @@ const DriftTestOverlay = ({
             </div>
           </div>
         </div>
-        
+
         <div className="mt-8 flex gap-4">
           <Button variant="outline" onClick={onResetTest} className="border-white/20 hover:bg-white/10 relative z-30 pointer-events-auto">
             Close
@@ -194,20 +195,20 @@ const DriftTestOverlay = ({
       </div>
     );
   }
-  
+
   return null;
 };
 
 export function GamepadTest() {
   const [gamepads, setGamepads] = useState<Record<number, GamepadState>>({});
   const [selectedLayout, setSelectedLayout] = useState<'generic' | 'xbox' | 'playstation'>('generic');
-  
+
   // Drift Test State
   const [activeTestIndex, setActiveTestIndex] = useState<number | null>(null);
   const [testState, setTestState] = useState<TestState>('IDLE');
   const [countdown, setCountdown] = useState(3);
   const [results, setResults] = useState<Record<number, StickResult>>({}); // Key: Stick Index
-  
+
   const samplesRef = useRef<Record<number, DriftSample[]>>({}); // Use Ref for synchronous sample collection
   const requestRef = useRef<number | null>(null);
   const testTimerRef = useRef<NodeJS.Timeout | null>(null);
@@ -232,7 +233,7 @@ export function GamepadTest() {
 
         // Drift Sampling Logic
         if (activeTestIndex === gamepad.index && testState === 'SAMPLING') {
-           collectSamples(newGamepads[gamepad.index]);
+          collectSamples(newGamepads[gamepad.index]);
         }
       }
     }
@@ -242,103 +243,107 @@ export function GamepadTest() {
   };
 
   const collectSamples = (gamepad: GamepadState) => {
-      // Typically Stick 0 is axes 0,1 and Stick 1 is axes 2,3
-      // We'll collect for both sticks simultaneously
-      const sticks = [0, 1];
-      
-      sticks.forEach(stickIdx => {
-          const xIndex = stickIdx * 2;
-          const yIndex = stickIdx * 2 + 1;
-          
-          if (xIndex < gamepad.axes.length && yIndex < gamepad.axes.length) {
-              const sample: DriftSample = {
-                  x: gamepad.axes[xIndex],
-                  y: gamepad.axes[yIndex]
-              };
-              
-              if (!samplesRef.current[stickIdx]) {
-                samplesRef.current[stickIdx] = [];
-              }
-              samplesRef.current[stickIdx].push(sample);
-          }
-      });
+    // Typically Stick 0 is axes 0,1 and Stick 1 is axes 2,3
+    // We'll collect for both sticks simultaneously
+    const sticks = [0, 1];
 
-      frameCountRef.current++;
-      
-      // Stop after 60 frames (approx 1 second)
-      if (frameCountRef.current >= 60) {
-          calculateResults();
-          setTestState('RESULT');
+    sticks.forEach(stickIdx => {
+      const xIndex = stickIdx * 2;
+      const yIndex = stickIdx * 2 + 1;
+
+      if (xIndex < gamepad.axes.length && yIndex < gamepad.axes.length) {
+        const sample: DriftSample = {
+          x: gamepad.axes[xIndex],
+          y: gamepad.axes[yIndex]
+        };
+
+        if (!samplesRef.current[stickIdx]) {
+          samplesRef.current[stickIdx] = [];
+        }
+        samplesRef.current[stickIdx].push(sample);
       }
+    });
+
+    frameCountRef.current++;
+
+    // Stop after 60 frames (approx 1 second)
+    if (frameCountRef.current >= 60) {
+      calculateResults();
+      setTestState('RESULT');
+    }
   };
 
   const calculateResults = () => {
-      const newResults: Record<number, StickResult> = {};
-      
-      [0, 1].forEach(stickIdx => {
-          const stickSamples = samplesRef.current[stickIdx];
-          if (!stickSamples || stickSamples.length === 0) return;
-          
-          // Calculate Mean
-          const sumX = stickSamples.reduce((acc, s) => acc + s.x, 0);
-          const sumY = stickSamples.reduce((acc, s) => acc + s.y, 0);
-          const avgX = sumX / stickSamples.length;
-          const avgY = sumY / stickSamples.length;
-          
-          // Calculate Variance (Jitter)
-          const varX = stickSamples.reduce((acc, s) => acc + Math.pow(s.x - avgX, 2), 0) / stickSamples.length;
-          const varY = stickSamples.reduce((acc, s) => acc + Math.pow(s.y - avgY, 2), 0) / stickSamples.length;
-          
-          const driftDistance = Math.sqrt(Math.pow(avgX, 2) + Math.pow(avgY, 2));
-          
-          newResults[stickIdx] = {
-              x: { avg: avgX, jitter: Math.sqrt(varX), drift: avgX },
-              y: { avg: avgY, jitter: Math.sqrt(varY), drift: avgY },
-              driftPercentage: driftDistance * 100, // 0-1 scale to percentage
-              passed: driftDistance < 0.05 // 5% deadzone tolerance
-          };
-      });
-      
-      setResults(newResults);
+    const newResults: Record<number, StickResult> = {};
+
+    [0, 1].forEach(stickIdx => {
+      const stickSamples = samplesRef.current[stickIdx];
+      if (!stickSamples || stickSamples.length === 0) return;
+
+      // Calculate Mean
+      const sumX = stickSamples.reduce((acc, s) => acc + s.x, 0);
+      const sumY = stickSamples.reduce((acc, s) => acc + s.y, 0);
+      const avgX = sumX / stickSamples.length;
+      const avgY = sumY / stickSamples.length;
+
+      // Calculate Variance (Jitter)
+      const varX = stickSamples.reduce((acc, s) => acc + Math.pow(s.x - avgX, 2), 0) / stickSamples.length;
+      const varY = stickSamples.reduce((acc, s) => acc + Math.pow(s.y - avgY, 2), 0) / stickSamples.length;
+
+      const driftDistance = Math.sqrt(Math.pow(avgX, 2) + Math.pow(avgY, 2));
+
+      newResults[stickIdx] = {
+        x: { avg: avgX, jitter: Math.sqrt(varX), drift: avgX },
+        y: { avg: avgY, jitter: Math.sqrt(varY), drift: avgY },
+        driftPercentage: driftDistance * 100, // 0-1 scale to percentage
+        passed: driftDistance < 0.05 // 5% deadzone tolerance
+      };
+    });
+
+    setResults(newResults);
+
+    // Check if any stick failed drift test
+    const anyFailed = Object.values(newResults).some(result => !result.passed);
+    testStore.addResult('gamepad', anyFailed ? 'failed' : 'passed', { driftTest: anyFailed ? 'Drift Detected' : 'Passed Deadzone Check' });
   };
 
   const startDriftTest = (gamepadIndex: number) => {
-      setActiveTestIndex(gamepadIndex);
-      setTestState('AGITATE');
+    setActiveTestIndex(gamepadIndex);
+    setTestState('AGITATE');
+    setCountdown(3);
+    samplesRef.current = {}; // Reset samples
+    setResults({});
+    frameCountRef.current = 0;
+
+    // Start Agitate Timer
+    if (testTimerRef.current) clearTimeout(testTimerRef.current);
+
+    const runTestSequence = async () => {
+      // Phase 1: Agitate (3s)
+      await new Promise(r => setTimeout(r, 3000));
+
+      // Phase 2: Settle (3s countdown)
+      setTestState('SETTLE');
       setCountdown(3);
-      samplesRef.current = {}; // Reset samples
-      setResults({});
-      frameCountRef.current = 0;
-      
-      // Start Agitate Timer
-      if (testTimerRef.current) clearTimeout(testTimerRef.current);
-      
-      const runTestSequence = async () => {
-          // Phase 1: Agitate (3s)
-          await new Promise(r => setTimeout(r, 3000));
-          
-          // Phase 2: Settle (3s countdown)
-          setTestState('SETTLE');
-          setCountdown(3);
-          
-          const countdownInterval = setInterval(() => {
-              setCountdown(prev => {
-                  if (prev <= 1) {
-                      clearInterval(countdownInterval);
-                      return 0;
-                  }
-                  return prev - 1;
-              });
-          }, 1000);
-          
-          await new Promise(r => setTimeout(r, 3000));
-          
-          // Phase 3: Sampling
-          setTestState('SAMPLING');
-          // Sampling happens in scanGamepads loop
-      };
-      
-      runTestSequence();
+
+      const countdownInterval = setInterval(() => {
+        setCountdown(prev => {
+          if (prev <= 1) {
+            clearInterval(countdownInterval);
+            return 0;
+          }
+          return prev - 1;
+        });
+      }, 1000);
+
+      await new Promise(r => setTimeout(r, 3000));
+
+      // Phase 3: Sampling
+      setTestState('SAMPLING');
+      // Sampling happens in scanGamepads loop
+    };
+
+    runTestSequence();
   };
 
   useEffect(() => {
@@ -346,6 +351,7 @@ export function GamepadTest() {
       console.log("Gamepad connected at index %d: %s. %d buttons, %d axes.",
         e.gamepad.index, e.gamepad.id,
         e.gamepad.buttons.length, e.gamepad.axes.length);
+      testStore.addResult('gamepad', 'tested', { controller: e.gamepad.id });
     });
 
     window.addEventListener("gamepaddisconnected", (e) => {
@@ -360,7 +366,7 @@ export function GamepadTest() {
         cancelAnimationFrame(requestRef.current);
       }
       if (testTimerRef.current) {
-          clearTimeout(testTimerRef.current);
+        clearTimeout(testTimerRef.current);
       }
     };
   }, [activeTestIndex, testState]);
@@ -369,7 +375,7 @@ export function GamepadTest() {
 
   const renderLayoutButtons = (gamepad?: GamepadState) => {
     const buttons = gamepad ? gamepad.buttons : Array.from({ length: 16 }).map(() => ({ pressed: false, value: 0 }));
-    
+
     // Customize button labels based on layout
     const getLabel = (index: number) => {
       if (selectedLayout === 'xbox') {
@@ -386,19 +392,19 @@ export function GamepadTest() {
     return (
       <div className="grid grid-cols-4 sm:grid-cols-6 gap-3">
         {buttons.map((button, i) => (
-          <div 
+          <div
             key={i}
             className={cn(
               "flex flex-col items-center justify-center p-3 rounded border transition-all duration-75 aspect-square",
-              button.pressed 
-                ? "bg-primary text-black border-primary shadow-[0_0_15px_rgba(102,252,241,0.5)] scale-95" 
+              button.pressed
+                ? "bg-primary text-black border-primary shadow-[0_0_15px_rgba(102,252,241,0.5)] scale-95"
                 : "bg-black/40 text-muted-foreground border-white/10"
             )}
           >
             <span className="font-orbitron font-bold text-lg mb-1">{getLabel(i)}</span>
             <div className="w-full bg-black/50 h-1.5 rounded-full overflow-hidden">
-              <div 
-                className="h-full bg-current transition-none" 
+              <div
+                className="h-full bg-current transition-none"
                 // @ts-ignore
                 style={{ width: `${button.value * 100}%` }}
               />
@@ -411,7 +417,7 @@ export function GamepadTest() {
 
   const renderLayoutAxes = (gamepad?: GamepadState) => {
     const axes = gamepad ? gamepad.axes : [0, 0, 0, 0];
-    
+
     return (
       <div className="grid gap-6">
         {Array.from({ length: Math.ceil(axes.length / 2) }).map((_, pairIndex) => {
@@ -428,13 +434,13 @@ export function GamepadTest() {
                   Stick {pairIndex + 1} (Axes {xIndex}{hasY ? ` & ${yIndex}` : ''})
                 </span>
               </div>
-              
+
               <div className="flex gap-6 items-center">
                 {/* 2D Visualization */}
                 <div className="w-24 h-24 rounded-full border border-white/20 bg-black/40 relative shrink-0">
-                  <div 
+                  <div
                     className="absolute w-4 h-4 bg-primary rounded-full shadow-[0_0_10px_rgba(102,252,241,0.8)] top-1/2 left-1/2 -ml-2 -mt-2 transition-none"
-                    style={{ 
+                    style={{
                       transform: `translate(${xValue * 40}px, ${hasY ? yValue * 40 : 0}px)`
                     }}
                   />
@@ -454,9 +460,9 @@ export function GamepadTest() {
                     </div>
                     <div className="h-2 bg-black/50 rounded-full overflow-hidden relative">
                       <div className="absolute left-1/2 top-0 bottom-0 w-px bg-white/20" />
-                      <div 
+                      <div
                         className="h-full bg-primary/80 absolute top-0 transition-none"
-                        style={{ 
+                        style={{
                           left: xValue < 0 ? `${(1 + xValue) * 50}%` : '50%',
                           width: `${Math.abs(xValue) * 50}%`
                         }}
@@ -474,9 +480,9 @@ export function GamepadTest() {
                       </div>
                       <div className="h-2 bg-black/50 rounded-full overflow-hidden relative">
                         <div className="absolute left-1/2 top-0 bottom-0 w-px bg-white/20" />
-                        <div 
+                        <div
                           className="h-full bg-primary/80 absolute top-0 transition-none"
-                          style={{ 
+                          style={{
                             left: yValue < 0 ? `${(1 + yValue) * 50}%` : '50%',
                             width: `${Math.abs(yValue) * 50}%`
                           }}
@@ -496,7 +502,7 @@ export function GamepadTest() {
   const testVibration = async (gamepad: GamepadState) => {
     // @ts-ignore
     const gp = navigator.getGamepads()[gamepad.index];
-    
+
     if (!gp) {
       toast({
         variant: "destructive",
@@ -528,25 +534,25 @@ export function GamepadTest() {
           description: `Error: ${error.message || "Unknown error"}`,
         });
       }
-    } 
+    }
     // Fallback for older implementations (Firefox often uses hapticActuators)
     // @ts-ignore
     else if (gp.hapticActuators && gp.hapticActuators.length > 0) {
-       try {
-         // @ts-ignore
-         await gp.hapticActuators[0].pulse(1.0, 1000);
-         toast({
+      try {
+        // @ts-ignore
+        await gp.hapticActuators[0].pulse(1.0, 1000);
+        toast({
           title: "Vibration Sent",
           description: "Sent haptic pulse command to controller.",
         });
-       } catch (error: any) {
-         console.error("Haptic pulse failed", error);
-         toast({
-            variant: "destructive",
-            title: "Haptic Pulse Failed",
-            description: `Error: ${error.message || "Unknown error"}`,
+      } catch (error: any) {
+        console.error("Haptic pulse failed", error);
+        toast({
+          variant: "destructive",
+          title: "Haptic Pulse Failed",
+          description: `Error: ${error.message || "Unknown error"}`,
         });
-       }
+      }
     } else {
       toast({
         variant: "destructive",
@@ -568,35 +574,35 @@ export function GamepadTest() {
           <div className="flex-1">
             <h3 className="text-xl font-orbitron font-bold text-foreground mb-2">Gamepad Diagnostics</h3>
             <div className="flex flex-col sm:flex-row gap-4 justify-between items-start sm:items-center mb-4">
-               <div className="flex gap-2">
-                 <button 
-                   onClick={() => setSelectedLayout('generic')}
-                   className={cn(
-                     "px-3 py-1.5 text-xs font-bold rounded border transition-colors",
-                     selectedLayout === 'generic' ? "bg-primary text-black border-primary" : "bg-black/20 text-muted-foreground border-white/10 hover:border-white/20"
-                   )}
-                 >
-                   GENERIC
-                 </button>
-                 <button 
-                   onClick={() => setSelectedLayout('xbox')}
-                   className={cn(
-                     "px-3 py-1.5 text-xs font-bold rounded border transition-colors",
-                     selectedLayout === 'xbox' ? "bg-green-600 text-white border-green-500" : "bg-black/20 text-muted-foreground border-white/10 hover:border-white/20"
-                   )}
-                 >
-                   XBOX
-                 </button>
-                 <button 
-                   onClick={() => setSelectedLayout('playstation')}
-                   className={cn(
-                     "px-3 py-1.5 text-xs font-bold rounded border transition-colors",
-                     selectedLayout === 'playstation' ? "bg-blue-600 text-white border-blue-500" : "bg-black/20 text-muted-foreground border-white/10 hover:border-white/20"
-                   )}
-                 >
-                   PLAYSTATION
-                 </button>
-               </div>
+              <div className="flex gap-2">
+                <button
+                  onClick={() => setSelectedLayout('generic')}
+                  className={cn(
+                    "px-3 py-1.5 text-xs font-bold rounded border transition-colors",
+                    selectedLayout === 'generic' ? "bg-primary text-black border-primary" : "bg-black/20 text-muted-foreground border-white/10 hover:border-white/20"
+                  )}
+                >
+                  GENERIC
+                </button>
+                <button
+                  onClick={() => setSelectedLayout('xbox')}
+                  className={cn(
+                    "px-3 py-1.5 text-xs font-bold rounded border transition-colors",
+                    selectedLayout === 'xbox' ? "bg-green-600 text-white border-green-500" : "bg-black/20 text-muted-foreground border-white/10 hover:border-white/20"
+                  )}
+                >
+                  XBOX
+                </button>
+                <button
+                  onClick={() => setSelectedLayout('playstation')}
+                  className={cn(
+                    "px-3 py-1.5 text-xs font-bold rounded border transition-colors",
+                    selectedLayout === 'playstation' ? "bg-blue-600 text-white border-blue-500" : "bg-black/20 text-muted-foreground border-white/10 hover:border-white/20"
+                  )}
+                >
+                  PLAYSTATION
+                </button>
+              </div>
             </div>
 
             {!hasGamepads ? (
@@ -618,85 +624,85 @@ export function GamepadTest() {
         Object.values(gamepads).map((gamepad) => (
           <React.Fragment key={gamepad.index}>
             <Card className="p-6 bg-black/40 border-primary/20 backdrop-blur-sm relative overflow-hidden group">
-                <div className="absolute inset-0 bg-gradient-to-br from-primary/5 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none" />
-                
-                <div className="mb-6 flex justify-between items-center border-b border-white/10 pb-4">
+              <div className="absolute inset-0 bg-gradient-to-br from-primary/5 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none" />
+
+              <div className="mb-6 flex justify-between items-center border-b border-white/10 pb-4">
                 <div>
-                    <h4 className="font-orbitron text-lg text-primary truncate max-w-md" title={gamepad.id}>
+                  <h4 className="font-orbitron text-lg text-primary truncate max-w-md" title={gamepad.id}>
                     {gamepad.id}
-                    </h4>
-                    <div className="flex gap-4 items-center mt-2">
+                  </h4>
+                  <div className="flex gap-4 items-center mt-2">
                     <div className="text-xs font-mono text-muted-foreground">
-                        Index: {gamepad.index} | Buttons: {gamepad.buttons.length} | Axes: {gamepad.axes.length}
+                      Index: {gamepad.index} | Buttons: {gamepad.buttons.length} | Axes: {gamepad.axes.length}
                     </div>
-                    <button 
-                        onClick={() => testVibration(gamepad)}
-                        className="text-sm bg-primary/20 hover:bg-primary/40 text-primary border border-primary/50 px-4 py-2 rounded transition-colors uppercase font-bold tracking-wider"
+                    <button
+                      onClick={() => testVibration(gamepad)}
+                      className="text-sm bg-primary/20 hover:bg-primary/40 text-primary border border-primary/50 px-4 py-2 rounded transition-colors uppercase font-bold tracking-wider"
                     >
-                        Test Vibration
+                      Test Vibration
                     </button>
                     <div className="flex flex-col text-base leading-tight text-muted-foreground/80 font-mono">
-                        <span className="text-green-400">Chrome/Edge: Supported</span>
-                        <span className="text-orange-400">Firefox: Limited</span>
-                        <span className="text-red-400">Safari: Not Supported</span>
+                      <span className="text-green-400">Chrome/Edge: Supported</span>
+                      <span className="text-orange-400">Firefox: Limited</span>
+                      <span className="text-red-400">Safari: Not Supported</span>
                     </div>
-                    </div>
+                  </div>
                 </div>
                 <div className="px-2 py-1 bg-primary/20 border border-primary text-primary text-xs font-bold rounded uppercase tracking-wider animate-pulse">
-                    Live Input
+                  Live Input
                 </div>
-                </div>
+              </div>
 
-          {/* Two Column Layout for Compactness */}
-          <div className="grid grid-cols-1 lg:grid-cols-12 gap-6">
-            <div className="lg:col-span-7 space-y-6">
-                 {/* Visualizer */}
-                 <div className="grid grid-cols-1 gap-6">
+              {/* Two Column Layout for Compactness */}
+              <div className="grid grid-cols-1 lg:grid-cols-12 gap-6">
+                <div className="lg:col-span-7 space-y-6">
+                  {/* Visualizer */}
+                  <div className="grid grid-cols-1 gap-6">
                     <div className="space-y-4">
-                        <h5 className="font-orbitron text-sm text-muted-foreground uppercase tracking-widest border-l-2 border-primary pl-3">
+                      <h5 className="font-orbitron text-sm text-muted-foreground uppercase tracking-widest border-l-2 border-primary pl-3">
                         Button State
-                        </h5>
-                        {renderLayoutButtons(gamepad)}
+                      </h5>
+                      {renderLayoutButtons(gamepad)}
                     </div>
 
                     <div className="space-y-4">
-                        <h5 className="font-orbitron text-sm text-muted-foreground uppercase tracking-widest border-l-2 border-secondary pl-3">
+                      <h5 className="font-orbitron text-sm text-muted-foreground uppercase tracking-widest border-l-2 border-secondary pl-3">
                         Analog Axes
-                        </h5>
-                        {renderLayoutAxes(gamepad)}
+                      </h5>
+                      {renderLayoutAxes(gamepad)}
                     </div>
+                  </div>
                 </div>
-            </div>
 
-            {/* Drift Test Sidebar */}
-            <div className="lg:col-span-5">
-                 <Card className="h-full bg-black/40 border-white/10 backdrop-blur-sm relative overflow-hidden flex flex-col min-h-[500px]">
+                {/* Drift Test Sidebar */}
+                <div className="lg:col-span-5">
+                  <Card className="h-full bg-black/40 border-white/10 backdrop-blur-sm relative overflow-hidden flex flex-col min-h-[500px]">
                     <div className="p-4 border-b border-white/10 flex justify-between items-center bg-white/5">
-                        <div>
-                            <h4 className="font-orbitron text-base text-white">Drift Analysis</h4>
-                            <p className="text-xs text-muted-foreground font-mono">Statistical sensor check</p>
-                        </div>
+                      <div>
+                        <h4 className="font-orbitron text-base text-white">Drift Analysis</h4>
+                        <p className="text-xs text-muted-foreground font-mono">Statistical sensor check</p>
+                      </div>
                     </div>
-                    
+
                     <div className="flex-1 relative bg-black/50">
-                         <DriftTestOverlay 
-                            gamepad={gamepad}
-                            testState={activeTestIndex === gamepad.index ? testState : 'IDLE'}
-                            countdown={countdown}
-                            results={results}
-                            onStartTest={startDriftTest}
-                            onResetTest={() => setTestState('IDLE')}
-                         />
+                      <DriftTestOverlay
+                        gamepad={gamepad}
+                        testState={activeTestIndex === gamepad.index ? testState : 'IDLE'}
+                        countdown={countdown}
+                        results={results}
+                        onStartTest={startDriftTest}
+                        onResetTest={() => setTestState('IDLE')}
+                      />
                     </div>
-                </Card>
-            </div>
-          </div>
-          </Card>
+                  </Card>
+                </div>
+              </div>
+            </Card>
           </React.Fragment>
         ))
       ) : (
         <Card className="p-6 bg-black/40 border-white/10 backdrop-blur-sm opacity-60">
-           <div className="mb-6 flex justify-between items-center border-b border-white/10 pb-4">
+          <div className="mb-6 flex justify-between items-center border-b border-white/10 pb-4">
             <div>
               <h4 className="font-orbitron text-lg text-muted-foreground">
                 Device Test Preview
@@ -709,66 +715,82 @@ export function GamepadTest() {
 
           <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 pointer-events-none grayscale">
             <div className="lg:col-span-7 space-y-6">
-                <div className="grid grid-cols-1 gap-6">
-                    <div className="space-y-4">
-                        <h5 className="font-orbitron text-sm text-muted-foreground uppercase tracking-widest border-l-2 border-white/20 pl-3">
-                            Button State
-                        </h5>
-                        {renderLayoutButtons()}
-                    </div>
-
-                    <div className="space-y-4">
-                        <h5 className="font-orbitron text-sm text-muted-foreground uppercase tracking-widest border-l-2 border-white/20 pl-3">
-                            Analog Axes
-                        </h5>
-                        {renderLayoutAxes()}
-                    </div>
+              <div className="grid grid-cols-1 gap-6">
+                <div className="space-y-4">
+                  <h5 className="font-orbitron text-sm text-muted-foreground uppercase tracking-widest border-l-2 border-white/20 pl-3">
+                    Button State
+                  </h5>
+                  {renderLayoutButtons()}
                 </div>
+
+                <div className="space-y-4">
+                  <h5 className="font-orbitron text-sm text-muted-foreground uppercase tracking-widest border-l-2 border-white/20 pl-3">
+                    Analog Axes
+                  </h5>
+                  {renderLayoutAxes()}
+                </div>
+              </div>
             </div>
 
             <div className="lg:col-span-5">
-                 <Card className="h-full bg-black/40 border-white/10 backdrop-blur-sm relative overflow-hidden flex flex-col min-h-[500px]">
-                    <div className="p-4 border-b border-white/10 flex justify-between items-center bg-white/5">
-                        <div>
-                            <h4 className="font-orbitron text-base text-white">Drift Analysis</h4>
-                            <p className="text-xs text-muted-foreground font-mono">Statistical sensor check</p>
-                        </div>
-                    </div>
-                    
-                    <div className="flex-1 relative bg-black/50 flex flex-col items-center justify-center p-8 text-center">
-                        <Crosshair className="w-16 h-16 text-muted-foreground mb-4 opacity-30" />
-                        <h3 className="text-2xl font-orbitron font-bold text-muted-foreground mb-2">Drift Analysis Protocol</h3>
-                        <p className="text-muted-foreground max-w-md mb-6 font-mono text-sm opacity-50">
-                            Connect a controller to enable the drift analysis test sequence.
-                        </p>
-                        <Button disabled className="font-orbitron tracking-widest bg-white/10 text-muted-foreground">
-                            <Play className="w-4 h-4 mr-2" /> BEGIN TEST sequence
-                        </Button>
-                    </div>
-                </Card>
+              <Card className="h-full bg-black/40 border-white/10 backdrop-blur-sm relative overflow-hidden flex flex-col min-h-[500px]">
+                <div className="p-4 border-b border-white/10 flex justify-between items-center bg-white/5">
+                  <div>
+                    <h4 className="font-orbitron text-base text-white">Drift Analysis</h4>
+                    <p className="text-xs text-muted-foreground font-mono">Statistical sensor check</p>
+                  </div>
+                </div>
+
+                <div className="flex-1 relative bg-black/50 flex flex-col items-center justify-center p-8 text-center">
+                  <Crosshair className="w-16 h-16 text-muted-foreground mb-4 opacity-30" />
+                  <h3 className="text-2xl font-orbitron font-bold text-muted-foreground mb-2">Drift Analysis Protocol</h3>
+                  <p className="text-muted-foreground max-w-md mb-6 font-mono text-sm opacity-50">
+                    Connect a controller to enable the drift analysis test sequence.
+                  </p>
+                  <Button disabled className="font-orbitron tracking-widest bg-white/10 text-muted-foreground">
+                    <Play className="w-4 h-4 mr-2" /> BEGIN TEST sequence
+                  </Button>
+                </div>
+              </Card>
             </div>
           </div>
         </Card>
       )}
 
       <div className="p-8 bg-surface border border-secondary/30 rounded-lg">
-        <h3 className="text-primary font-orbitron text-2xl mb-4 uppercase tracking-widest">Gamepad Diagnostics Guide</h3>
-        <div className="space-y-4 text-lg text-muted-foreground font-roboto-mono leading-relaxed">
-          <p>
-            <strong className="text-primary">1. Connect your controller:</strong> Plug in your controller via USB or connect via Bluetooth to get started.
-          </p>
-          <p>
-            <strong className="text-primary">2. Wake it up:</strong> For privacy reasons, browsers won't detect your controller until you interact with it. Press any button to "wake" it up and register it on this page.
-          </p>
-          <p>
-            <strong className="text-primary">3. Test Inputs:</strong> Systematically press every button and move both analog sticks. The visualizer above will light up to confirm each input is registering correctly.
-          </p>
-          <p>
-            <strong className="text-primary">4. Select Layout:</strong> Use the toggle buttons at the top to switch between Generic, Xbox, and PlayStation visual styles to match your specific hardware.
-          </p>
-           <p>
-            <strong className="text-primary">Note on Drift:</strong> Axis values range from -1.0 to 1.0. If your analog sticks show movement values when you aren't touching them (stick drift), it typically indicates hardware wear on the potentiometer.
-          </p>
+        <h2 className="text-primary font-orbitron text-2xl mb-6 uppercase tracking-widest border-b border-secondary/30 pb-4">Comprehensive Controller Diagnostic Guide</h2>
+        <div className="space-y-8 text-lg text-muted-foreground font-roboto-mono leading-relaxed">
+
+          <section>
+            <h3 className="text-xl font-orbitron text-white mb-2">How to Use the Online Gamepad Tester</h3>
+            <p>
+              This tool provides real-time, browser-based diagnostics for your gaming controllers. Whether you're using an Xbox Wireless Controller, a PlayStation DualSense, a Nintendo Switch Pro Controller, or a generic USB gamepad, this dashboard visualizes every button press and analog stick movement. Use it to verify new hardware, diagnose connection issues, or map inputs for emulators without installing secondary software.
+            </p>
+          </section>
+
+          <section>
+            <h3 className="text-xl font-orbitron text-white mb-2">Understanding and Fixing Controller Stick Drift</h3>
+            <p className="mb-2">
+              "Stick Drift" is the most common hardware failure in modern controllers. It occurs when your analog stick reads an input (causing your character to move or camera to spin) even when you aren't touching it.
+            </p>
+            <ul className="list-disc pl-6 space-y-2">
+              <li><strong>Why it happens:</strong> Inside the analog stick module are carbon tracks (potentiometers). Over time, friction from moving the stick physically wears away this carbon, creating dead spots and inaccurate voltage readings. Dirt, dust, and pet hair can also interfere with the sensors.</li>
+              <li><strong>How to test for drift:</strong> Use our <strong>Drift Analysis Protocol</strong>. Connect your controller and run the test. The tool will calculate the exact resting variance (jitter) and determine if the resting point sits outside a standard 5% deadzone threshold.</li>
+              <li><strong>How to fix stick drift:</strong> Software fixes include increasing the "deadzone" setting in your game's menu (which masks the drift but reduces sensitivity). Hardware fixes include cleaning the module with compressed air and contact cleaner, or permanently solving it by desoldering the entire analog stick module and soldering a new one (often upgrading to Hall Effect sensors which use magnets instead of carbon tracks and are immune to wear).</li>
+            </ul>
+          </section>
+
+          <section>
+            <h3 className="text-xl font-orbitron text-white mb-2">Button Actuation & Vibration Testing</h3>
+            <p className="mb-2">
+              Beyond the analog sticks, controllers rely on rubber membrane domes or tactile microswitches for face buttons and D-pads.
+            </p>
+            <ul className="list-disc pl-6 space-y-2">
+              <li><strong>Testing Triggers (Analog vs. Digital):</strong> The L2/R2 (or LT/RT) buttons on modern controllers are analog, meaning they detect how hard you press them (0.0 to 1.0). Our visualizer fills the bar according to trigger pressure, allowing you to ensure the trigger reaches a full 100% actuation.</li>
+              <li><strong>Testing Rumble/Vibration:</strong> Click the "Test Vibration" button. If your browser supports the Gamepad Haptic Actuator API, your controller will output a strong dual-rumble. Note: Apple restricts the haptic API in Safari and iOS. Use Chrome or Edge for full feature support.</li>
+            </ul>
+          </section>
+
         </div>
       </div>
     </div>

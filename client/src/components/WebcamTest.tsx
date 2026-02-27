@@ -2,12 +2,13 @@ import React, { useState, useEffect, useRef } from 'react';
 import { Camera, CameraOff, Video } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Card } from '@/components/ui/card';
+import { testStore } from '@/lib/store';
 
 export function WebcamTest() {
   const [isActive, setIsActive] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [cameraName, setCameraName] = useState<string>("");
-  
+
   const videoRef = useRef<HTMLVideoElement>(null);
   const streamRef = useRef<MediaStream | null>(null);
 
@@ -26,24 +27,25 @@ export function WebcamTest() {
   const startCamera = async () => {
     stopCamera(); // Ensure previous stream is closed
     setError(null);
-    
+
     try {
       console.log("Requesting camera access...");
       // Simple request for any video device - let browser/OS decide default
       const stream = await navigator.mediaDevices.getUserMedia({ video: true });
-      
+
       streamRef.current = stream;
-      
+
       // Get the label from the active track
       const videoTrack = stream.getVideoTracks()[0];
       if (videoTrack) {
         setCameraName(videoTrack.label || "Generic Camera Device");
       }
-      
+
       // IMPORTANT: We set the srcObject inside the state update or a useEffect
       // But since we are using refs, we need to force a re-render or handle it carefully
       setIsActive(true);
-      
+      testStore.addResult('webcam', 'passed', { device: videoTrack?.label || 'Camera Connected' });
+
     } catch (err: any) {
       console.error("Webcam access error:", err);
       if (err.name === 'NotAllowedError' || err.name === 'PermissionDeniedError') {
@@ -63,7 +65,7 @@ export function WebcamTest() {
     if (isActive && videoRef.current && streamRef.current) {
       const videoEl = videoRef.current;
       videoEl.srcObject = streamRef.current;
-      
+
       const playVideo = async () => {
         try {
           await videoEl.play();
@@ -71,7 +73,7 @@ export function WebcamTest() {
           console.error("Error playing video:", err);
         }
       };
-      
+
       playVideo();
     }
   }, [isActive]);
@@ -94,108 +96,128 @@ export function WebcamTest() {
             </p>
           </div>
 
-        <div className="space-y-4">
-          <div className="flex gap-4">
-            {!isActive ? (
-              <Button onClick={startCamera} className="w-full bg-primary text-background hover:bg-primary/80 font-orbitron">
-                <Camera className="mr-2 w-4 h-4" /> Start Camera
-              </Button>
-            ) : (
-              <Button onClick={stopCamera} variant="destructive" className="w-full font-orbitron">
-                <CameraOff className="mr-2 w-4 h-4" /> Stop Camera
-              </Button>
-            )}
-          </div>
-          
-          {isActive && cameraName && (
-             <div className="p-3 bg-surface border border-primary/30 rounded text-xs font-orbitron text-primary flex items-center gap-2">
+          <div className="space-y-4">
+            <div className="flex gap-4">
+              {!isActive ? (
+                <Button onClick={startCamera} className="w-full bg-primary text-background hover:bg-primary/80 font-orbitron">
+                  <Camera className="mr-2 w-4 h-4" /> Start Camera
+                </Button>
+              ) : (
+                <Button onClick={stopCamera} variant="destructive" className="w-full font-orbitron">
+                  <CameraOff className="mr-2 w-4 h-4" /> Stop Camera
+                </Button>
+              )}
+            </div>
+
+            {isActive && cameraName && (
+              <div className="p-3 bg-surface border border-primary/30 rounded text-xs font-orbitron text-primary flex items-center gap-2">
                 <div className="w-2 h-2 bg-neon-green rounded-full animate-pulse"></div>
                 Active: {cameraName}
-             </div>
+              </div>
+            )}
+          </div>
+
+          {error && (
+            <div className="p-4 border border-destructive/50 bg-destructive/10 text-destructive rounded text-sm">
+              {error}
+            </div>
+          )}
+
+          {isActive && streamRef.current && (
+            <div className="p-4 bg-surface border border-secondary/30 rounded-lg space-y-2">
+              <h4 className="text-primary font-orbitron text-sm">Stream Stats</h4>
+              <div className="text-xs font-mono text-muted-foreground space-y-1">
+                <div className="flex justify-between">
+                  <span>Resolution:</span>
+                  <span className="text-foreground">
+                    {streamRef.current.getVideoTracks()[0]?.getSettings().width || 'N/A'}x
+                    {streamRef.current.getVideoTracks()[0]?.getSettings().height || 'N/A'}
+                  </span>
+                </div>
+                <div className="flex justify-between">
+                  <span>Frame Rate:</span>
+                  <span className="text-foreground">
+                    {Math.round(streamRef.current.getVideoTracks()[0]?.getSettings().frameRate || 0)} FPS
+                  </span>
+                </div>
+              </div>
+            </div>
           )}
         </div>
 
-        {error && (
-          <div className="p-4 border border-destructive/50 bg-destructive/10 text-destructive rounded text-sm">
-            {error}
-          </div>
-        )}
-        
-        {isActive && streamRef.current && (
-             <div className="p-4 bg-surface border border-secondary/30 rounded-lg space-y-2">
-                <h4 className="text-primary font-orbitron text-sm">Stream Stats</h4>
-                <div className="text-xs font-mono text-muted-foreground space-y-1">
-                    <div className="flex justify-between">
-                        <span>Resolution:</span>
-                        <span className="text-foreground">
-                            {streamRef.current.getVideoTracks()[0]?.getSettings().width || 'N/A'}x
-                            {streamRef.current.getVideoTracks()[0]?.getSettings().height || 'N/A'}
-                        </span>
-                    </div>
-                    <div className="flex justify-between">
-                        <span>Frame Rate:</span>
-                        <span className="text-foreground">
-                            {Math.round(streamRef.current.getVideoTracks()[0]?.getSettings().frameRate || 0)} FPS
-                        </span>
-                    </div>
-                </div>
-             </div>
-        )}
-      </div>
-
-      <div className="lg:col-span-2">
-        <Card className="bg-black border-secondary/30 p-1 overflow-hidden relative min-h-[400px] flex items-center justify-center glow-border">
+        <div className="lg:col-span-2">
+          <Card className="bg-black border-secondary/30 p-1 overflow-hidden relative min-h-[400px] flex items-center justify-center glow-border">
             {!isActive ? (
               <div className="text-center text-muted-foreground">
                 <Video className="w-16 h-16 mx-auto mb-4 opacity-20" />
                 <p className="text-sm font-orbitron opacity-50">Camera Offline</p>
               </div>
             ) : (
-              <video 
-                ref={videoRef} 
-                autoPlay 
-                playsInline 
-                muted 
+              <video
+                ref={videoRef}
+                autoPlay
+                playsInline
+                muted
                 onLoadedMetadata={() => {
-                    // Extra safeguard to ensure video plays when metadata loads
-                    if (videoRef.current) videoRef.current.play().catch(e => console.error("Auto-play error:", e));
+                  // Extra safeguard to ensure video plays when metadata loads
+                  if (videoRef.current) videoRef.current.play().catch(e => console.error("Auto-play error:", e));
                 }}
                 className="w-full h-full object-contain bg-black"
                 style={{ transform: 'scaleX(-1)' }} // Mirror effect for webcam
               />
             )}
-            
-            {isActive && (
-                <div className="absolute top-4 right-4 flex gap-2">
-                    <div className="text-[10px] text-neon-green font-orbitron border border-neon-green/50 bg-neon-green/10 px-2 py-0.5 rounded animate-pulse">
-                        LIVE
-                    </div>
-                </div>
-            )}
-        </Card>
-      </div>
 
-      <div className="p-8 bg-surface border border-secondary/30 rounded-lg lg:col-span-3">
-        <h3 className="text-primary font-orbitron text-2xl mb-4 uppercase tracking-widest">Webcam Diagnostics Guide</h3>
-        <div className="space-y-4 text-lg text-muted-foreground font-roboto-mono leading-relaxed">
-          <p>
-            This tool tests your webcam's connection, power, and video stream quality. Click "Start Camera" to request access to your camera. The browser will ask for permission—approve it to proceed.
-          </p>
-          <p>
-            <strong className="text-primary">What you'll see:</strong> Once started, a live mirrored video feed appears showing what your camera sees. This preview helps you verify the camera is functioning and positioned correctly. A green "LIVE" indicator appears in the top-right corner when the stream is actively transmitting.
-          </p>
-          <p>
-            <strong className="text-primary">Stream Statistics:</strong> Below the camera controls, you'll see real-time stats including the camera's resolution (width x height in pixels) and frame rate (frames per second). A healthy webcam typically streams at 30 FPS or higher. Lower frame rates may indicate a slower connection or older hardware.
-          </p>
-          <p>
-            <strong className="text-primary">Device Information:</strong> The active camera's name appears in a green box when recording. This tells you which camera input the system detected (e.g., "Integrated Webcam" or "USB Camera 1"). If you have multiple cameras, try plugging them in one at a time to test each individually.
-          </p>
-          <p>
-            <strong className="text-primary">Privacy & Security:</strong> No video is recorded, saved, or transmitted to any server. Your webcam stream flows directly through your browser's local memory only. All data remains on your computer.
-          </p>
+            {isActive && (
+              <div className="absolute top-4 right-4 flex gap-2">
+                <div className="text-[10px] text-neon-green font-orbitron border border-neon-green/50 bg-neon-green/10 px-2 py-0.5 rounded animate-pulse">
+                  LIVE
+                </div>
+              </div>
+            )}
+          </Card>
+        </div>
+
+        <div className="p-8 bg-surface border border-secondary/30 rounded-lg lg:col-span-3">
+          <h2 className="text-primary font-orbitron text-2xl mb-6 uppercase tracking-widest border-b border-secondary/30 pb-4">Comprehensive Webcam Diagnostic Guide</h2>
+          <div className="space-y-8 text-lg text-muted-foreground font-roboto-mono leading-relaxed">
+
+            <section>
+              <h3 className="text-xl font-orbitron text-white mb-2">How to Use the Online Webcam Tester</h3>
+              <p>
+                This free, browser-based webcam diagnostic tool allows you to instantly verify your camera's video feed, resolution, and frame rate without installing any third-party software. Whether you are setting up a new Logitech C920, testing your built-in laptop camera for a meeting, or diagnosing a black screen issue, this dashboard provides real-time telemetry.
+              </p>
+            </section>
+
+            <section>
+              <h3 className="text-xl font-orbitron text-white mb-2">Diagnosing Common Webcam Errors</h3>
+              <ul className="list-disc pl-6 space-y-2">
+                <li><strong>Camera Permission Denied:</strong> If you see this error, your web browser (Chrome, Edge, Firefox, or Safari) is blocking access for privacy reasons. Click the padlock icon in your browser's address bar and ensure "Camera" is set to "Allow", then refresh the page.</li>
+                <li><strong>Camera in Use by Another Application:</strong> Webcams can only be accessed by one application at a time. If you have Zoom, Microsoft Teams, OBS Studio, or Discord open and actively using the camera, this tool will not be able to connect to it. Close those apps and try again.</li>
+                <li><strong>Black Screen or No Device Found:</strong> If the tool cannot find a camera, check your physical connections. USB webcams may need to be plugged directly into the motherboard rather than a USB hub. Some gaming laptops (like Lenovo Legion or MSI) have a physical privacy switch or keyboard shortcut (Fn + F-key) that completely disables the webcam at a hardware level.</li>
+              </ul>
+            </section>
+
+            <section>
+              <h3 className="text-xl font-orbitron text-white mb-2">Understanding Frame Rate (FPS) and Resolution</h3>
+              <p className="mb-2">
+                Once your camera is active, check the "Stream Stats" box.
+              </p>
+              <ul className="list-disc pl-6 space-y-2">
+                <li><strong>Resolution:</strong> Displayed as Width x Height. A standard HD webcam will show `1280x720` (720p) or `1920x1080` (1080p). 4K webcams may display `3840x2160`.</li>
+                <li><strong>Frame Rate (FPS):</strong> A smooth video feed requires at least 30 FPS. If your frame rate drops below 20 FPS, your video will appear choppy. Low frame rates are often caused by poor lighting conditions (the camera lowers the shutter speed to capture more light) or USB bandwidth limitations. Ensure you are using a USB 3.0 port and have adequate lighting.</li>
+              </ul>
+            </section>
+
+            <section>
+              <h3 className="text-xl font-orbitron text-white mb-2">100% Client-Side Privacy</h3>
+              <p>
+                Your privacy is our top priority. <strong>Device Tester Online processes your webcam feed entirely on your local machine.</strong> The video stream is routed directly from your camera to your browser screen. No video data is ever recorded, and not a single frame is ever sent to our servers.
+              </p>
+            </section>
+
+          </div>
         </div>
       </div>
-    </div>
     </div>
   );
 }

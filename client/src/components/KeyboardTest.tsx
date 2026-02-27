@@ -1,5 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import { cn } from '@/lib/utils';
+import { testStore } from '@/lib/store';
 
 // Standard ANSI layout mapping
 const KEYBOARD_LAYOUT = [
@@ -164,7 +165,11 @@ export function KeyboardTest() {
       e.stopImmediatePropagation();
       const code = e.code;
       setActiveKeys(prev => new Set(prev).add(code));
-      setVerifiedKeys(prev => new Set(prev).add(code));
+      setVerifiedKeys(prev => {
+        const next = new Set(prev).add(code);
+        testStore.addResult('keyboard', 'tested', { verifiedKeys: next.size });
+        return next;
+      });
     };
 
     const handleKeyUp = (e: KeyboardEvent) => {
@@ -199,7 +204,7 @@ export function KeyboardTest() {
   // Calculate scaling factor based on viewport width for responsive sizing
   const KeyCap = ({ k, h = 1 }: { k: any, h?: number }) => {
     if (k.invisible) return <div className="w-8 h-8 md:w-10 md:h-10 lg:w-12 lg:h-12" style={{ flexGrow: k.w, width: `${k.w * 2.5}rem` }} />;
-    
+
     const isVerified = verifiedKeys.has(k.key);
     const isActive = activeKeys.has(k.key);
     const heightClass = k.h === 2 ? "h-[4.25rem] md:h-[5.25rem] lg:h-[6.25rem]" : "h-8 md:h-10 lg:h-12";
@@ -208,9 +213,9 @@ export function KeyboardTest() {
       <div
         className={cn(
           `${heightClass} rounded border flex items-center justify-center text-[0.6rem] md:text-xs font-bold transition-all duration-75 select-none`,
-          isActive 
-            ? "bg-primary text-background border-primary shadow-[0_0_10px_var(--color-primary)] scale-95 z-10" 
-            : isVerified 
+          isActive
+            ? "bg-primary text-background border-primary shadow-[0_0_10px_var(--color-primary)] scale-95 z-10"
+            : isVerified
               ? "bg-secondary/20 border-secondary text-secondary shadow-[0_0_5px_var(--color-secondary)]"
               : "bg-background border-muted text-muted-foreground"
         )}
@@ -228,15 +233,15 @@ export function KeyboardTest() {
           <h3 className="text-primary font-orbitron text-2xl uppercase tracking-widest">Keyboard Matrix Test</h3>
           <p className="text-sm text-muted-foreground">Press any key on your keyboard to see it light up below</p>
         </div>
-        
+
         <div className="flex items-center gap-6">
-          <button 
+          <button
             onClick={resetTest}
             className="px-6 py-2 bg-destructive/10 hover:bg-destructive/20 text-destructive border border-destructive/50 rounded-md font-orbitron text-sm tracking-wider transition-all hover:scale-105 active:scale-95 shadow-[0_0_10px_rgba(255,0,0,0.1)]"
           >
             RESET MATRIX
           </button>
-          
+
           <div className="bg-surface border border-secondary px-4 py-2 rounded text-right">
             <div className="text-xs text-muted-foreground uppercase tracking-widest">Verified</div>
             <div className="text-2xl font-orbitron text-primary glow-text">
@@ -249,7 +254,7 @@ export function KeyboardTest() {
       <div className="bg-surface/50 p-4 md:p-8 rounded-xl border border-secondary/30 overflow-x-auto">
         {/* Reduced min-width and adjusted gap for better fitting */}
         <div className="min-w-[900px] flex gap-4 md:gap-8 mx-auto justify-center scale-[0.85] md:scale-100 origin-top-left md:origin-center">
-          
+
           {/* Main Block */}
           <div className="flex flex-col gap-1 md:gap-2">
             {KEYBOARD_LAYOUT.map((row, rowIndex) => (
@@ -263,17 +268,17 @@ export function KeyboardTest() {
           <div className="flex flex-col gap-1 md:gap-2">
             {/* Top Nav Row (PRT, SCR, PAU) - aligned with F-keys row (row 0) */}
             <div className="flex gap-1 md:gap-2 mb-2 md:mb-4">
-               {NAV_LAYOUT[0].map(k => <KeyCap key={k.key} k={k} />)}
+              {NAV_LAYOUT[0].map(k => <KeyCap key={k.key} k={k} />)}
             </div>
-            
+
             {/* Insert/Home/PgUp - Aligned with row 1 */}
             <div className="flex gap-1 md:gap-2">
-               {NAV_LAYOUT[1].map(k => <KeyCap key={k.key} k={k} />)}
+              {NAV_LAYOUT[1].map(k => <KeyCap key={k.key} k={k} />)}
             </div>
 
             {/* Del/End/PgDn - Aligned with row 2 */}
             <div className="flex gap-1 md:gap-2">
-               {NAV_LAYOUT[2].map(k => <KeyCap key={k.key} k={k} />)}
+              {NAV_LAYOUT[2].map(k => <KeyCap key={k.key} k={k} />)}
             </div>
 
             {/* Spacing */}
@@ -281,54 +286,54 @@ export function KeyboardTest() {
 
             {/* Arrow Keys Top */}
             <div className="flex gap-1 md:gap-2">
-               {NAV_LAYOUT[3].map((k, i) => <KeyCap key={i} k={k} />)}
+              {NAV_LAYOUT[3].map((k, i) => <KeyCap key={i} k={k} />)}
             </div>
 
             {/* Arrow Keys Bottom */}
             <div className="flex gap-1 md:gap-2">
-               {NAV_LAYOUT[4].map(k => <KeyCap key={k.key} k={k} />)}
+              {NAV_LAYOUT[4].map(k => <KeyCap key={k.key} k={k} />)}
             </div>
           </div>
 
           {/* Numpad Block */}
           <div className="flex flex-col gap-1 md:gap-2">
-             {/* Numpad Row 1 */}
-             <div className="flex gap-1 md:gap-2">
-               {NUMPAD_LAYOUT[0].map(k => <KeyCap key={k.key} k={k} />)}
-             </div>
-             
-             <div className="flex gap-1 md:gap-2 h-[13.5rem]">
-                <div className="flex flex-col gap-1 md:gap-2">
-                  {/* 7 8 9 */}
-                  <div className="flex gap-1 md:gap-2">
-                    {NUMPAD_LAYOUT[1].slice(0,3).map(k => <KeyCap key={k.key} k={k} />)}
-                  </div>
-                  {/* 4 5 6 */}
-                  <div className="flex gap-1 md:gap-2">
-                    {NUMPAD_LAYOUT[2].map(k => <KeyCap key={k.key} k={k} />)}
-                  </div>
-                   {/* 1 2 3 */}
-                  <div className="flex gap-1 md:gap-2">
-                    {NUMPAD_LAYOUT[3].slice(0,3).map(k => <KeyCap key={k.key} k={k} />)}
-                  </div>
-                   {/* 0 . */}
-                  <div className="flex gap-1 md:gap-2">
-                    {NUMPAD_LAYOUT[4].map(k => <KeyCap key={k.key} k={k} />)}
-                  </div>
+            {/* Numpad Row 1 */}
+            <div className="flex gap-1 md:gap-2">
+              {NUMPAD_LAYOUT[0].map(k => <KeyCap key={k.key} k={k} />)}
+            </div>
+
+            <div className="flex gap-1 md:gap-2 h-[13.5rem]">
+              <div className="flex flex-col gap-1 md:gap-2">
+                {/* 7 8 9 */}
+                <div className="flex gap-1 md:gap-2">
+                  {NUMPAD_LAYOUT[1].slice(0, 3).map(k => <KeyCap key={k.key} k={k} />)}
                 </div>
-                
-                <div className="flex flex-col gap-1 md:gap-2">
-                   {/* + */}
-                   <KeyCap k={NUMPAD_LAYOUT[1][3]} />
-                   {/* Enter */}
-                   <KeyCap k={NUMPAD_LAYOUT[3][3]} />
+                {/* 4 5 6 */}
+                <div className="flex gap-1 md:gap-2">
+                  {NUMPAD_LAYOUT[2].map(k => <KeyCap key={k.key} k={k} />)}
                 </div>
-             </div>
+                {/* 1 2 3 */}
+                <div className="flex gap-1 md:gap-2">
+                  {NUMPAD_LAYOUT[3].slice(0, 3).map(k => <KeyCap key={k.key} k={k} />)}
+                </div>
+                {/* 0 . */}
+                <div className="flex gap-1 md:gap-2">
+                  {NUMPAD_LAYOUT[4].map(k => <KeyCap key={k.key} k={k} />)}
+                </div>
+              </div>
+
+              <div className="flex flex-col gap-1 md:gap-2">
+                {/* + */}
+                <KeyCap k={NUMPAD_LAYOUT[1][3]} />
+                {/* Enter */}
+                <KeyCap k={NUMPAD_LAYOUT[3][3]} />
+              </div>
+            </div>
           </div>
 
         </div>
       </div>
-      
+
       <div className="flex justify-center gap-4 text-xs text-muted-foreground font-mono mb-4">
         <div className="flex items-center gap-2">
           <div className="w-3 h-3 rounded bg-background border border-muted"></div>
@@ -345,20 +350,47 @@ export function KeyboardTest() {
       </div>
 
       <div className="p-8 bg-surface border border-secondary/30 rounded-lg">
-        <h3 className="text-primary font-orbitron text-2xl mb-4 uppercase tracking-widest">How This Test Works</h3>
-        <div className="space-y-4 text-lg text-muted-foreground font-roboto-mono leading-relaxed">
-          <p>
-            This keyboard diagnostic tests every key on your keyboard, including the main QWERTY section, numpad, navigation cluster, and function keys. Each key is displayed above in the exact layout of your keyboard.
-          </p>
-          <p>
-            <strong className="text-primary">Key Status:</strong> Keys start as gray (untested). When you press a key, it turns bright cyan (pressed) and lights up. Once pressed at least once, it remains highlighted in a dimmer cyan (verified) until you reset the test.
-          </p>
-          <p>
-            <strong className="text-primary">N-Key Rollover (NKRO):</strong> This test also verifies your keyboard's NKRO capability. NKRO means how many keys your keyboard can register simultaneously. Try pressing multiple keys at once—if they all light up, your keyboard supports true multi-key registration, which is essential for gaming and fast typing. If only some keys register, your keyboard may have ghosting limitations.
-          </p>
-          <p>
-            <strong className="text-primary">Progress Tracker:</strong> The "Verified" counter at the top right shows how many unique keys you've pressed out of the total available. Use the "RESET MATRIX" button to start fresh and test all keys again.
-          </p>
+        <h2 className="text-primary font-orbitron text-2xl mb-6 uppercase tracking-widest border-b border-secondary/30 pb-4">Comprehensive Keyboard Diagnostic Guide</h2>
+        <div className="space-y-8 text-lg text-muted-foreground font-roboto-mono leading-relaxed">
+
+          <section>
+            <h3 className="text-xl font-orbitron text-white mb-2">How to Use the Online Keyboard Tester</h3>
+            <p>
+              Our free, browser-based keyboard tester allows you to check every single key on your mechanical, membrane, or laptop keyboard. Simply type on your physical keyboard, and the virtual matrix above will illuminate the corresponding keys in real-time. This tool is essential for verifying new keyboard builds, diagnosing liquid damage, or checking for ghosting issues.
+            </p>
+          </section>
+
+          <section>
+            <h3 className="text-xl font-orbitron text-white mb-2">Testing N-Key Rollover (NKRO) & Ghosting</h3>
+            <p className="mb-2">
+              NKRO (N-Key Rollover) refers to a keyboard's ability to scan each key press individually. This means that no matter how many keys you press simultaneously, every single one will be registered by your computer.
+            </p>
+            <ul className="list-disc pl-6 space-y-2">
+              <li><strong>How to test:</strong> Press down multiple keys at once (e.g., Q, W, E, R, A, S, D, F) with both hands.</li>
+              <li><strong>What is Ghosting?</strong> "Ghosting" occurs on cheaper keyboards when pressing a specific combination of keys causes an unpressed third key to register, or causes one of the pressed keys to be ignored (key blocking).</li>
+              <li><strong>Gaming Keyboards:</strong> If you are a competitive gamer, 6-Key Rollover (6KRO) or full NKRO is mandatory to ensure complex movement combinations (like sprinting diagonally while crouching and jumping) are never dropped.</li>
+            </ul>
+          </section>
+
+          <section>
+            <h3 className="text-xl font-orbitron text-white mb-2">Diagnosing Keyboard Switch Failure</h3>
+            <p className="mb-2">
+              Mechanical keyboards use individual switches (like Cherry MX, Gateron, or Kailh) for every key. Over time, these can fail. Use our tool to diagnose common issues:
+            </p>
+            <ul className="list-disc pl-6 space-y-2">
+              <li><strong>Chatter (Double-Typing):</strong> If you tap a key once but the virtual matrix registers it flickering rapidly, or if your text outputs "tthe" instead of "the", your switch is experiencing contact "chatter." The copper leaf inside the switch is bouncing.</li>
+              <li><strong>Dead Keys:</strong> If a key remains gray and untested despite being pressed, the switch is dead. This could be due to a bent pin (on hot-swappable boards), a broken solder joint, or a completely failed switch mechanism.</li>
+              <li><strong>Liquid Damage:</strong> Spilling water or soda often shorts rows or columns of the keyboard matrix. If pressing the `G` key causes the entire `F,G,H,J` row to light up on our tester, your PCB matrix is shorted.</li>
+            </ul>
+          </section>
+
+          <section>
+            <h3 className="text-xl font-orbitron text-white mb-2">Laptop Keyboard Testing</h3>
+            <p>
+              Replacing a laptop keyboard is notoriously difficult. Before sending your laptop in for repair, use this dashboard to confirm if the issue is software-related (OS language settings, stuck modifier keys) or a hardware failure. If an entire section of keys (e.g., `7, U, J, M`) fails to light up simultaneously, the ribbon cable connecting the keyboard to the motherboard may be loose or damaged.
+            </p>
+          </section>
+
         </div>
       </div>
     </div>

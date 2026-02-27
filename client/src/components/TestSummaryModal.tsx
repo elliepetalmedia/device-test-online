@@ -63,9 +63,9 @@ export function TestSummaryModal() {
     return (
         <Dialog open={open} onOpenChange={setOpen}>
             <DialogTrigger asChild>
-                <Button variant="outline" className="gap-2 font-orbitron border-primary/50 text-primary hover:bg-primary/10 transition-colors">
-                    <FileText className="w-4 h-4" />
-                    Test Summary / Export
+                <Button variant="outline" className="w-full gap-2 font-orbitron border-primary/50 text-primary hover:bg-primary/10 transition-colors">
+                    <FileText className="w-4 h-4 shrink-0" />
+                    <span className="truncate flex-1 text-left">Test Summary / Export</span>
                 </Button>
             </DialogTrigger>
 

@@ -18,8 +18,9 @@ export default function Privacy() {
           <div className="space-y-4 text-muted-foreground">
             <p>
               Device Test Online runs core hardware diagnostics inside your browser. Tests for microphone, webcam,
-              keyboard, mouse, gamepad, typing, monitor, and audio latency use browser APIs or in-page event handling
-              to produce the diagnostic result locally on your device.
+              keyboard, mouse, gamepad, typing, monitor, refresh rate, touchscreen, speaker, headphone, and audio
+              latency use browser APIs or in-page event handling to produce the diagnostic result locally on your
+              device.
             </p>
             <p>
               That means the diagnostic interaction itself is not designed to upload raw microphone audio, raw webcam

@@ -16,7 +16,7 @@ export default function About() {
             </p>
             <p>
               The product is designed to help gamers, remote workers, IT staff, and everyday users check common input,
-              display, audio, and controller problems without installing native utilities first.
+              display, audio, touchscreen, and controller problems without installing native utilities first.
             </p>
           </div>
         </Card>
@@ -25,8 +25,9 @@ export default function About() {
           <h2 className="mb-3 font-orbitron text-xl text-white">How the site operates</h2>
           <div className="space-y-4 text-muted-foreground">
             <p>
-              Core diagnostics such as mouse, keyboard, monitor, microphone, webcam, gamepad, typing, and audio
-              latency checks run directly in the browser and are intended to be fast, disposable first-pass tests.
+              Core diagnostics such as mouse, keyboard, monitor, refresh rate, touchscreen, microphone, webcam,
+              speaker, headphone, gamepad, typing, and audio latency checks run directly in the browser and are
+              intended to be fast, disposable first-pass tests.
             </p>
             <p>
               Device-specific inputs used by those tools stay within the browser execution context for the diagnostic

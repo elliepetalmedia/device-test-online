@@ -3,6 +3,8 @@ import { Link, useLocation } from "wouter";
 import {
   Camera,
   Gamepad2,
+  Hand,
+  Headphones,
   HelpCircle,
   Keyboard,
   LayoutGrid,
@@ -10,6 +12,7 @@ import {
   Mic,
   Monitor,
   MousePointer2,
+  RefreshCw,
   Type,
   Volume2,
   X,
@@ -17,6 +20,7 @@ import {
 
 import { TestSummaryModal } from "@/components/TestSummaryModal";
 import {
+  DiagnosticSupportSection,
   RelatedDiagnosticsSection,
   RouteTrustCallout,
 } from "@/components/RouteSupportSections";
@@ -24,9 +28,9 @@ import { Card } from "@/components/ui/card";
 import { cn } from "@/lib/utils";
 import {
   MODULE_ROUTES,
+  MODULE_ROUTE_MAP,
   getRouteContent,
   getRouteDefinitionByTarget,
-  MODULE_ROUTE_MAP,
   type ModuleType,
 } from "@/lib/site";
 
@@ -40,6 +44,11 @@ const moduleIcons = {
   gamepad: Gamepad2,
   typing: Type,
   "audio-sync": Volume2,
+  speaker: Volume2,
+  headphone: Headphones,
+  "double-click": MousePointer2,
+  "refresh-rate": RefreshCw,
+  touchscreen: Hand,
 } as const;
 
 interface DiagnosticShellProps {
@@ -107,36 +116,35 @@ export function DiagnosticShell({
           mobileMenuOpen ? "translate-x-0" : "-translate-x-full",
         )}
       >
-        <div className="p-5 md:p-6 border-b border-secondary/20">
+        <div className="border-b border-secondary/20 p-5 md:p-6">
           <div className="flex items-start justify-between gap-4">
             <div>
               <Link href="/" onClick={() => setMobileMenuOpen(false)}>
-                <a className="block hover:opacity-80 transition-opacity cursor-pointer">
-                  <h1 className="font-orbitron font-black text-2xl text-transparent bg-clip-text bg-gradient-to-r from-primary to-secondary drop-shadow-[0_0_10px_rgba(102,252,241,0.3)]">
+                <a className="block cursor-pointer transition-opacity hover:opacity-80">
+                  <h1 className="bg-gradient-to-r from-primary to-secondary bg-clip-text font-orbitron text-2xl font-black text-transparent drop-shadow-[0_0_10px_rgba(102,252,241,0.3)]">
                     Device Test Online
                   </h1>
                 </a>
               </Link>
-              <p className="text-[10px] text-muted-foreground uppercase tracking-[0.2em] mt-1">
+              <p className="mt-1 text-[10px] uppercase tracking-[0.2em] text-muted-foreground">
                 Hardware Suite
               </p>
             </div>
             <button
               type="button"
               onClick={() => setMobileMenuOpen(false)}
-              className="md:hidden text-muted-foreground hover:text-foreground transition-colors"
+              className="text-muted-foreground transition-colors hover:text-foreground md:hidden"
               aria-label="Close navigation"
             >
-              <X className="w-5 h-5" />
+              <X className="h-5 w-5" />
             </button>
           </div>
-              <p className="text-sm text-muted-foreground mt-4 leading-relaxed">
-                Diagnose and test your computer peripherals with interactive
-                hardware diagnostics.
-              </p>
+          <p className="mt-4 text-sm leading-relaxed text-muted-foreground">
+            Diagnose call gear, gaming peripherals, displays, and touch hardware with browser-based checks.
+          </p>
         </div>
 
-        <nav className="p-4 space-y-2">
+        <nav className="space-y-2 p-4">
           {MODULE_ROUTES.filter((route) => route.target !== "dashboard").map(
             (route) => (
               <NavItem
@@ -147,7 +155,7 @@ export function DiagnosticShell({
             ),
           )}
 
-          <div className="pt-4 mt-4 border-t border-secondary/20 space-y-2">
+          <div className="mt-4 space-y-2 border-t border-secondary/20 pt-4">
             <div className="px-4 pb-2">
               <TestSummaryModal />
             </div>
@@ -155,32 +163,34 @@ export function DiagnosticShell({
               href="/faq"
               className="w-full flex items-center gap-3 px-4 py-3 rounded transition-all duration-200 font-orbitron text-sm tracking-wide group text-muted-foreground hover:text-primary hover:bg-surface"
             >
-              <HelpCircle className="w-5 h-5 group-hover:text-primary transition-colors" />
+              <HelpCircle className="h-5 w-5 transition-colors group-hover:text-primary" />
               FAQ & GUIDE
             </Link>
           </div>
         </nav>
 
-        <div className="p-6 border-t border-secondary/20 bg-black/20 md:mt-auto">
-          <div className="flex flex-col gap-2 text-xs text-muted-foreground font-mono">
+        <div className="border-t border-secondary/20 bg-black/20 p-6 md:mt-auto">
+          <div className="flex flex-col gap-2 font-mono text-xs text-muted-foreground">
             <div className="flex items-center gap-2">
-              <div className="w-2 h-2 rounded-full bg-neon-green shadow-[0_0_5px_var(--color-neon-green)]"></div>
+              <div className="h-2 w-2 rounded-full bg-neon-green shadow-[0_0_5px_var(--color-neon-green)]"></div>
               <span>Browser Diagnostics Live</span>
             </div>
-            <div className="opacity-50">Local device checks with site-level analytics disclosure</div>
+            <div className="opacity-50">
+              Local device checks with site-level analytics disclosure
+            </div>
           </div>
         </div>
       </aside>
 
-      {mobileMenuOpen && (
+      {mobileMenuOpen ? (
         <div
-          className="fixed inset-0 bg-black/80 z-30 md:hidden"
+          className="fixed inset-0 z-30 bg-black/80 md:hidden"
           onClick={() => setMobileMenuOpen(false)}
         />
-      )}
+      ) : null}
 
       <main className="flex-1 min-w-0">
-        <header className="md:hidden p-4 border-b border-secondary/20 flex justify-between items-center bg-background/80 backdrop-blur sticky top-0 z-20">
+        <header className="sticky top-0 z-20 flex items-center justify-between border-b border-secondary/20 bg-background/80 p-4 backdrop-blur md:hidden">
           <span className="font-orbitron font-bold text-primary">
             Device Test Online
           </span>
@@ -195,40 +205,35 @@ export function DiagnosticShell({
         </header>
 
         <div className="px-4 py-6 md:px-8 md:py-8 lg:px-12 lg:py-12">
-          <div className="max-w-6xl mx-auto space-y-10 md:space-y-12">
+          <div className="mx-auto max-w-6xl space-y-10 md:space-y-12">
             <header className="mb-8 animate-in fade-in slide-in-from-top-4 duration-500">
-              <h2 className="text-2xl sm:text-3xl md:text-4xl font-orbitron text-foreground glow-text mb-2">
+              <h2 className="mb-2 text-2xl font-orbitron text-foreground glow-text sm:text-3xl md:text-4xl">
                 {pageTitle}
               </h2>
               <p className="max-w-3xl text-sm leading-relaxed text-muted-foreground md:text-base">
                 {route.description}
               </p>
-              <div className="h-1 w-24 bg-gradient-to-r from-primary to-transparent rounded-full"></div>
+              <div className="h-1 w-24 rounded-full bg-gradient-to-r from-primary to-transparent"></div>
             </header>
 
-            <div className="min-h-[500px] animate-in fade-in zoom-in-95 duration-300 space-y-8">
+            <div className="min-h-[500px] space-y-8 animate-in fade-in zoom-in-95 duration-300">
               <RouteTrustCallout target={activeModule} />
               {children}
+              <DiagnosticSupportSection target={activeModule} />
               {routeContent.relatedTargets?.length ? (
                 <RelatedDiagnosticsSection targets={routeContent.relatedTargets} />
               ) : null}
             </div>
 
-            <footer className="mt-16 py-8 border-t border-secondary/10 text-center text-sm text-muted-foreground font-mono">
-              <div className="flex flex-wrap justify-center gap-4 sm:gap-6 mb-4">
-                <Link href="/about" className="hover:text-primary transition-colors">
+            <footer className="mt-16 border-t border-secondary/10 py-8 text-center font-mono text-sm text-muted-foreground">
+              <div className="mb-4 flex flex-wrap justify-center gap-4 sm:gap-6">
+                <Link href="/about" className="transition-colors hover:text-primary">
                   About
                 </Link>
-                <Link
-                  href="/contact"
-                  className="hover:text-primary transition-colors"
-                >
+                <Link href="/contact" className="transition-colors hover:text-primary">
                   Contact
                 </Link>
-                <Link
-                  href="/privacy"
-                  className="hover:text-primary transition-colors"
-                >
+                <Link href="/privacy" className="transition-colors hover:text-primary">
                   Privacy
                 </Link>
               </div>
@@ -249,44 +254,49 @@ export function DiagnosticShell({
 }
 
 const loadingMessages: Record<ModuleType, string> = {
-  dashboard: "Preparing the diagnostic suite…",
-  mouse: "Loading mouse diagnostics…",
-  keyboard: "Loading keyboard matrix…",
-  pixel: "Loading monitor diagnostics…",
-  mic: "Loading microphone tools…",
-  webcam: "Loading webcam diagnostics…",
-  gamepad: "Loading controller diagnostics…",
-  typing: "Loading typing tools…",
-  "audio-sync": "Loading audio latency tools…",
+  dashboard: "Preparing the diagnostic suite...",
+  mouse: "Loading mouse diagnostics...",
+  keyboard: "Loading keyboard matrix...",
+  pixel: "Loading monitor diagnostics...",
+  mic: "Loading microphone tools...",
+  webcam: "Loading webcam diagnostics...",
+  gamepad: "Loading controller diagnostics...",
+  typing: "Loading typing tools...",
+  "audio-sync": "Loading audio latency tools...",
+  speaker: "Loading speaker test...",
+  headphone: "Loading headphone test...",
+  "double-click": "Loading double click detection...",
+  "refresh-rate": "Loading refresh rate monitor...",
+  touchscreen: "Loading touchscreen diagnostics...",
 };
 
 export function DiagnosticLoadingState({ module }: { module: ModuleType }) {
   return (
     <div className="space-y-6">
-      <Card className="bg-black/40 border-primary/20 backdrop-blur-sm p-6 md:p-8">
+      <Card className="border-primary/20 bg-black/40 p-6 backdrop-blur-sm md:p-8">
         <div className="flex items-center gap-4">
-          <div className="w-12 h-12 rounded-full border-2 border-primary/40 border-t-primary animate-spin" />
+          <div className="h-12 w-12 animate-spin rounded-full border-2 border-primary/40 border-t-primary" />
           <div className="space-y-2">
-            <p className="font-orbitron text-primary tracking-widest uppercase">
+            <p className="font-orbitron uppercase tracking-widest text-primary">
               Loading Diagnostics
             </p>
-            <p className="text-sm text-muted-foreground font-roboto-mono">
+            <p className="font-roboto-mono text-sm text-muted-foreground">
               {loadingMessages[module]}
             </p>
           </div>
         </div>
       </Card>
 
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-        <Card className="bg-black/30 border-secondary/20 p-6 space-y-4">
-          <div className="h-5 w-40 rounded bg-primary/10 animate-pulse" />
-          <div className="h-48 rounded bg-white/5 animate-pulse" />
-          <div className="h-4 w-3/4 rounded bg-white/5 animate-pulse" />
+      <div className="grid grid-cols-1 gap-6 lg:grid-cols-2">
+        <Card className="space-y-4 border-secondary/20 bg-black/30 p-6">
+          <div className="h-5 w-40 animate-pulse rounded bg-primary/10" />
+          <div className="h-48 animate-pulse rounded bg-white/5" />
+          <div className="h-4 w-3/4 animate-pulse rounded bg-white/5" />
         </Card>
-        <Card className="bg-black/30 border-secondary/20 p-6 space-y-4">
-          <div className="h-5 w-32 rounded bg-primary/10 animate-pulse" />
-          <div className="h-24 rounded bg-white/5 animate-pulse" />
-          <div className="h-24 rounded bg-white/5 animate-pulse" />
+        <Card className="space-y-4 border-secondary/20 bg-black/30 p-6">
+          <div className="h-5 w-32 animate-pulse rounded bg-primary/10" />
+          <div className="h-24 animate-pulse rounded bg-white/5" />
+          <div className="h-24 animate-pulse rounded bg-white/5" />
         </Card>
       </div>
     </div>

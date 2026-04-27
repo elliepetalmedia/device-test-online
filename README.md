@@ -19,10 +19,20 @@ The current public route surface includes:
 - `/gamepad-test`
 - `/typing-test`
 - `/audio-sync-test`
+- `/speaker-test`
+- `/headphone-test`
+- `/double-click-test`
+- `/refresh-rate-test`
+- `/touchscreen-test`
 - `/faq`
 - `/about`
 - `/contact`
 - `/privacy`
+- `/fix-microphone-not-working`
+- `/fix-webcam-not-working`
+- `/fix-mouse-double-clicking`
+- `/fix-monitor-not-running-at-144hz`
+- `/fix-headphones-only-playing-in-one-ear`
 
 ## Local development
 

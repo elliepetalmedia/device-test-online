@@ -46,6 +46,31 @@
     <priority>0.8</priority>
   </url>
   <url>
+    <loc>https://devicetesteronline.com/speaker-test</loc>
+    <changefreq>weekly</changefreq>
+    <priority>0.8</priority>
+  </url>
+  <url>
+    <loc>https://devicetesteronline.com/headphone-test</loc>
+    <changefreq>weekly</changefreq>
+    <priority>0.8</priority>
+  </url>
+  <url>
+    <loc>https://devicetesteronline.com/double-click-test</loc>
+    <changefreq>weekly</changefreq>
+    <priority>0.8</priority>
+  </url>
+  <url>
+    <loc>https://devicetesteronline.com/refresh-rate-test</loc>
+    <changefreq>weekly</changefreq>
+    <priority>0.8</priority>
+  </url>
+  <url>
+    <loc>https://devicetesteronline.com/touchscreen-test</loc>
+    <changefreq>weekly</changefreq>
+    <priority>0.8</priority>
+  </url>
+  <url>
     <loc>https://devicetesteronline.com/about</loc>
     <changefreq>monthly</changefreq>
     <priority>0.6</priority>
@@ -62,6 +87,31 @@
   </url>
   <url>
     <loc>https://devicetesteronline.com/faq</loc>
+    <changefreq>monthly</changefreq>
+    <priority>0.7</priority>
+  </url>
+  <url>
+    <loc>https://devicetesteronline.com/fix-microphone-not-working</loc>
+    <changefreq>monthly</changefreq>
+    <priority>0.7</priority>
+  </url>
+  <url>
+    <loc>https://devicetesteronline.com/fix-webcam-not-working</loc>
+    <changefreq>monthly</changefreq>
+    <priority>0.7</priority>
+  </url>
+  <url>
+    <loc>https://devicetesteronline.com/fix-mouse-double-clicking</loc>
+    <changefreq>monthly</changefreq>
+    <priority>0.7</priority>
+  </url>
+  <url>
+    <loc>https://devicetesteronline.com/fix-monitor-not-running-at-144hz</loc>
+    <changefreq>monthly</changefreq>
+    <priority>0.7</priority>
+  </url>
+  <url>
+    <loc>https://devicetesteronline.com/fix-headphones-only-playing-in-one-ear</loc>
     <changefreq>monthly</changefreq>
     <priority>0.7</priority>
   </url>

@@ -3,13 +3,13 @@ import { ArrowLeft } from "lucide-react";
 import { Link } from "wouter";
 
 import { PublicPageCtaSection, RouteTrustCallout } from "@/components/RouteSupportSections";
-import { getRouteDefinitionByTarget, type RouteTarget } from "@/lib/site";
+import { getRouteDefinitionByTarget, type ModuleType, type RouteTarget } from "@/lib/site";
 
 export function PublicInfoPageLayout({
   target,
   children,
 }: {
-  target: Extract<RouteTarget, "about" | "contact" | "privacy" | "faq">;
+  target: Exclude<RouteTarget, ModuleType | "dashboard" | "not-found">;
   children: ReactNode;
 }) {
   const route = getRouteDefinitionByTarget(target);

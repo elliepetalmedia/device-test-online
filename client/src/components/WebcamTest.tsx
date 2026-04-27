@@ -1,6 +1,7 @@
 import React, { useEffect, useRef, useState } from "react";
 import { Camera, CameraOff, Video } from "lucide-react";
 
+import { ChecklistExportCard } from "@/components/ChecklistExportCard";
 import { DiagnosticStatusCard } from "@/components/DiagnosticStatusCard";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
@@ -222,6 +223,13 @@ export function WebcamTest() {
               </div>
             ) : null}
           </Card>
+        </div>
+
+        <div className="lg:col-span-3">
+          <ChecklistExportCard
+            title="Meeting Video Checklist Export"
+            description="Export a pre-call checklist after you confirm webcam preview here and continue through microphone and speaker checks."
+          />
         </div>
 
         <div className="rounded-lg border border-secondary/30 bg-surface p-8 lg:col-span-3">

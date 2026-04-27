@@ -11,6 +11,7 @@ import About from "@/pages/About";
 import Contact from "@/pages/Contact";
 import DashboardPage from "@/pages/DashboardPage";
 import FAQ from "@/pages/FAQ";
+import GuidePage from "@/pages/GuidePage";
 import NotFound from "@/pages/not-found";
 import Privacy from "@/pages/Privacy";
 import {
@@ -35,6 +36,11 @@ const WebcamPage = lazy(() => import("@/pages/diagnostics/WebcamPage"));
 const GamepadPage = lazy(() => import("@/pages/diagnostics/GamepadPage"));
 const TypingPage = lazy(() => import("@/pages/diagnostics/TypingPage"));
 const AudioSyncPage = lazy(() => import("@/pages/diagnostics/AudioSyncPage"));
+const SpeakerPage = lazy(() => import("@/pages/diagnostics/SpeakerPage"));
+const HeadphonePage = lazy(() => import("@/pages/diagnostics/HeadphonePage"));
+const DoubleClickPage = lazy(() => import("@/pages/diagnostics/DoubleClickPage"));
+const RefreshRatePage = lazy(() => import("@/pages/diagnostics/RefreshRatePage"));
+const TouchscreenPage = lazy(() => import("@/pages/diagnostics/TouchscreenPage"));
 
 const staticRoutes: Record<
   Exclude<RouteTarget, ModuleType | "not-found">,
@@ -44,6 +50,21 @@ const staticRoutes: Record<
   contact: Contact,
   privacy: Privacy,
   faq: FAQ,
+  "fix-microphone-not-working": () => (
+    <GuidePage target="fix-microphone-not-working" />
+  ),
+  "fix-webcam-not-working": () => (
+    <GuidePage target="fix-webcam-not-working" />
+  ),
+  "fix-mouse-double-clicking": () => (
+    <GuidePage target="fix-mouse-double-clicking" />
+  ),
+  "fix-monitor-not-running-at-144hz": () => (
+    <GuidePage target="fix-monitor-not-running-at-144hz" />
+  ),
+  "fix-headphones-only-playing-in-one-ear": () => (
+    <GuidePage target="fix-headphones-only-playing-in-one-ear" />
+  ),
 };
 
 const lazyDiagnosticRoutes: Partial<
@@ -57,6 +78,11 @@ const lazyDiagnosticRoutes: Partial<
   gamepad: GamepadPage,
   typing: TypingPage,
   "audio-sync": AudioSyncPage,
+  speaker: SpeakerPage,
+  headphone: HeadphonePage,
+  "double-click": DoubleClickPage,
+  "refresh-rate": RefreshRatePage,
+  touchscreen: TouchscreenPage,
 };
 
 function DiagnosticRouteBoundary({ module }: { module: Exclude<ModuleType, "dashboard"> }) {

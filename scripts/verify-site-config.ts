@@ -55,6 +55,11 @@ function verifyStructuredData() {
       expectedName: getRouteDefinitionByTarget("mic").title,
     },
     {
+      path: "/speaker-test",
+      expectedType: "SoftwareApplication",
+      expectedName: getRouteDefinitionByTarget("speaker").title,
+    },
+    {
       path: "/faq",
       expectedType: "FAQPage",
       expectedName: getRouteDefinitionByTarget("faq").title,
@@ -63,6 +68,11 @@ function verifyStructuredData() {
       path: "/privacy",
       expectedType: "WebPage",
       expectedName: getRouteDefinitionByTarget("privacy").title,
+    },
+    {
+      path: "/fix-microphone-not-working",
+      expectedType: "WebPage",
+      expectedName: getRouteDefinitionByTarget("fix-microphone-not-working").title,
     },
   ];
 
@@ -111,7 +121,30 @@ function verifyModuleCoverage() {
   }
 }
 
+function verifyExpectedRoutes() {
+  const requiredTargets = [
+    "speaker",
+    "headphone",
+    "double-click",
+    "refresh-rate",
+    "touchscreen",
+    "fix-microphone-not-working",
+    "fix-webcam-not-working",
+    "fix-mouse-double-clicking",
+    "fix-monitor-not-running-at-144hz",
+    "fix-headphones-only-playing-in-one-ear",
+  ] as const;
+
+  for (const target of requiredTargets) {
+    assert(
+      SITE_ROUTES.some((route) => route.target === target),
+      `Expected route target is missing from SITE_ROUTES: ${target}`,
+    );
+  }
+}
+
 verifyUniqueRoutes();
+verifyExpectedRoutes();
 verifyRelatedTargets();
 verifyStructuredData();
 verifyCtaTargets();

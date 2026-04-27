@@ -1,6 +1,7 @@
 import React, { useEffect, useRef, useState } from "react";
 import { Mic, MicOff, Play, Volume2 } from "lucide-react";
 
+import { ChecklistExportCard } from "@/components/ChecklistExportCard";
 import { DiagnosticStatusCard } from "@/components/DiagnosticStatusCard";
 import { Button } from "@/components/ui/button";
 import {
@@ -412,6 +413,11 @@ export function MicrophoneTest() {
           ) : null}
         </div>
       </div>
+
+      <ChecklistExportCard
+        title="Meeting Audio Checklist Export"
+        description="Export a quick pre-call checklist after you validate microphone input here and continue through speaker and webcam checks."
+      />
 
       <div className="rounded-lg border border-secondary/30 bg-surface p-8">
         <h2 className="mb-6 border-b border-secondary/30 pb-4 font-orbitron text-2xl uppercase tracking-widest text-primary">

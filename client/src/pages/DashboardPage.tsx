@@ -2,12 +2,15 @@ import React from "react";
 import { Link } from "wouter";
 import {
   ArrowRight,
+  BookOpenText,
   Camera,
   Gamepad2,
+  LockKeyhole,
   Keyboard,
   Mic,
   Monitor,
   MousePointer2,
+  ShieldCheck,
   Type,
   Volume2,
 } from "lucide-react";
@@ -37,10 +40,12 @@ export default function DashboardPage() {
         <div className="text-center w-full mb-8">
           <p className="text-lg text-muted-foreground leading-relaxed font-roboto-mono">
             Welcome to <span className="text-primary font-bold">Device Test Online</span>,
-            the privacy-first suite for testing your hardware directly in the
-            browser. Select any diagnostic tool below to instantly check your
-            mouse, keyboard, monitor, or controller. For detailed explanations
-            of common issues and test results, please consult our{" "}
+            the browser-based suite for testing input devices, displays,
+            cameras, microphones, controllers, and apparent audio delay without
+            installing extra software. Select any diagnostic tool below to run
+            the test locally in your browser. For deeper explanations of common
+            issues, interpretation help, and policy details, use the resources
+            below or consult our{" "}
             <Link
               href="/faq"
               className="text-primary hover:underline underline-offset-4"
@@ -90,6 +95,46 @@ export default function DashboardPage() {
                 </Link>
               );
             })}
+        </div>
+
+        <div className="grid grid-cols-1 gap-4 lg:grid-cols-3">
+          {[
+            {
+              href: "/faq",
+              icon: BookOpenText,
+              title: "Interpret Results",
+              description:
+                "Read the FAQ and hardware guide for stuck pixels, ghosting, drift, and browser permission troubleshooting.",
+            },
+            {
+              href: "/privacy",
+              icon: LockKeyhole,
+              title: "Review Privacy",
+              description:
+                "Understand which diagnostics stay local to the browser and how Google Analytics and AdSense are disclosed on the site.",
+            },
+            {
+              href: "/about",
+              icon: ShieldCheck,
+              title: "Know the Publisher",
+              description:
+                "See who publishes Device Test Online, why the suite exists, and where to send business or legal questions.",
+            },
+          ].map(({ href, icon: Icon, title, description }) => (
+            <Link key={href} href={href}>
+              <a className="group block h-full">
+                <Card className="h-full border-secondary/20 bg-surface p-5 transition-all duration-200 hover:border-primary/40 hover:bg-primary/5">
+                  <div className="mb-4 flex items-center gap-3">
+                    <div className="rounded-lg border border-primary/20 bg-primary/10 p-3">
+                      <Icon className="h-5 w-5 text-primary" />
+                    </div>
+                    <h3 className="font-orbitron text-lg text-white">{title}</h3>
+                  </div>
+                  <p className="text-sm leading-relaxed text-muted-foreground">{description}</p>
+                </Card>
+              </a>
+            </Link>
+          ))}
         </div>
       </div>
     </DiagnosticShell>

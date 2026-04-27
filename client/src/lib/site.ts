@@ -34,6 +34,34 @@ export interface SiteRouteDefinition {
   indexable: boolean;
 }
 
+export interface RouteContentCallout {
+  title: string;
+  body: string;
+  linkTarget?: RouteTarget;
+  linkLabel?: string;
+}
+
+export interface RouteContentDefinition {
+  relatedTargets?: ModuleType[];
+  trustCallout?: RouteContentCallout;
+  primaryCta?: {
+    label: string;
+    target: RouteTarget;
+  };
+  secondaryCta?: {
+    label: string;
+    target: RouteTarget;
+  };
+  schemaKind?:
+    | "dashboard"
+    | "diagnostic"
+    | "faq"
+    | "about"
+    | "contact"
+    | "privacy"
+    | "webpage";
+}
+
 export const DIAGNOSTIC_TARGETS: ModuleType[] = [
   "dashboard",
   "mouse",
@@ -140,6 +168,7 @@ export const SITE_ROUTES: SiteRouteDefinition[] = [
     path: "/about",
     target: "about",
     title: "About Device Test Online",
+    uiTitle: "About Device Test Online",
     description:
       "Learn what Device Test Online is, who publishes it, and how the site provides privacy-first browser-based hardware diagnostics.",
     indexable: true,
@@ -148,6 +177,7 @@ export const SITE_ROUTES: SiteRouteDefinition[] = [
     path: "/contact",
     target: "contact",
     title: "Contact Device Test Online",
+    uiTitle: "Contact Device Test Online",
     description:
       "Contact Device Test Online for business, advertising, legal, or publisher-related inquiries.",
     indexable: true,
@@ -156,6 +186,7 @@ export const SITE_ROUTES: SiteRouteDefinition[] = [
     path: "/privacy",
     target: "privacy",
     title: "Privacy Policy - Device Test Online",
+    uiTitle: "Privacy Policy",
     description:
       "Read how Device Test Online handles local processing, browser storage, and privacy for hardware diagnostics that run on your device.",
     indexable: true,
@@ -164,9 +195,127 @@ export const SITE_ROUTES: SiteRouteDefinition[] = [
     path: "/faq",
     target: "faq",
     title: "FAQ and Hardware Diagnostic Guide",
+    uiTitle: "FAQ & Guide",
     description:
       "Read the Device Test Online FAQ for explanations of mouse, keyboard, monitor, webcam, microphone, controller, and audio test results.",
     indexable: true,
+  },
+];
+
+export const ROUTE_CONTENT: Partial<Record<RouteTarget, RouteContentDefinition>> = {
+  dashboard: {
+    primaryCta: { label: "Open Diagnostic Suite", target: "dashboard" },
+    secondaryCta: { label: "Read the FAQ", target: "faq" },
+    trustCallout: {
+      title: "Local diagnostics with honest disclosure",
+      body: "Core device tests run in your browser, while site traffic and ad delivery still rely on Google Analytics and AdSense. Privacy details are documented clearly.",
+      linkTarget: "privacy",
+      linkLabel: "Review privacy details",
+    },
+    schemaKind: "dashboard",
+  },
+  mouse: {
+    relatedTargets: ["keyboard", "gamepad"],
+    trustCallout: {
+      title: "Best used as a quick hardware baseline",
+      body: "Mouse diagnostics require no browser permissions, making them a good first step when you want to confirm input responsiveness before moving to deeper device tests.",
+    },
+    schemaKind: "diagnostic",
+  },
+  keyboard: {
+    relatedTargets: ["typing", "mouse"],
+    schemaKind: "diagnostic",
+  },
+  pixel: {
+    relatedTargets: ["mouse", "keyboard"],
+    trustCallout: {
+      title: "Display tests stay visual-only",
+      body: "Monitor checks run without device permissions and are useful for confirming panel issues before testing input or audio hardware.",
+    },
+    schemaKind: "diagnostic",
+  },
+  mic: {
+    relatedTargets: ["webcam", "audio-sync"],
+    trustCallout: {
+      title: "Microphone capture is processed locally",
+      body: "The microphone test records and replays audio in this browser tab only. Analytics and ads are site-level services and do not receive raw microphone data.",
+      linkTarget: "privacy",
+      linkLabel: "See privacy policy",
+    },
+    schemaKind: "diagnostic",
+  },
+  webcam: {
+    relatedTargets: ["mic", "audio-sync"],
+    trustCallout: {
+      title: "Camera preview stays on this device",
+      body: "The webcam feed is rendered locally in your browser. Device Test Online does not upload the live preview as part of the diagnostic flow.",
+      linkTarget: "privacy",
+      linkLabel: "See privacy policy",
+    },
+    schemaKind: "diagnostic",
+  },
+  gamepad: {
+    relatedTargets: ["mouse", "keyboard"],
+    schemaKind: "diagnostic",
+  },
+  typing: {
+    relatedTargets: ["keyboard", "mouse"],
+    schemaKind: "diagnostic",
+  },
+  "audio-sync": {
+    relatedTargets: ["mic", "webcam"],
+    trustCallout: {
+      title: "Audio sync estimates perceived playback delay",
+      body: "This test helps compare relative latency between speakers, headsets, and Bluetooth paths. It is a practical browser estimate, not a lab-grade timing instrument.",
+    },
+    schemaKind: "diagnostic",
+  },
+  faq: {
+    relatedTargets: ["mouse", "keyboard", "pixel"],
+    primaryCta: { label: "Open Diagnostic Suite", target: "dashboard" },
+    secondaryCta: { label: "Review privacy details", target: "privacy" },
+    schemaKind: "faq",
+  },
+  about: {
+    relatedTargets: ["mouse", "keyboard", "gamepad"],
+    primaryCta: { label: "Open Diagnostic Suite", target: "dashboard" },
+    secondaryCta: { label: "Read the FAQ", target: "faq" },
+    schemaKind: "about",
+  },
+  contact: {
+    relatedTargets: ["mouse", "mic", "webcam"],
+    primaryCta: { label: "Open Diagnostic Suite", target: "dashboard" },
+    secondaryCta: { label: "Review privacy details", target: "privacy" },
+    schemaKind: "contact",
+  },
+  privacy: {
+    relatedTargets: ["mic", "webcam", "audio-sync"],
+    primaryCta: { label: "Open Diagnostic Suite", target: "dashboard" },
+    secondaryCta: { label: "Read the FAQ", target: "faq" },
+    schemaKind: "privacy",
+  },
+};
+
+const FAQ_SCHEMA_ENTRIES = [
+  {
+    question: "Is my microphone recording or webcam feed uploaded?",
+    answer:
+      "No. Device Test Online processes microphone recordings and webcam previews locally in the browser during the diagnostic flow.",
+  },
+  {
+    question: "What causes controller stick drift?",
+    answer:
+      "Stick drift usually comes from wear, contamination, or calibration issues in the analog stick assembly, which causes movement to register even when the stick is untouched.",
+  },
+  {
+    question: "Why is my refresh rate lower than my monitor rating?",
+    answer:
+      "Your operating system or cable path may still be set to a lower refresh rate. Check advanced display settings and confirm you are using a cable and port that support the panel's rated mode.",
+  },
+  {
+    question: "How is typing speed measured?",
+    answer:
+      "Typing speed is measured as words per minute using the standard five-characters-per-word method, combined with an accuracy score based on correct keystrokes.",
   },
 ];
 
@@ -223,6 +372,10 @@ export function getRouteDefinitionByTarget(
   );
 }
 
+export function getRouteContent(target: RouteTarget): RouteContentDefinition {
+  return ROUTE_CONTENT[target] ?? { schemaKind: "webpage" };
+}
+
 function upsertMeta(selector: string, attributes: Record<string, string>) {
   let element = document.head.querySelector(selector) as
     | HTMLMetaElement
@@ -239,6 +392,138 @@ function upsertMeta(selector: string, attributes: Record<string, string>) {
   Object.entries(attributes).forEach(([key, value]) => {
     element!.setAttribute(key, value);
   });
+}
+
+function upsertStructuredData(id: string, data: Record<string, unknown>) {
+  let element = document.head.querySelector(
+    `script[data-schema-id="${id}"]`,
+  ) as HTMLScriptElement | null;
+
+  if (!element) {
+    element = document.createElement("script");
+    element.type = "application/ld+json";
+    element.dataset.schemaId = id;
+    document.head.appendChild(element);
+  }
+
+  element.textContent = JSON.stringify(data);
+}
+
+function getStructuredData(path: string) {
+  const route = getRouteDefinition(path);
+  const meta = { ...defaultMeta, ...route };
+  const currentUrl = `${SITE_URL}${meta.canonicalPath ?? meta.path}`;
+  const routeContent = getRouteContent(route.target);
+
+  switch (routeContent.schemaKind) {
+    case "dashboard":
+      return {
+        "@context": "https://schema.org",
+        "@type": "CollectionPage",
+        name: meta.title,
+        url: currentUrl,
+        description: meta.description,
+        isPartOf: {
+          "@type": "WebSite",
+          name: SITE_NAME,
+          url: SITE_URL,
+        },
+        mainEntity: MODULE_ROUTES.filter((moduleRoute) => moduleRoute.target !== "dashboard").map((moduleRoute) => ({
+          "@type": "SoftwareApplication",
+          name: moduleRoute.title,
+          url: `${SITE_URL}${moduleRoute.path}`,
+          applicationCategory: "UtilitiesApplication",
+          operatingSystem: "Any",
+          offers: {
+            "@type": "Offer",
+            price: "0",
+            priceCurrency: "USD",
+          },
+        })),
+      };
+    case "diagnostic":
+      return {
+        "@context": "https://schema.org",
+        "@type": "SoftwareApplication",
+        name: meta.title,
+        url: currentUrl,
+        description: meta.description,
+        applicationCategory: "UtilitiesApplication",
+        operatingSystem: "Any",
+        isAccessibleForFree: true,
+        publisher: {
+          "@type": "Organization",
+          name: "Ellie Petal Media",
+        },
+        offers: {
+          "@type": "Offer",
+          price: "0",
+          priceCurrency: "USD",
+        },
+      };
+    case "faq":
+      return {
+        "@context": "https://schema.org",
+        "@type": "FAQPage",
+        name: meta.title,
+        url: currentUrl,
+        description: meta.description,
+        mainEntity: FAQ_SCHEMA_ENTRIES.map((entry) => ({
+          "@type": "Question",
+          name: entry.question,
+          acceptedAnswer: {
+            "@type": "Answer",
+            text: entry.answer,
+          },
+        })),
+      };
+    case "about":
+      return {
+        "@context": "https://schema.org",
+        "@type": "AboutPage",
+        name: meta.title,
+        url: currentUrl,
+        description: meta.description,
+        mainEntity: {
+          "@type": "Organization",
+          name: "Ellie Petal Media",
+          url: SITE_URL,
+        },
+      };
+    case "contact":
+      return {
+        "@context": "https://schema.org",
+        "@type": "ContactPage",
+        name: meta.title,
+        url: currentUrl,
+        description: meta.description,
+        mainEntity: {
+          "@type": "Organization",
+          name: "Ellie Petal Media",
+          email: "legal@devicetesteronline.com",
+        },
+      };
+    case "privacy":
+      return {
+        "@context": "https://schema.org",
+        "@type": "WebPage",
+        name: meta.title,
+        url: currentUrl,
+        description: meta.description,
+        about: {
+          "@type": "Thing",
+          name: "Privacy Policy",
+        },
+      };
+    default:
+      return {
+        "@context": "https://schema.org",
+        "@type": "WebPage",
+        name: meta.title,
+        url: currentUrl,
+        description: meta.description,
+      };
+  }
 }
 
 export function applyRouteMetadata(path: string) {
@@ -296,4 +581,6 @@ export function applyRouteMetadata(path: string) {
     rel: "canonical",
     href: canonicalUrl,
   });
+
+  upsertStructuredData("route-schema", getStructuredData(path));
 }

@@ -1,7 +1,6 @@
 import React, { type ReactNode, useEffect, useState } from "react";
 import { Link, useLocation } from "wouter";
 import {
-  ArrowRight,
   Camera,
   Gamepad2,
   HelpCircle,
@@ -17,14 +16,17 @@ import {
 } from "lucide-react";
 
 import { TestSummaryModal } from "@/components/TestSummaryModal";
+import {
+  RelatedDiagnosticsSection,
+  RouteTrustCallout,
+} from "@/components/RouteSupportSections";
 import { Card } from "@/components/ui/card";
 import { cn } from "@/lib/utils";
 import {
   MODULE_ROUTES,
+  getRouteContent,
   getRouteDefinitionByTarget,
   MODULE_ROUTE_MAP,
-  SITE_NAME,
-  SITE_URL,
   type ModuleType,
 } from "@/lib/site";
 
@@ -56,39 +58,11 @@ export function DiagnosticShell({
 
   useEffect(() => {
     setMobileMenuOpen(false);
-
-    let scriptTag = document.querySelector("#json-ld-schema");
-    if (!scriptTag) {
-      scriptTag = document.createElement("script");
-      scriptTag.id = "json-ld-schema";
-      scriptTag.setAttribute("type", "application/ld+json");
-      document.head.appendChild(scriptTag);
-    }
-
-    const route = getRouteDefinitionByTarget(activeModule);
-    const currentUrl =
-      activeModule === "dashboard"
-        ? SITE_URL
-        : `${SITE_URL}${MODULE_ROUTE_MAP[activeModule]}`;
-
-    const schemaData = {
-      "@context": "https://schema.org",
-      "@type": "WebApplication",
-      name: SITE_NAME,
-      url: currentUrl,
-      description: route.description,
-      applicationCategory: "UtilitiesApplication",
-      operatingSystem: "Any",
-      offers: {
-        "@type": "Offer",
-        price: "0",
-        priceCurrency: "USD",
-      },
-    };
-
-    scriptTag.textContent = JSON.stringify(schemaData);
     window.scrollTo({ top: 0, behavior: "auto" });
   }, [activeModule, location]);
+
+  const route = getRouteDefinitionByTarget(activeModule);
+  const routeContent = getRouteContent(activeModule);
 
   const NavItem = ({
     id,
@@ -156,10 +130,10 @@ export function DiagnosticShell({
               <X className="w-5 h-5" />
             </button>
           </div>
-          <p className="text-sm text-muted-foreground mt-4 leading-relaxed">
-            Diagnose and test your computer peripherals with interactive
-            hardware diagnostics.
-          </p>
+              <p className="text-sm text-muted-foreground mt-4 leading-relaxed">
+                Diagnose and test your computer peripherals with interactive
+                hardware diagnostics.
+              </p>
         </div>
 
         <nav className="p-4 space-y-2">
@@ -226,11 +200,18 @@ export function DiagnosticShell({
               <h2 className="text-2xl sm:text-3xl md:text-4xl font-orbitron text-foreground glow-text mb-2">
                 {pageTitle}
               </h2>
+              <p className="max-w-3xl text-sm leading-relaxed text-muted-foreground md:text-base">
+                {route.description}
+              </p>
               <div className="h-1 w-24 bg-gradient-to-r from-primary to-transparent rounded-full"></div>
             </header>
 
-            <div className="min-h-[500px] animate-in fade-in zoom-in-95 duration-300">
+            <div className="min-h-[500px] animate-in fade-in zoom-in-95 duration-300 space-y-8">
+              <RouteTrustCallout target={activeModule} />
               {children}
+              {routeContent.relatedTargets?.length ? (
+                <RelatedDiagnosticsSection targets={routeContent.relatedTargets} />
+              ) : null}
             </div>
 
             <footer className="mt-16 py-8 border-t border-secondary/10 text-center text-sm text-muted-foreground font-mono">
@@ -251,7 +232,14 @@ export function DiagnosticShell({
                   Privacy
                 </Link>
               </div>
-              <p>&copy; 2025 Ellie Petal Media. All systems nominal.</p>
+              <p className="mb-2">
+                Device Test Online uses Google Analytics and may load Google AdSense to support the site. See{" "}
+                <Link href="/privacy" className="text-primary transition-colors hover:text-primary/80">
+                  Privacy
+                </Link>{" "}
+                for details.
+              </p>
+              <p>&copy; 2026 Ellie Petal Media. All systems nominal.</p>
             </footer>
           </div>
         </div>

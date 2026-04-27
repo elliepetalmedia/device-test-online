@@ -2,14 +2,6 @@ export const SITE_URL = "https://devicetesteronline.com";
 export const SITE_NAME = "Device Test Online";
 export const SITE_OG_IMAGE = `${SITE_URL}/opengraph.jpg`;
 
-export type RouteTarget =
-  | "home"
-  | "about"
-  | "contact"
-  | "privacy"
-  | "faq"
-  | "not-found";
-
 export type ModuleType =
   | "dashboard"
   | "mouse"
@@ -21,96 +13,125 @@ export type ModuleType =
   | "typing"
   | "audio-sync";
 
+export type RouteTarget =
+  | ModuleType
+  | "about"
+  | "contact"
+  | "privacy"
+  | "faq"
+  | "not-found";
+
 export interface SiteRouteDefinition {
   path: string;
   target: RouteTarget;
-  module?: ModuleType;
   title: string;
   description: string;
+  uiTitle?: string;
+  navLabel?: string;
   socialTitle?: string;
   socialDescription?: string;
   canonicalPath?: string;
   indexable: boolean;
 }
 
+export const DIAGNOSTIC_TARGETS: ModuleType[] = [
+  "dashboard",
+  "mouse",
+  "keyboard",
+  "pixel",
+  "mic",
+  "webcam",
+  "gamepad",
+  "typing",
+  "audio-sync",
+];
+
 export const SITE_ROUTES: SiteRouteDefinition[] = [
   {
     path: "/",
-    target: "home",
-    module: "dashboard",
+    target: "dashboard",
     title: "Device Test Online - Free Hardware Diagnostic Suite",
+    uiTitle: "Hardware Diagnostic Suite",
     description:
       "Test your mouse, keyboard, monitor, microphone, webcam, controller, typing speed, and audio latency directly in your browser.",
     indexable: true,
   },
   {
     path: "/mouse-test",
-    target: "home",
-    module: "mouse",
+    target: "mouse",
     title: "Mouse Test - Check Clicks, Scroll, and Polling Rate",
+    uiTitle: "Mouse Diagnostics",
+    navLabel: "MOUSE TEST",
     description:
       "Test left, right, and middle clicks, scroll behavior, and live mouse polling rate with an in-browser mouse diagnostic tool.",
     indexable: true,
   },
   {
     path: "/keyboard-test",
-    target: "home",
-    module: "keyboard",
+    target: "keyboard",
     title: "Keyboard Tester - Check Keys, Ghosting, and NKRO",
+    uiTitle: "Keyboard Matrix",
+    navLabel: "KEYBOARD TEST",
     description:
       "Verify stuck keys, rollover behavior, and keyboard ghosting with a live browser-based keyboard tester.",
     indexable: true,
   },
   {
     path: "/dead-pixel-test",
-    target: "home",
-    module: "pixel",
+    target: "pixel",
     title: "Monitor Test - Dead Pixels and Refresh Rate Check",
+    uiTitle: "Monitor Test & Refresh Rate",
+    navLabel: "MONITOR TEST",
     description:
       "Detect dead or stuck pixels and verify your display refresh rate with a monitor diagnostic tool that runs locally in your browser.",
     indexable: true,
   },
   {
     path: "/microphone-test",
-    target: "home",
-    module: "mic",
+    target: "mic",
     title: "Microphone Test - Check Mic Recording and Playback",
+    uiTitle: "Audio Input Check",
+    navLabel: "MICROPHONE",
     description:
       "Test microphone access, record a short sample, and play it back locally to verify your mic and speakers.",
     indexable: true,
   },
   {
     path: "/webcam-test",
-    target: "home",
-    module: "webcam",
+    target: "webcam",
     title: "Webcam Test - Check Camera Feed, Resolution, and FPS",
+    uiTitle: "Webcam Diagnostics",
+    navLabel: "WEBCAM TEST",
     description:
       "Open your webcam in the browser, confirm the video feed, and inspect live resolution and frame rate details.",
     indexable: true,
   },
   {
     path: "/gamepad-test",
-    target: "home",
-    module: "gamepad",
+    target: "gamepad",
     title: "Gamepad Tester - Controller Buttons, Sticks, and Drift",
+    uiTitle: "Controller Input",
+    navLabel: "GAMEPAD TEST",
     description:
       "Test controller buttons, analog sticks, vibration support, and drift behavior with a browser-based gamepad diagnostic tool.",
     indexable: true,
   },
   {
     path: "/typing-test",
-    target: "home",
-    module: "typing",
+    target: "typing",
     title: "Typing Speed Test - Measure WPM and Accuracy Online",
+    uiTitle: "Typing Speed Test",
+    navLabel: "TYPING TEST",
     description:
       "Measure typing speed and accuracy in your browser with a lightweight typing test designed for quick keyboard checks.",
     indexable: true,
   },
   {
     path: "/audio-sync-test",
-    target: "home",
-    module: "audio-sync",
+    target: "audio-sync",
     title: "Audio Delay Test - Check Headphone and Bluetooth Latency",
+    uiTitle: "Audio Latency Test",
+    navLabel: "AUDIO SYNC TEST",
     description:
       "Measure apparent audio delay with a flash-and-beep test to estimate headset, speaker, or Bluetooth playback latency.",
     indexable: true,
@@ -149,17 +170,18 @@ export const SITE_ROUTES: SiteRouteDefinition[] = [
   },
 ];
 
-export const MODULE_ROUTE_MAP = Object.fromEntries(
-  SITE_ROUTES.filter((route) => route.module).map((route) => [
-    route.module as ModuleType,
-    route.path,
-  ]),
-) as Record<ModuleType, string>;
+export function isDiagnosticTarget(target: RouteTarget): target is ModuleType {
+  return DIAGNOSTIC_TARGETS.includes(target as ModuleType);
+}
 
 export const MODULE_ROUTES = SITE_ROUTES.filter(
-  (route): route is SiteRouteDefinition & { module: ModuleType } =>
-    route.target === "home" && Boolean(route.module),
+  (route): route is SiteRouteDefinition & { target: ModuleType } =>
+    isDiagnosticTarget(route.target),
 );
+
+export const MODULE_ROUTE_MAP = Object.fromEntries(
+  MODULE_ROUTES.map((route) => [route.target, route.path]),
+) as Record<ModuleType, string>;
 
 const defaultMeta = {
   title: SITE_NAME,
@@ -177,8 +199,26 @@ export function getRouteDefinition(path: string): SiteRouteDefinition {
       title: `Page Not Found - ${SITE_NAME}`,
       description:
         "The page you requested could not be found. Use Device Test Online to return to the diagnostic tools.",
+      uiTitle: "Page Not Found",
       indexable: false,
       canonicalPath: path,
+    }
+  );
+}
+
+export function getRouteDefinitionByTarget(
+  target: RouteTarget,
+): SiteRouteDefinition {
+  return (
+    SITE_ROUTES.find((route) => route.target === target) ?? {
+      path: "/",
+      target: "not-found",
+      title: `Page Not Found - ${SITE_NAME}`,
+      description:
+        "The page you requested could not be found. Use Device Test Online to return to the diagnostic tools.",
+      uiTitle: "Page Not Found",
+      indexable: false,
+      canonicalPath: "/",
     }
   );
 }

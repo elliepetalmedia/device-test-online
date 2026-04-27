@@ -279,11 +279,11 @@ export function WebcamTest() {
             </section>
 
             <section>
-              <h3 className="mb-2 text-xl font-orbitron text-white">100% Client-Side Privacy</h3>
+              <h3 className="mb-2 text-xl font-orbitron text-white">Local Preview Privacy</h3>
               <p>
-                Your privacy is our top priority. <strong>Device Tester Online processes your webcam feed entirely on
-                your local machine.</strong> The video stream is routed directly from your camera to your browser
-                screen. No video data is ever recorded, and not a single frame is ever sent to our servers.
+                <strong>Device Test Online renders the webcam preview locally in your browser.</strong> The diagnostic
+                flow is not designed to upload the live camera feed as part of the test itself. Site analytics and ad
+                services are disclosed separately in the privacy policy and do not need webcam frames to operate.
               </p>
             </section>
           </div>

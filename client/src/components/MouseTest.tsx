@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useRef } from 'react';
-import { AlertTriangle, CheckCircle, ExternalLink, ArrowUp, ArrowDown } from 'lucide-react';
+import { AlertTriangle, CheckCircle, ArrowUp, ArrowDown } from 'lucide-react';
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
 import { Card } from "@/components/ui/card";
 import { testStore } from '@/lib/store';
@@ -63,8 +63,6 @@ export function MouseTest() {
     setActiveButtons(prev => new Set(prev).add(buttonId));
 
     // History Log
-    const timeString = new Date().toLocaleTimeString('en-US', { hour12: false, hour: '2-digit', minute: '2-digit', second: '2-digit', fractionalSecondDigits: 3 });
-
     let buttonName = "";
     switch (buttonId) {
       case 0: buttonName = "Left Click"; break;
@@ -216,12 +214,12 @@ export function MouseTest() {
                 </AlertDescription>
               </Alert>
 
-              <div id="affiliate-offer" className="p-4 border border-primary bg-primary/5 rounded-lg flex items-center justify-between group cursor-pointer hover:bg-primary/10 transition-colors">
-                <div>
-                  <h4 className="text-primary font-orbitron text-sm mb-1">Mouse switch failing?</h4>
-                  <p className="text-xs text-muted-foreground">Recommended Replacement: Logitech G502</p>
-                </div>
-                <ExternalLink className="text-primary w-5 h-5 group-hover:translate-x-1 transition-transform" />
+              <div className="p-4 border border-primary/30 bg-primary/5 rounded-lg">
+                <h4 className="text-primary font-orbitron text-sm mb-1">Next diagnostic step</h4>
+                <p className="text-xs text-muted-foreground">
+                  Confirm the mouse on another USB port or another computer before replacing the switch. That rules
+                  out hub, firmware, or operating-system debounce issues.
+                </p>
               </div>
             </div>
           )}

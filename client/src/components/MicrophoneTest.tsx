@@ -469,11 +469,11 @@ export function MicrophoneTest() {
           </section>
 
           <section>
-            <h3 className="mb-2 text-xl font-orbitron text-white">100% Privacy Guarantee</h3>
+            <h3 className="mb-2 text-xl font-orbitron text-white">Local Recording Privacy</h3>
             <p>
-              Unlike many mic testing websites, <strong>Device Test Online processes all audio entirely on your
-              device.</strong> Your voice recordings never leave your computer, are never sent to a server, and are
-              removed as soon as you reset the test or close the tab.
+              <strong>Device Test Online keeps the recording flow in this browser session.</strong> Your microphone
+              sample is not uploaded as part of the diagnostic itself and is discarded when you reset the test or close
+              the tab. Site-level analytics and advertising disclosures are documented separately in the privacy policy.
             </p>
           </section>
         </div>

@@ -1,6 +1,7 @@
 export const SITE_URL = "https://devicetesteronline.com";
 export const SITE_NAME = "Device Test Online";
 export const SITE_OG_IMAGE = `${SITE_URL}/opengraph.jpg`;
+export const PUBLISHER_NAME = "Ellie Petal Media";
 
 export type ModuleType =
   | "dashboard"
@@ -170,7 +171,7 @@ export const SITE_ROUTES: SiteRouteDefinition[] = [
     title: "About Device Test Online",
     uiTitle: "About Device Test Online",
     description:
-      "Learn what Device Test Online is, who publishes it, and how the site provides privacy-first browser-based hardware diagnostics.",
+      "Learn what Device Test Online is, who publishes it, and how the site provides browser-based hardware diagnostics with local device processing.",
     indexable: true,
   },
   {
@@ -335,7 +336,7 @@ export const MODULE_ROUTE_MAP = Object.fromEntries(
 const defaultMeta = {
   title: SITE_NAME,
   description:
-    "Privacy-first browser hardware diagnostics for mice, keyboards, displays, microphones, webcams, controllers, and audio latency.",
+    "Browser-based hardware diagnostics with local device processing for mice, keyboards, displays, microphones, webcams, controllers, and audio latency.",
   indexable: true,
   canonicalPath: "/",
 };
@@ -409,7 +410,7 @@ function upsertStructuredData(id: string, data: Record<string, unknown>) {
   element.textContent = JSON.stringify(data);
 }
 
-function getStructuredData(path: string) {
+export function buildStructuredData(path: string) {
   const route = getRouteDefinition(path);
   const meta = { ...defaultMeta, ...route };
   const currentUrl = `${SITE_URL}${meta.canonicalPath ?? meta.path}`;
@@ -453,7 +454,7 @@ function getStructuredData(path: string) {
         isAccessibleForFree: true,
         publisher: {
           "@type": "Organization",
-          name: "Ellie Petal Media",
+          name: PUBLISHER_NAME,
         },
         offers: {
           "@type": "Offer",
@@ -486,7 +487,7 @@ function getStructuredData(path: string) {
         description: meta.description,
         mainEntity: {
           "@type": "Organization",
-          name: "Ellie Petal Media",
+          name: PUBLISHER_NAME,
           url: SITE_URL,
         },
       };
@@ -499,7 +500,7 @@ function getStructuredData(path: string) {
         description: meta.description,
         mainEntity: {
           "@type": "Organization",
-          name: "Ellie Petal Media",
+          name: PUBLISHER_NAME,
           email: "legal@devicetesteronline.com",
         },
       };
@@ -582,5 +583,5 @@ export function applyRouteMetadata(path: string) {
     href: canonicalUrl,
   });
 
-  upsertStructuredData("route-schema", getStructuredData(path));
+  upsertStructuredData("route-schema", buildStructuredData(path));
 }

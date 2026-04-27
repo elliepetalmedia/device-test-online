@@ -23,7 +23,7 @@ export function TestSummaryModal() {
     ];
 
     const generateReportText = () => {
-        let report = `=== Device Tester Online - Hardware Report ===\n`;
+        let report = `=== Device Test Online - Hardware Report ===\n`;
         report += `Date: ${new Date().toLocaleString()}\n\n`;
 
         modules.forEach(m => {

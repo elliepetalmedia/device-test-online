@@ -57,7 +57,7 @@ export function DeadPixelTest() {
       elem.requestFullscreen().then(() => {
         setIsFullscreen(true);
         setColorIndex(0);
-        testStore.addResult('pixel', 'tested', { mode: isFixerMode ? 'Stuck Pixel Fixer' : 'Standard Diagnositc' });
+        testStore.addResult('pixel', 'tested', { mode: isFixerMode ? 'Stuck Pixel Fixer' : 'Standard Diagnostic' });
 
         if (isFixerMode || showWarningModal) { // Start flashing immediately if fixer mode was confirmed
           // Wait for fullscreen then start

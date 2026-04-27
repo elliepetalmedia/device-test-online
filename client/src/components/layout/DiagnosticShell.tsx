@@ -165,9 +165,9 @@ export function DiagnosticShell({
           <div className="flex flex-col gap-2 text-xs text-muted-foreground font-mono">
             <div className="flex items-center gap-2">
               <div className="w-2 h-2 rounded-full bg-neon-green shadow-[0_0_5px_var(--color-neon-green)]"></div>
-              <span>System Online</span>
+              <span>Browser Diagnostics Live</span>
             </div>
-            <div className="opacity-50">v2.5.0-stable</div>
+            <div className="opacity-50">Local device checks with site-level analytics disclosure</div>
           </div>
         </div>
       </aside>
@@ -239,7 +239,7 @@ export function DiagnosticShell({
                 </Link>{" "}
                 for details.
               </p>
-              <p>&copy; 2026 Ellie Petal Media. All systems nominal.</p>
+              <p>&copy; 2026 Ellie Petal Media.</p>
             </footer>
           </div>
         </div>

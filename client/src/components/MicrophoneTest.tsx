@@ -1,12 +1,21 @@
-import React, { useState, useEffect, useRef } from 'react';
-import { Mic, MicOff, Volume2, Play } from 'lucide-react';
-import { Button } from '@/components/ui/button';
-import { testStore } from '@/lib/store';
+import React, { useEffect, useRef, useState } from "react";
+import { Mic, MicOff, Play, Volume2 } from "lucide-react";
+
+import { DiagnosticStatusCard } from "@/components/DiagnosticStatusCard";
+import { Button } from "@/components/ui/button";
+import {
+  classifyMediaError,
+  createDiagnosticStatus,
+  getMicrophonePreflightStatus,
+  supportsWebAudio,
+  type DiagnosticStatus,
+} from "@/lib/diagnosticStatus";
+import { testStore } from "@/lib/store";
 
 export function MicrophoneTest() {
+  const [status, setStatus] = useState<DiagnosticStatus>(getMicrophonePreflightStatus);
   const [isRecording, setIsRecording] = useState(false);
   const [hasRecording, setHasRecording] = useState(false);
-  const [error, setError] = useState<string | null>(null);
   const [recordingTime, setRecordingTime] = useState(5);
   const [amplitude, setAmplitude] = useState(0);
 
@@ -15,76 +24,115 @@ export function MicrophoneTest() {
   const audioContextRef = useRef<AudioContext | null>(null);
   const animationRef = useRef<number | null>(null);
   const chunksRef = useRef<Blob[]>([]);
-  const audioUrlRef = useRef<string>('');
+  const audioUrlRef = useRef<string>("");
   const audioElementRef = useRef<HTMLAudioElement | null>(null);
-  const timerRef = useRef<NodeJS.Timeout | null>(null);
+  const timerRef = useRef<number | null>(null);
+  const sessionRef = useRef(0);
+  const mountedRef = useRef(true);
+
+  const clearRecordingArtifact = () => {
+    if (audioElementRef.current) {
+      audioElementRef.current.pause();
+      audioElementRef.current.src = "";
+      audioElementRef.current = null;
+    }
+
+    if (audioUrlRef.current) {
+      URL.revokeObjectURL(audioUrlRef.current);
+      audioUrlRef.current = "";
+    }
+  };
+
+  const closeAudioContext = async () => {
+    if (audioContextRef.current) {
+      const activeContext = audioContextRef.current;
+      audioContextRef.current = null;
+      if (activeContext.state !== "closed") {
+        await activeContext.close();
+      }
+    }
+  };
 
   const cleanupStream = () => {
-    if (timerRef.current) {
-      clearTimeout(timerRef.current);
+    if (timerRef.current !== null) {
+      window.clearInterval(timerRef.current);
       timerRef.current = null;
     }
-    if (animationRef.current) {
+
+    if (animationRef.current !== null) {
       cancelAnimationFrame(animationRef.current);
       animationRef.current = null;
     }
+
     if (streamRef.current) {
       streamRef.current.getTracks().forEach((track) => track.stop());
       streamRef.current = null;
     }
   };
 
-  const getMicrophoneErrorMessage = (err: any) => {
-    if (err?.name === 'NotAllowedError' || err?.name === 'PermissionDeniedError') {
-      return 'Microphone permission denied. Allow microphone access in your browser address bar, then try again.';
-    }
-    if (err?.name === 'NotFoundError' || err?.name === 'DevicesNotFoundError') {
-      return 'No microphone was detected. Connect a microphone or headset and try again.';
-    }
-    if (err?.name === 'NotReadableError' || err?.name === 'TrackStartError') {
-      return 'Your microphone is busy in another app. Close other recording or call apps and try again.';
-    }
-    if (err?.name === 'NotSupportedError') {
-      return 'This browser does not support the recording APIs required for the microphone test.';
-    }
-    return err?.message || 'Could not access microphone';
-  };
-
   const stopRecording = async () => {
-    if (mediaRecorderRef.current && isRecording) {
-      mediaRecorderRef.current.stop();
-      setIsRecording(false);
+    const recorder = mediaRecorderRef.current;
+    mediaRecorderRef.current = null;
+
+    if (recorder && recorder.state !== "inactive") {
+      recorder.stop();
     }
+
     cleanupStream();
+    setIsRecording(false);
+    setAmplitude(0);
+    await closeAudioContext();
   };
 
-  const reset = () => {
-    stopRecording();
-    setHasRecording(false);
-    setAmplitude(0);
-    setRecordingTime(5);
-    setError(null);
+  const reset = async () => {
+    sessionRef.current += 1;
+    await stopRecording();
+    clearRecordingArtifact();
     chunksRef.current = [];
-    audioUrlRef.current = '';
-    if (audioElementRef.current) {
-      audioElementRef.current.pause();
-      audioElementRef.current = null;
-    }
+    setHasRecording(false);
+    setRecordingTime(5);
+    setStatus(getMicrophonePreflightStatus());
   };
 
   const startRecording = async () => {
-    setError(null);
-    setHasRecording(false);
+    if (status.state === "unsupported") {
+      return;
+    }
+
+    const sessionId = sessionRef.current + 1;
+    sessionRef.current = sessionId;
+
+    await stopRecording();
+    clearRecordingArtifact();
     chunksRef.current = [];
+    setHasRecording(false);
+    setRecordingTime(5);
+    setAmplitude(0);
+    setStatus(
+      createDiagnosticStatus(
+        "permission-required",
+        "Awaiting Microphone Access",
+        "Approve microphone access in the browser prompt to begin the 5 second local recording test.",
+      ),
+    );
 
     try {
       const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
+      if (!mountedRef.current || sessionRef.current !== sessionId) {
+        stream.getTracks().forEach((track) => track.stop());
+        return;
+      }
+
       streamRef.current = stream;
 
       const mediaRecorder = new MediaRecorder(stream);
       mediaRecorderRef.current = mediaRecorder;
 
-      const audioContext = new (window.AudioContext || (window as any).webkitAudioContext)();
+      const AudioContextCtor =
+        window.AudioContext ||
+        (window as typeof window & { webkitAudioContext?: typeof AudioContext }).webkitAudioContext;
+
+      const audioContext = new AudioContextCtor();
       audioContextRef.current = audioContext;
 
       const source = audioContext.createMediaStreamSource(stream);
@@ -100,73 +148,136 @@ export function MicrophoneTest() {
 
       const dataArray = new Uint8Array(analyser.frequencyBinCount);
       const updateAmplitude = () => {
+        if (!mountedRef.current || sessionRef.current !== sessionId) {
+          return;
+        }
+
         analyser.getByteFrequencyData(dataArray);
         let sum = 0;
-        for (let i = 0; i < dataArray.length; i++) {
-          sum += dataArray[i];
+        for (let index = 0; index < dataArray.length; index += 1) {
+          sum += dataArray[index];
         }
+
         const avg = sum / dataArray.length;
         setAmplitude(Math.min(100, (avg / 255) * 150));
         animationRef.current = requestAnimationFrame(updateAmplitude);
       };
+
       updateAmplitude();
 
       mediaRecorder.ondataavailable = (event) => {
+        if (sessionRef.current !== sessionId) {
+          return;
+        }
+
         chunksRef.current.push(event.data);
       };
 
       mediaRecorder.onstop = () => {
-        const blob = new Blob(chunksRef.current, { type: 'audio/webm' });
-        const url = URL.createObjectURL(blob);
-        audioUrlRef.current = url;
-        setHasRecording(true);
-        testStore.addResult('mic', 'passed', { description: '5s audio recorded locally' });
-
-        if (audioContextRef.current) {
-          audioContextRef.current.close();
-          audioContextRef.current = null;
+        if (!mountedRef.current || sessionRef.current !== sessionId) {
+          return;
         }
+
+        const blob = new Blob(chunksRef.current, { type: "audio/webm" });
+        clearRecordingArtifact();
+        audioUrlRef.current = URL.createObjectURL(blob);
+        setHasRecording(true);
+        setStatus(
+          createDiagnosticStatus(
+            "ready",
+            "Recording Ready",
+            "Playback is available locally. Use the recording playback button to confirm clarity, gain, and background noise.",
+            {
+              notes: ["Audio is processed only in this tab and is discarded when you reset the test."],
+            },
+          ),
+        );
+        testStore.addResult("mic", "passed", { description: "5s audio recorded locally" });
       };
 
       mediaRecorder.start();
       setIsRecording(true);
-      setRecordingTime(5);
+      setStatus(
+        createDiagnosticStatus(
+          "active",
+          "Recording In Progress",
+          "Speak normally for 5 seconds while the amplitude meter responds to your input.",
+        ),
+      );
 
-      let time = 5;
-      const interval = setInterval(() => {
-        time -= 1;
-        setRecordingTime(time);
-        if (time <= 0) {
-          clearInterval(interval);
-          timerRef.current = null;
-          mediaRecorder.stop();
-          setIsRecording(false);
-          cleanupStream();
+      let remaining = 5;
+      timerRef.current = window.setInterval(() => {
+        if (!mountedRef.current || sessionRef.current !== sessionId) {
+          return;
+        }
+
+        remaining -= 1;
+        setRecordingTime(remaining);
+
+        if (remaining <= 0) {
+          void stopRecording();
         }
       }, 1000);
-      timerRef.current = interval as any;
-    } catch (err: any) {
-      console.error('Microphone access error:', err);
-      setError(getMicrophoneErrorMessage(err));
-      cleanupStream();
-    }
-  };
-
-  const playRecording = () => {
-    if (audioUrlRef.current) {
-      if (!audioElementRef.current) {
-        audioElementRef.current = new Audio(audioUrlRef.current);
+    } catch (error) {
+      if (!mountedRef.current || sessionRef.current !== sessionId) {
+        return;
       }
-      audioElementRef.current.play();
+
+      console.error("Microphone access error:", error);
+      setStatus(classifyMediaError(error, "microphone"));
+      cleanupStream();
+      await closeAudioContext();
+      setIsRecording(false);
+      setAmplitude(0);
     }
   };
 
-  const playTestTone = () => {
-    try {
-      const audioContext = new (window.AudioContext || (window as any).webkitAudioContext)();
+  const playRecording = async () => {
+    if (!audioUrlRef.current) {
+      return;
+    }
 
-      if (audioContext.state === 'suspended') {
-        audioContext.resume();
+    try {
+      const audio = audioElementRef.current ?? new Audio(audioUrlRef.current);
+      audioElementRef.current = audio;
+      audio.src = audioUrlRef.current;
+      await audio.play();
+    } catch (error) {
+      console.error("Recording playback error:", error);
+      setStatus(
+        createDiagnosticStatus(
+          "failed",
+          "Playback Blocked",
+          "The browser blocked audio playback. Increase volume and interact with the page, then try the recording playback again.",
+        ),
+      );
+    }
+  };
+
+  const playTestTone = async () => {
+    if (!supportsWebAudio()) {
+      setStatus(
+        createDiagnosticStatus(
+          "unsupported",
+          "Speaker Test Unavailable",
+          "This browser does not expose the Web Audio APIs required for the tone playback check.",
+        ),
+      );
+      return;
+    }
+
+    try {
+      const AudioContextCtor =
+        window.AudioContext ||
+        (window as typeof window & { webkitAudioContext?: typeof AudioContext }).webkitAudioContext;
+
+      const audioContext = new AudioContextCtor();
+      if (audioContext.state === "suspended") {
+        await audioContext.resume();
+      }
+
+      if (audioContext.state === "suspended") {
+        throw new Error("AudioContext remained suspended after resume.");
       }
 
       const gainNode = audioContext.createGain();
@@ -184,135 +295,185 @@ export function MicrophoneTest() {
       ];
 
       notes.forEach(({ freq, start, duration }) => {
-        const osc = audioContext.createOscillator();
-        osc.type = 'sine';
-        osc.frequency.value = freq;
-        osc.connect(gainNode);
-        osc.start(audioContext.currentTime + start);
-        osc.stop(audioContext.currentTime + start + duration);
+        const oscillator = audioContext.createOscillator();
+        oscillator.type = "sine";
+        oscillator.frequency.value = freq;
+        oscillator.connect(gainNode);
+        oscillator.start(audioContext.currentTime + start);
+        oscillator.stop(audioContext.currentTime + start + duration);
       });
-    } catch (err) {
-      console.error('Test tone error:', err);
+
+      window.setTimeout(() => {
+        void audioContext.close();
+      }, 5500);
+    } catch (error) {
+      console.error("Test tone error:", error);
+      setStatus(
+        createDiagnosticStatus(
+          "failed",
+          "Speaker Test Blocked",
+          "The browser did not allow tone playback to start. Interact with the page and verify system volume, then try again.",
+        ),
+      );
     }
   };
 
   useEffect(() => {
+    mountedRef.current = true;
+
     return () => {
+      mountedRef.current = false;
+      sessionRef.current += 1;
       cleanupStream();
-      if (audioContextRef.current) {
-        audioContextRef.current.close();
-      }
-      if (audioElementRef.current) {
-        audioElementRef.current.pause();
-      }
+      clearRecordingArtifact();
+      void closeAudioContext();
     };
   }, []);
 
   return (
     <div className="flex flex-col gap-8">
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
+      <div className="grid grid-cols-1 gap-8 md:grid-cols-2">
         <div className="space-y-6">
           <div>
-            <h3 className="text-primary font-orbitron text-2xl uppercase tracking-widest">Microphone & Speaker Test</h3>
-            <p className="text-muted-foreground text-sm mt-2">
-              Test your audio input and output devices locally in your browser
+            <h3 className="font-orbitron text-2xl uppercase tracking-widest text-primary">
+              Microphone & Speaker Test
+            </h3>
+            <p className="mt-2 text-sm text-muted-foreground">
+              Test your audio input and output devices locally in your browser.
             </p>
           </div>
 
-          <div className="p-4 bg-surface border border-secondary/30 rounded-lg text-sm text-muted-foreground">
-            Your microphone audio stays on this device. Browser permission is required before the recording test can start.
-          </div>
+          <DiagnosticStatusCard
+            status={status}
+            onAction={!isRecording && !hasRecording && status.state !== "unsupported" ? startRecording : undefined}
+            className="bg-surface/70"
+          />
 
           <div className="space-y-3">
-            {!isRecording && !hasRecording && (
-              <Button onClick={startRecording} className="bg-primary text-background hover:bg-primary/80 font-orbitron w-full transition-transform hover:scale-105">
-                <Mic className="mr-2 w-4 h-4" /> Start Recording (5 seconds)
+            {!isRecording && !hasRecording ? (
+              <Button
+                onClick={startRecording}
+                disabled={status.state === "unsupported"}
+                className="w-full bg-primary font-orbitron text-background transition-transform hover:scale-105 hover:bg-primary/80"
+              >
+                <Mic className="mr-2 h-4 w-4" /> Start Recording (5 seconds)
               </Button>
-            )}
+            ) : null}
 
-            {isRecording && (
-              <div className="text-center text-primary font-orbitron text-3xl font-bold">{recordingTime}</div>
-            )}
+            {isRecording ? (
+              <div className="text-center font-orbitron text-3xl font-bold text-primary">{recordingTime}</div>
+            ) : null}
 
-            {hasRecording && (
-              <Button onClick={playRecording} variant="outline" className="w-full font-orbitron transition-transform hover:scale-105">
-                <Play className="mr-2 w-4 h-4" /> Play Your Recording
+            {hasRecording ? (
+              <Button
+                onClick={() => void playRecording()}
+                variant="outline"
+                className="w-full font-orbitron transition-transform hover:scale-105"
+              >
+                <Play className="mr-2 h-4 w-4" /> Play Your Recording
               </Button>
-            )}
+            ) : null}
 
-            <Button onClick={playTestTone} variant="outline" className="w-full font-orbitron transition-transform hover:scale-105">
-              <Volume2 className="mr-2 w-4 h-4" /> Test Speakers (5s Tone)
+            <Button
+              onClick={() => void playTestTone()}
+              variant="outline"
+              className="w-full font-orbitron transition-transform hover:scale-105"
+            >
+              <Volume2 className="mr-2 h-4 w-4" /> Test Speakers (5s Tone)
             </Button>
 
-            <Button onClick={reset} variant="outline" className="w-full font-orbitron transition-transform hover:scale-105">
-              <MicOff className="mr-2 w-4 h-4" /> Reset
+            <Button
+              onClick={() => void reset()}
+              variant="outline"
+              className="w-full font-orbitron transition-transform hover:scale-105"
+            >
+              <MicOff className="mr-2 h-4 w-4" /> Reset
             </Button>
           </div>
 
-          {error && (
-            <div className="p-4 border border-destructive/50 bg-destructive/10 text-destructive rounded text-sm">
-              {error}
-            </div>
-          )}
-
-          {isRecording && (
-            <div className="p-3 bg-surface border border-primary/30 rounded">
-              <div className="text-xs font-orbitron text-primary text-center mb-2">
-                Recording... Speak now
-              </div>
-              <div className="w-full bg-background rounded overflow-hidden h-2 border border-primary/50">
+          {isRecording ? (
+            <div className="rounded border border-primary/30 bg-surface p-3">
+              <div className="mb-2 text-center text-xs font-orbitron text-primary">Recording... Speak now</div>
+              <div className="h-2 w-full overflow-hidden rounded border border-primary/50 bg-background">
                 <div
                   className="h-full bg-primary transition-all duration-75"
                   style={{ width: `${amplitude}%` }}
                 />
               </div>
             </div>
-          )}
+          ) : null}
 
-          {hasRecording && (
-            <div className="p-3 bg-surface border border-green-500/30 rounded">
+          {hasRecording ? (
+            <div className="rounded border border-green-500/30 bg-surface p-3">
               <p className="text-xs font-orbitron text-green-400">
                 Recording captured locally. Use playback to hear exactly what your mic recorded.
               </p>
             </div>
-          )}
+          ) : null}
         </div>
       </div>
 
-      <div className="p-8 bg-surface border border-secondary/30 rounded-lg">
-        <h2 className="text-primary font-orbitron text-2xl mb-6 uppercase tracking-widest border-b border-secondary/30 pb-4">Comprehensive Mic & Audio Diagnostic Guide</h2>
-        <div className="space-y-8 text-lg text-muted-foreground font-roboto-mono leading-relaxed">
+      <div className="rounded-lg border border-secondary/30 bg-surface p-8">
+        <h2 className="mb-6 border-b border-secondary/30 pb-4 font-orbitron text-2xl uppercase tracking-widest text-primary">
+          Comprehensive Mic & Audio Diagnostic Guide
+        </h2>
+        <div className="space-y-8 font-roboto-mono text-lg leading-relaxed text-muted-foreground">
           <section>
-            <h3 className="text-xl font-orbitron text-white mb-2">How to Use the Online Microphone Tester</h3>
+            <h3 className="mb-2 text-xl font-orbitron text-white">How to Use the Online Microphone Tester</h3>
             <p>
-              This free online microphone and speaker tester provides a secure, private way to verify your audio equipment is working perfectly before your next Zoom call, Discord session, or podcast recording. Just click "Start Recording" to begin a seamless loopback test right in your browser.
+              This free online microphone and speaker tester provides a secure, private way to verify your audio
+              equipment is working perfectly before your next Zoom call, Discord session, or podcast recording. Just
+              click "Start Recording" to begin a seamless loopback test right in your browser.
             </p>
           </section>
 
           <section>
-            <h3 className="text-xl font-orbitron text-white mb-2">Diagnosing Common Microphone Issues</h3>
-            <ul className="list-disc pl-6 space-y-2">
-              <li><strong>Microphone extremely quiet?</strong> If the blue amplitude bar barely moves when you speak loudly, your input volume is too low. In Windows, go to Sound Settings &gt; Recording &gt; Properties &gt; Levels and increase the slider. You may also need to increase the "Microphone Boost" if you are using an analog headset.</li>
-              <li><strong>Static or buzzing noise?</strong> If you hear a constant hum during playback, your microphone cable might be picking up electromagnetic interference (EMI), or you have a ground-loop issue. Try plugging your headset into the back motherboard ports instead of the front panel of your PC case.</li>
-              <li><strong>Browser permission denied?</strong> If the tool immediately throws an error, your browser is blocking microphone access. Click the padlock icon in your browser's URL bar and ensure "Microphone" is set to "Allow".</li>
+            <h3 className="mb-2 text-xl font-orbitron text-white">Diagnosing Common Microphone Issues</h3>
+            <ul className="list-disc space-y-2 pl-6">
+              <li>
+                <strong>Microphone extremely quiet?</strong> If the blue amplitude bar barely moves when you speak
+                loudly, your input volume is too low. In Windows, go to Sound Settings &gt; Recording &gt; Properties
+                &gt; Levels and increase the slider. You may also need to increase the "Microphone Boost" if you are
+                using an analog headset.
+              </li>
+              <li>
+                <strong>Static or buzzing noise?</strong> If you hear a constant hum during playback, your microphone
+                cable might be picking up electromagnetic interference (EMI), or you have a ground-loop issue. Try
+                plugging your headset into the back motherboard ports instead of the front panel of your PC case.
+              </li>
+              <li>
+                <strong>Browser permission denied?</strong> If the tool immediately throws an error, your browser is
+                blocking microphone access. Click the padlock icon in your browser&apos;s URL bar and ensure
+                "Microphone" is set to "Allow".
+              </li>
             </ul>
           </section>
 
           <section>
-            <h3 className="text-xl font-orbitron text-white mb-2">How the Loopback Test Works</h3>
+            <h3 className="mb-2 text-xl font-orbitron text-white">How the Loopback Test Works</h3>
             <p>
-              The most reliable way to test a microphone is not just looking at a volume meter, it is hearing yourself exactly as others hear you.
+              The most reliable way to test a microphone is not just looking at a volume meter, it is hearing yourself
+              exactly as others hear you.
             </p>
-            <ul className="list-disc pl-6 space-y-2">
-              <li><strong>Record phase:</strong> We capture exactly 5 seconds of raw audio from your default input device.</li>
-              <li><strong>Playback phase:</strong> By clicking "Play Your Recording," you hear the raw audio file. If your voice sounds robotic, muffled, or delayed in the recording, that is exactly how other people hear you.</li>
+            <ul className="list-disc space-y-2 pl-6">
+              <li>
+                <strong>Record phase:</strong> We capture exactly 5 seconds of raw audio from your default input
+                device.
+              </li>
+              <li>
+                <strong>Playback phase:</strong> By clicking "Play Your Recording," you hear the raw audio file. If
+                your voice sounds robotic, muffled, or delayed in the recording, that is exactly how other people hear
+                you.
+              </li>
             </ul>
           </section>
 
           <section>
-            <h3 className="text-xl font-orbitron text-white mb-2">100% Privacy Guarantee</h3>
+            <h3 className="mb-2 text-xl font-orbitron text-white">100% Privacy Guarantee</h3>
             <p>
-              Unlike many mic testing websites, <strong>Device Test Online processes all audio entirely on your device.</strong> Your voice recordings never leave your computer, are never sent to a server, and are removed as soon as you reset the test or close the tab.
+              Unlike many mic testing websites, <strong>Device Test Online processes all audio entirely on your
+              device.</strong> Your voice recordings never leave your computer, are never sent to a server, and are
+              removed as soon as you reset the test or close the tab.
             </p>
           </section>
         </div>

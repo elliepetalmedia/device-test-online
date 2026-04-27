@@ -11,13 +11,21 @@ class TestStore {
     private results: Record<string, TestResult> = {};
     private listeners: Set<() => void> = new Set();
 
+    private logStorageIssue(action: string, error: unknown) {
+        if (import.meta.env.DEV) {
+            console.warn(`[testStore] Failed to ${action}`, error);
+        }
+    }
+
     constructor() {
         try {
             const stored = localStorage.getItem('device_test_results');
             if (stored) {
                 this.results = JSON.parse(stored);
             }
-        } catch (e) { }
+        } catch (error) {
+            this.logStorageIssue("read local session results", error);
+        }
     }
 
     getResults() {
@@ -44,7 +52,9 @@ class TestStore {
     private save() {
         try {
             localStorage.setItem('device_test_results', JSON.stringify(this.results));
-        } catch (e) { }
+        } catch (error) {
+            this.logStorageIssue("write local session results", error);
+        }
     }
 
     private notify() {

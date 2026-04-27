@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useRef } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Link, useLocation } from "wouter";
 import { MousePointer2, Keyboard, Monitor, Mic, Camera, Gamepad2, Menu, X, HelpCircle, LayoutGrid, ArrowRight, Type, Volume2 } from 'lucide-react';
 import { MouseTest } from '@/components/MouseTest';
@@ -12,20 +12,14 @@ import { AudioSyncTest } from '@/components/AudioSyncTest';
 import { TestSummaryModal } from '@/components/TestSummaryModal';
 import { cn } from '@/lib/utils';
 import { Card } from '@/components/ui/card';
-
-type ModuleType = 'mouse' | 'keyboard' | 'pixel' | 'mic' | 'webcam' | 'gamepad' | 'typing' | 'audio-sync' | 'dashboard';
-
-const MODULE_ROUTES: Record<ModuleType, string> = {
-  dashboard: '/',
-  mouse: '/mouse-test',
-  keyboard: '/keyboard-test',
-  pixel: '/dead-pixel-test',
-  mic: '/microphone-test',
-  webcam: '/webcam-test',
-  gamepad: '/gamepad-test',
-  typing: '/typing-test',
-  'audio-sync': '/audio-sync-test'
-};
+import {
+  getRouteDefinition,
+  MODULE_ROUTE_MAP,
+  MODULE_ROUTES,
+  SITE_NAME,
+  SITE_URL,
+  type ModuleType,
+} from '@/lib/site';
 
 const MODULE_META: Record<ModuleType, { title: string, desc: string, icon?: any }> = {
   dashboard: {
@@ -34,43 +28,43 @@ const MODULE_META: Record<ModuleType, { title: string, desc: string, icon?: any 
     icon: LayoutGrid
   },
   mouse: {
-    title: 'Mouse Test - Check Clicks & Polling Rate',
-    desc: 'Test your mouse double-click, polling rate, and scroll wheel online.',
+    title: 'Mouse Diagnostics',
+    desc: 'Test click behavior, scroll input, and live polling rate in your browser.',
     icon: MousePointer2
   },
   keyboard: {
-    title: 'Keyboard Tester - Ghosting & Key Check',
-    desc: 'Check for broken keys and ghosting on your keyboard.',
+    title: 'Keyboard Matrix',
+    desc: 'Check stuck keys, rollover, and ghosting behavior without installing software.',
     icon: Keyboard
   },
   pixel: {
-    title: 'Monitor Test - Dead Pixels & Refresh Rate',
-    desc: 'Free online tool to detect dead or stuck pixels and verify monitor refresh rate.',
+    title: 'Monitor Test & Refresh Rate',
+    desc: 'Cycle test colors and verify real-world display refresh rate from the browser.',
     icon: Monitor
   },
   mic: {
-    title: 'Mic Test - Check Microphone Online',
-    desc: 'Test your microphone quality and volume instantly.',
+    title: 'Audio Input Check',
+    desc: 'Record a local microphone sample, inspect levels, and test your speakers.',
     icon: Mic
   },
   webcam: {
-    title: 'Webcam Test - Check Camera Online',
-    desc: 'Test your webcam resolution and functionality online.',
+    title: 'Webcam Diagnostics',
+    desc: 'Preview your camera feed and inspect live resolution and frame rate details.',
     icon: Camera
   },
   gamepad: {
-    title: 'Gamepad Tester - Controller Input',
-    desc: 'Test your game controller buttons, axes, and vibration.',
+    title: 'Controller Input',
+    desc: 'Visualize buttons, analog axes, vibration support, and stick drift behavior.',
     icon: Gamepad2
   },
   typing: {
-    title: 'Typing Speed Test - WPM Online',
-    desc: 'Test your typing speed and accuracy in words per minute (WPM).',
+    title: 'Typing Speed Test',
+    desc: 'Measure words per minute and accuracy to confirm keyboard behavior and responsiveness.',
     icon: Type
   },
   'audio-sync': {
-    title: 'Audio Delay Test - Bluetooth Latency Check',
-    desc: 'Test your Bluetooth headphones, speakers, and Airpods for audio latency and lip-sync issues.',
+    title: 'Audio Latency Test',
+    desc: 'Estimate playback delay for wired, wireless, or Bluetooth audio devices.',
     icon: Volume2
   }
 };
@@ -78,44 +72,16 @@ const MODULE_META: Record<ModuleType, { title: string, desc: string, icon?: any 
 export default function Home() {
   const [location] = useLocation();
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
-  const scrollContainerRef = useRef<HTMLDivElement>(null);
 
   const getModuleFromPath = (path: string): ModuleType => {
-    switch (path) {
-      case '/': return 'dashboard';
-      case '/keyboard-test': return 'keyboard';
-      case '/dead-pixel-test': return 'pixel';
-      case '/microphone-test': return 'mic';
-      case '/webcam-test': return 'webcam';
-      case '/gamepad-test': return 'gamepad';
-      case '/mouse-test': return 'mouse';
-      case '/typing-test': return 'typing';
-      case '/audio-sync-test': return 'audio-sync';
-      default: return 'dashboard';
-    }
+    return getRouteDefinition(path).module ?? 'dashboard';
   };
 
   const activeModule = getModuleFromPath(location);
 
   useEffect(() => {
+    setMobileMenuOpen(false);
     const meta = MODULE_META[activeModule];
-    document.title = meta.title;
-
-    // Update meta description if it exists, or create it if not? 
-    let metaDesc = document.querySelector('meta[name="description"]');
-    if (!metaDesc) {
-      metaDesc = document.createElement('meta');
-      metaDesc.setAttribute('name', 'description');
-      document.head.appendChild(metaDesc);
-    }
-    metaDesc.setAttribute('content', meta.desc);
-
-    // Also update OG tags for social sharing
-    const ogTitle = document.querySelector('meta[property="og:title"]');
-    if (ogTitle) ogTitle.setAttribute('content', meta.title);
-
-    const ogDesc = document.querySelector('meta[property="og:description"]');
-    if (ogDesc) ogDesc.setAttribute('content', meta.desc);
 
     // Dynamic JSON-LD structured data injection
     let scriptTag = document.querySelector('#json-ld-schema');
@@ -126,13 +92,12 @@ export default function Home() {
       document.head.appendChild(scriptTag);
     }
 
-    const baseUrl = 'https://devicetesteronline.com';
-    const currentUrl = activeModule === 'dashboard' ? baseUrl : `${baseUrl}${MODULE_ROUTES[activeModule]}`;
+    const currentUrl = activeModule === 'dashboard' ? SITE_URL : `${SITE_URL}${MODULE_ROUTE_MAP[activeModule]}`;
 
     const schemaData = {
       "@context": "https://schema.org",
       "@type": "WebApplication",
-      "name": meta.title.split(' - ')[0],
+      "name": SITE_NAME,
       "url": currentUrl,
       "description": meta.desc,
       "applicationCategory": "UtilitiesApplication",
@@ -146,15 +111,12 @@ export default function Home() {
 
     scriptTag.textContent = JSON.stringify(schemaData);
 
-    // Scroll to top when changing modules
-    if (scrollContainerRef.current) {
-      scrollContainerRef.current.scrollTo(0, 0);
-    }
+    window.scrollTo({ top: 0, behavior: 'auto' });
   }, [activeModule]);
 
   const NavItem = ({ id, icon: Icon, label }: { id: ModuleType, icon: any, label: string }) => {
     const isActive = activeModule === id;
-    const href = MODULE_ROUTES[id];
+    const href = MODULE_ROUTE_MAP[id];
 
     return (
       <Link href={href} onClick={() => setMobileMenuOpen(false)}>
@@ -172,25 +134,26 @@ export default function Home() {
   };
 
   const DashboardView = () => (
-    <div className="space-y-8">
-      <div className="text-center w-full mb-8">
-        <p className="text-lg text-muted-foreground leading-relaxed font-roboto-mono">
-          Welcome to <span className="text-primary font-bold">Device Test Online</span>, the privacy-first suite for testing your hardware directly in the browser.
-          Select any diagnostic tool below to instantly check your mouse, keyboard, monitor, or controller.
-          For detailed explanations of common issues and test results, please consult our <Link href="/faq" className="text-primary hover:underline underline-offset-4">FAQ & Guide</Link>.
-        </p>
-      </div>
+      <div className="space-y-8">
+        <div className="text-center w-full mb-8">
+          <p className="text-lg text-muted-foreground leading-relaxed font-roboto-mono">
+            Welcome to <span className="text-primary font-bold">Device Test Online</span>, the privacy-first suite for testing your hardware directly in the browser.
+            Select any diagnostic tool below to instantly check your mouse, keyboard, monitor, or controller.
+            For detailed explanations of common issues and test results, please consult our <Link href="/faq" className="text-primary hover:underline underline-offset-4">FAQ & Guide</Link>.
+          </p>
+        </div>
 
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-        {(Object.keys(MODULE_ROUTES) as ModuleType[])
-          .filter(key => key !== 'dashboard')
-          .map((key) => {
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 md:gap-6">
+          {MODULE_ROUTES
+            .filter((route) => route.module !== 'dashboard')
+            .map((route) => {
+            const key = route.module;
             const meta = MODULE_META[key];
             const Icon = meta.icon;
             return (
-              <Link key={key} href={MODULE_ROUTES[key]}>
+              <Link key={key} href={route.path}>
                 <a className="group block h-full">
-                  <Card className="h-full bg-black/40 border-primary/20 hover:border-primary/50 hover:bg-primary/5 transition-all duration-300 p-6 flex flex-col backdrop-blur-sm relative overflow-hidden">
+                  <Card className="h-full bg-black/40 border-primary/20 hover:border-primary/50 hover:bg-primary/5 transition-all duration-300 p-5 md:p-6 flex flex-col backdrop-blur-sm relative overflow-hidden">
                     <div className="absolute top-0 right-0 p-4 opacity-5 group-hover:opacity-10 transition-opacity">
                       <Icon className="w-32 h-32 text-primary" />
                     </div>
@@ -202,7 +165,7 @@ export default function Home() {
                     </div>
 
                     <h3 className="text-xl font-orbitron font-bold text-foreground mb-2 group-hover:text-primary transition-colors z-10">
-                      {meta.title.split(' - ')[0]}
+                      {meta.title}
                     </h3>
 
                     <p className="text-muted-foreground text-sm leading-relaxed mb-6 flex-1 z-10">
@@ -222,21 +185,33 @@ export default function Home() {
   );
 
   return (
-    <div className="min-h-screen bg-background text-foreground flex flex-col md:flex-row">
+    <div className="min-h-screen bg-background text-foreground md:flex">
       {/* Sidebar */}
       <aside className={cn(
-        "fixed inset-y-0 left-0 z-40 w-64 bg-black/40 backdrop-blur-xl border-r border-secondary/20 transform transition-transform duration-300 md:translate-x-0 md:relative md:block",
+        "fixed inset-y-0 left-0 z-40 w-[18rem] max-w-[85vw] bg-black/40 backdrop-blur-xl border-r border-secondary/20 transform transition-transform duration-300 overflow-y-auto md:sticky md:top-0 md:h-screen md:w-64 md:translate-x-0",
         mobileMenuOpen ? "translate-x-0" : "-translate-x-full"
       )}>
-        <div className="p-6 border-b border-secondary/20">
-          <Link href="/" onClick={() => setMobileMenuOpen(false)}>
-            <a className="block hover:opacity-80 transition-opacity cursor-pointer">
-              <h1 className="font-orbitron font-black text-2xl text-transparent bg-clip-text bg-gradient-to-r from-primary to-secondary drop-shadow-[0_0_10px_rgba(102,252,241,0.3)]">
-                Device Test Online
-              </h1>
-            </a>
-          </Link>
-          <p className="text-[10px] text-muted-foreground uppercase tracking-[0.2em] mt-1">Hardware Suite</p>
+        <div className="p-5 md:p-6 border-b border-secondary/20">
+          <div className="flex items-start justify-between gap-4">
+            <div>
+              <Link href="/" onClick={() => setMobileMenuOpen(false)}>
+                <a className="block hover:opacity-80 transition-opacity cursor-pointer">
+                  <h1 className="font-orbitron font-black text-2xl text-transparent bg-clip-text bg-gradient-to-r from-primary to-secondary drop-shadow-[0_0_10px_rgba(102,252,241,0.3)]">
+                    Device Test Online
+                  </h1>
+                </a>
+              </Link>
+              <p className="text-[10px] text-muted-foreground uppercase tracking-[0.2em] mt-1">Hardware Suite</p>
+            </div>
+            <button
+              type="button"
+              onClick={() => setMobileMenuOpen(false)}
+              className="md:hidden text-muted-foreground hover:text-foreground transition-colors"
+              aria-label="Close navigation"
+            >
+              <X className="w-5 h-5" />
+            </button>
+          </div>
           <p className="text-sm text-muted-foreground mt-4 leading-relaxed">Diagnose and test your computer peripherals with interactive hardware diagnostics.</p>
         </div>
 
@@ -261,7 +236,7 @@ export default function Home() {
           </div>
         </nav>
 
-        <div className="absolute bottom-0 left-0 w-full p-6 border-t border-secondary/20 bg-black/20">
+        <div className="p-6 border-t border-secondary/20 bg-black/20 md:mt-auto">
           <div className="flex flex-col gap-2 text-xs text-muted-foreground font-mono">
             <div className="flex items-center gap-2">
               <div className="w-2 h-2 rounded-full bg-neon-green shadow-[0_0_5px_var(--color-neon-green)]"></div>
@@ -278,23 +253,25 @@ export default function Home() {
       )}
 
       {/* Main Content */}
-      <main className="flex-1 flex flex-col h-screen overflow-hidden">
+      <main className="flex-1 min-w-0">
         {/* Mobile Header */}
         <header className="md:hidden p-4 border-b border-secondary/20 flex justify-between items-center bg-background/80 backdrop-blur sticky top-0 z-20">
           <span className="font-orbitron font-bold text-primary">Device Test Online</span>
-          <button onClick={() => setMobileMenuOpen(true)} className="text-foreground">
+          <button
+            type="button"
+            onClick={() => setMobileMenuOpen(true)}
+            className="text-foreground"
+            aria-label="Open navigation"
+          >
             <Menu />
           </button>
         </header>
 
-        <div
-          ref={scrollContainerRef}
-          className="flex-1 overflow-y-auto p-4 md:p-8 lg:p-12 scroll-smooth"
-        >
-          <div className="max-w-6xl mx-auto space-y-12">
+        <div className="px-4 py-6 md:px-8 md:py-8 lg:px-12 lg:py-12">
+          <div className="max-w-6xl mx-auto space-y-10 md:space-y-12">
 
             <header className="mb-8 animate-in fade-in slide-in-from-top-4 duration-500">
-              <h2 className="text-3xl md:text-4xl font-orbitron text-foreground glow-text mb-2">
+              <h2 className="text-2xl sm:text-3xl md:text-4xl font-orbitron text-foreground glow-text mb-2">
                 {activeModule === 'dashboard' && 'Hardware Diagnostic Suite'}
                 {activeModule === 'mouse' && 'Mouse Diagnostics'}
                 {activeModule === 'keyboard' && 'Keyboard Matrix'}
@@ -322,7 +299,7 @@ export default function Home() {
 
 
             <footer className="mt-16 py-8 border-t border-secondary/10 text-center text-sm text-muted-foreground font-mono">
-              <div className="flex justify-center gap-6 mb-4">
+              <div className="flex flex-wrap justify-center gap-4 sm:gap-6 mb-4">
                 <Link href="/about" className="hover:text-primary transition-colors">About</Link>
                 <Link href="/contact" className="hover:text-primary transition-colors">Contact</Link>
                 <Link href="/privacy" className="hover:text-primary transition-colors">Privacy</Link>

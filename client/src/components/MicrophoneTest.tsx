@@ -13,25 +13,49 @@ export function MicrophoneTest() {
   const mediaRecorderRef = useRef<MediaRecorder | null>(null);
   const streamRef = useRef<MediaStream | null>(null);
   const audioContextRef = useRef<AudioContext | null>(null);
-  const analyserRef = useRef<AnalyserNode | null>(null);
   const animationRef = useRef<number | null>(null);
   const chunksRef = useRef<Blob[]>([]);
   const audioUrlRef = useRef<string>('');
   const audioElementRef = useRef<HTMLAudioElement | null>(null);
   const timerRef = useRef<NodeJS.Timeout | null>(null);
 
+  const cleanupStream = () => {
+    if (timerRef.current) {
+      clearTimeout(timerRef.current);
+      timerRef.current = null;
+    }
+    if (animationRef.current) {
+      cancelAnimationFrame(animationRef.current);
+      animationRef.current = null;
+    }
+    if (streamRef.current) {
+      streamRef.current.getTracks().forEach((track) => track.stop());
+      streamRef.current = null;
+    }
+  };
+
+  const getMicrophoneErrorMessage = (err: any) => {
+    if (err?.name === 'NotAllowedError' || err?.name === 'PermissionDeniedError') {
+      return 'Microphone permission denied. Allow microphone access in your browser address bar, then try again.';
+    }
+    if (err?.name === 'NotFoundError' || err?.name === 'DevicesNotFoundError') {
+      return 'No microphone was detected. Connect a microphone or headset and try again.';
+    }
+    if (err?.name === 'NotReadableError' || err?.name === 'TrackStartError') {
+      return 'Your microphone is busy in another app. Close other recording or call apps and try again.';
+    }
+    if (err?.name === 'NotSupportedError') {
+      return 'This browser does not support the recording APIs required for the microphone test.';
+    }
+    return err?.message || 'Could not access microphone';
+  };
+
   const stopRecording = async () => {
     if (mediaRecorderRef.current && isRecording) {
       mediaRecorderRef.current.stop();
       setIsRecording(false);
-
-      if (timerRef.current) clearTimeout(timerRef.current);
-      if (animationRef.current) cancelAnimationFrame(animationRef.current);
-
-      if (streamRef.current) {
-        streamRef.current.getTracks().forEach(track => track.stop());
-      }
     }
+    cleanupStream();
   };
 
   const reset = () => {
@@ -50,6 +74,7 @@ export function MicrophoneTest() {
 
   const startRecording = async () => {
     setError(null);
+    setHasRecording(false);
     chunksRef.current = [];
 
     try {
@@ -73,8 +98,6 @@ export function MicrophoneTest() {
       analyser.connect(silentGain);
       silentGain.connect(audioContext.destination);
 
-      analyserRef.current = analyser;
-
       const dataArray = new Uint8Array(analyser.frequencyBinCount);
       const updateAmplitude = () => {
         analyser.getByteFrequencyData(dataArray);
@@ -97,10 +120,11 @@ export function MicrophoneTest() {
         const url = URL.createObjectURL(blob);
         audioUrlRef.current = url;
         setHasRecording(true);
-        testStore.addResult('mic', 'passed', { description: '5s Audio Recorded' });
+        testStore.addResult('mic', 'passed', { description: '5s audio recorded locally' });
 
         if (audioContextRef.current) {
           audioContextRef.current.close();
+          audioContextRef.current = null;
         }
       };
 
@@ -114,18 +138,17 @@ export function MicrophoneTest() {
         setRecordingTime(time);
         if (time <= 0) {
           clearInterval(interval);
+          timerRef.current = null;
           mediaRecorder.stop();
           setIsRecording(false);
-
-          if (streamRef.current) {
-            streamRef.current.getTracks().forEach(track => track.stop());
-          }
+          cleanupStream();
         }
       }, 1000);
       timerRef.current = interval as any;
-
     } catch (err: any) {
-      setError(err.message || "Could not access microphone");
+      console.error('Microphone access error:', err);
+      setError(getMicrophoneErrorMessage(err));
+      cleanupStream();
     }
   };
 
@@ -153,10 +176,10 @@ export function MicrophoneTest() {
 
       const notes = [
         { freq: 329.63, start: 0, duration: 1.2 },
-        { freq: 392.00, start: 0.4, duration: 1.2 },
+        { freq: 392.0, start: 0.4, duration: 1.2 },
         { freq: 493.88, start: 0.8, duration: 1.2 },
         { freq: 329.63, start: 1.5, duration: 0.8 },
-        { freq: 392.00, start: 2.0, duration: 0.8 },
+        { freq: 392.0, start: 2.0, duration: 0.8 },
         { freq: 493.88, start: 2.5, duration: 2.0 },
       ];
 
@@ -169,13 +192,16 @@ export function MicrophoneTest() {
         osc.stop(audioContext.currentTime + start + duration);
       });
     } catch (err) {
-      console.error("Test tone error:", err);
+      console.error('Test tone error:', err);
     }
   };
 
   useEffect(() => {
     return () => {
-      stopRecording();
+      cleanupStream();
+      if (audioContextRef.current) {
+        audioContextRef.current.close();
+      }
       if (audioElementRef.current) {
         audioElementRef.current.pause();
       }
@@ -189,8 +215,12 @@ export function MicrophoneTest() {
           <div>
             <h3 className="text-primary font-orbitron text-2xl uppercase tracking-widest">Microphone & Speaker Test</h3>
             <p className="text-muted-foreground text-sm mt-2">
-              Test your audio input and output devices
+              Test your audio input and output devices locally in your browser
             </p>
+          </div>
+
+          <div className="p-4 bg-surface border border-secondary/30 rounded-lg text-sm text-muted-foreground">
+            Your microphone audio stays on this device. Browser permission is required before the recording test can start.
           </div>
 
           <div className="space-y-3">
@@ -242,7 +272,7 @@ export function MicrophoneTest() {
           {hasRecording && (
             <div className="p-3 bg-surface border border-green-500/30 rounded">
               <p className="text-xs font-orbitron text-green-400">
-                ✓ Recording saved and now playing back.
+                Recording captured locally. Use playback to hear exactly what your mic recorded.
               </p>
             </div>
           )}
@@ -252,7 +282,6 @@ export function MicrophoneTest() {
       <div className="p-8 bg-surface border border-secondary/30 rounded-lg">
         <h2 className="text-primary font-orbitron text-2xl mb-6 uppercase tracking-widest border-b border-secondary/30 pb-4">Comprehensive Mic & Audio Diagnostic Guide</h2>
         <div className="space-y-8 text-lg text-muted-foreground font-roboto-mono leading-relaxed">
-
           <section>
             <h3 className="text-xl font-orbitron text-white mb-2">How to Use the Online Microphone Tester</h3>
             <p>
@@ -264,29 +293,28 @@ export function MicrophoneTest() {
             <h3 className="text-xl font-orbitron text-white mb-2">Diagnosing Common Microphone Issues</h3>
             <ul className="list-disc pl-6 space-y-2">
               <li><strong>Microphone extremely quiet?</strong> If the blue amplitude bar barely moves when you speak loudly, your input volume is too low. In Windows, go to Sound Settings &gt; Recording &gt; Properties &gt; Levels and increase the slider. You may also need to increase the "Microphone Boost" if you are using an analog headset.</li>
-              <li><strong>Static or Buzzing noise?</strong> If you hear a constant hum during playback, your microphone cable might be picking up electromagnetic interference (EMI), or you have a "ground loop" issue. Try plugging your headset into the back motherboard ports instead of the front panel of your PC case.</li>
-              <li><strong>Browser permission denied?</strong> If the tool immediately throws an error, your browser is blocking microphone access. Click the padlock icon in your browser's URL bar (next to the website address) and ensure "Microphone" is set to "Allow".</li>
+              <li><strong>Static or buzzing noise?</strong> If you hear a constant hum during playback, your microphone cable might be picking up electromagnetic interference (EMI), or you have a ground-loop issue. Try plugging your headset into the back motherboard ports instead of the front panel of your PC case.</li>
+              <li><strong>Browser permission denied?</strong> If the tool immediately throws an error, your browser is blocking microphone access. Click the padlock icon in your browser's URL bar and ensure "Microphone" is set to "Allow".</li>
             </ul>
           </section>
 
           <section>
-            <h3 className="text-xl font-orbitron text-white mb-2">How the "Loopback Test" Works</h3>
+            <h3 className="text-xl font-orbitron text-white mb-2">How the Loopback Test Works</h3>
             <p>
-              The most reliable way to test a microphone isn't just looking at a volume meter—it's hearing yourself exactly as others hear you.
+              The most reliable way to test a microphone is not just looking at a volume meter, it is hearing yourself exactly as others hear you.
             </p>
             <ul className="list-disc pl-6 space-y-2">
-              <li><strong>Record Phase:</strong> We capture exactly 5 seconds of raw audio from your default input device.</li>
-              <li><strong>Playback Phase:</strong> By clicking "Play Your Recording," you hear the uncompressed, raw audio file. If your voice sounds robotic, muffled, or delayed in the recording, that is exactly how your teammates or coworkers hear you.</li>
+              <li><strong>Record phase:</strong> We capture exactly 5 seconds of raw audio from your default input device.</li>
+              <li><strong>Playback phase:</strong> By clicking "Play Your Recording," you hear the raw audio file. If your voice sounds robotic, muffled, or delayed in the recording, that is exactly how other people hear you.</li>
             </ul>
           </section>
 
           <section>
             <h3 className="text-xl font-orbitron text-white mb-2">100% Privacy Guarantee</h3>
             <p>
-              Unlike other mic testing websites, <strong>Device Tester Online processes all audio entirely on your device.</strong> Your voice recordings never leave your computer, are never sent to a server, and are instantly deleted from your RAM the moment you click "Reset" or close the tab.
+              Unlike many mic testing websites, <strong>Device Test Online processes all audio entirely on your device.</strong> Your voice recordings never leave your computer, are never sent to a server, and are removed as soon as you reset the test or close the tab.
             </p>
           </section>
-
         </div>
       </div>
     </div>

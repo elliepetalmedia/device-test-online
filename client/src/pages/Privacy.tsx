@@ -13,7 +13,7 @@ export default function Privacy() {
 
         <div className="space-y-6 text-muted-foreground flex-1">
           <p><strong className="text-foreground">Last Updated:</strong> February 26, 2026</p>
-          <p>This Privacy Policy applies to DeviceTestOnline.com, published by Ellie Petal Media. We are fully committed to protecting your privacy and complying with the General Data Protection Regulation (GDPR) and other global privacy standards.</p>
+          <p>This Privacy Policy applies to DeviceTesterOnline.com, published by Ellie Petal Media. We are fully committed to protecting your privacy and complying with the General Data Protection Regulation (GDPR) and other global privacy standards.</p>
 
           <div>
             <h3 className="text-xl font-bold text-foreground mb-2">1. 100% Client-Side Processing</h3>

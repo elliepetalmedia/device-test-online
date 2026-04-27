@@ -142,7 +142,7 @@ export function AudioSyncTest() {
                             <div className="text-center p-8 animate-in fade-in zoom-in">
                                 <Volume2 className="w-16 h-16 text-primary mx-auto mb-4 opacity-80" />
                                 <h3 className="text-2xl font-orbitron font-bold text-white mb-2 tracking-widest uppercase">Audio Latency Test</h3>
-                                <p className="text-muted-foreground font-mono">Ensure your sound is turn on. Click anywhere to begin.</p>
+                                <p className="text-muted-foreground font-mono">Make sure your sound is on. Click anywhere to begin.</p>
                                 <Button
                                     onClick={(e) => { e.stopPropagation(); startTestRound(); }}
                                     className="mt-6 bg-primary text-black hover:bg-primary/80 font-orbitron tracking-widest px-8 py-6"
@@ -270,7 +270,7 @@ export function AudioSyncTest() {
                     <div>
                         <h3 className="text-xl font-orbitron text-white mb-2">How to Fix Bluetooth Audio Delay</h3>
                         <p>
-                            If you're experiencing high latency on Windows 11 or macOS, try removing interference by moving your router away from your PC. Also, ensure your headphones are connected using the highest quality codec available (like aptX Low Latency or LDAC). Some gaming headsets come with a dedicated 2.4GHz USB dongle—always use the dongle instead of standard Bluetooth for gaming.
+                            If you're experiencing high latency on Windows 11 or macOS, try removing interference by moving your router away from your PC. Also, ensure your headphones are connected using the highest quality codec available (like aptX Low Latency or LDAC). Some gaming headsets come with a dedicated 2.4GHz USB dongle, and that usually performs better than standard Bluetooth for gaming.
                         </p>
                     </div>
                 </div>

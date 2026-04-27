@@ -12,6 +12,19 @@ export function WebcamTest() {
   const videoRef = useRef<HTMLVideoElement>(null);
   const streamRef = useRef<MediaStream | null>(null);
 
+  const getCameraErrorMessage = (err: any) => {
+    if (err?.name === 'NotAllowedError' || err?.name === 'PermissionDeniedError') {
+      return 'Camera permission denied. Allow camera access in your browser address bar, then try again.';
+    }
+    if (err?.name === 'NotFoundError' || err?.name === 'DevicesNotFoundError') {
+      return 'No camera was detected. Connect a webcam or enable your built-in camera and try again.';
+    }
+    if (err?.name === 'NotReadableError' || err?.name === 'TrackStartError') {
+      return 'Your camera is busy in another app. Close Zoom, Teams, OBS, Discord, or other video apps and try again.';
+    }
+    return `Could not access camera: ${err?.message || 'Unknown error'}`;
+  };
+
   const stopCamera = () => {
     if (streamRef.current) {
       streamRef.current.getTracks().forEach(track => track.stop());
@@ -48,15 +61,7 @@ export function WebcamTest() {
 
     } catch (err: any) {
       console.error("Webcam access error:", err);
-      if (err.name === 'NotAllowedError' || err.name === 'PermissionDeniedError') {
-        setError("Camera permission denied. Please allow access in your browser settings.");
-      } else if (err.name === 'NotFoundError' || err.name === 'DevicesNotFoundError') {
-        setError("No camera found. Please connect a webcam.");
-      } else if (err.name === 'NotReadableError' || err.name === 'TrackStartError') {
-        setError("Camera is in use by another application. Please close other apps using the camera.");
-      } else {
-        setError(`Could not access camera: ${err.message}`);
-      }
+      setError(getCameraErrorMessage(err));
     }
   };
 
@@ -92,8 +97,12 @@ export function WebcamTest() {
           <div>
             <h3 className="text-primary font-orbitron text-2xl uppercase tracking-widest">Webcam Diagnostics</h3>
             <p className="text-muted-foreground text-sm mt-2">
-              Test your camera functionality, resolution, and frame rate
+              Test your camera functionality, resolution, and frame rate locally in your browser
             </p>
+          </div>
+
+          <div className="p-4 bg-surface border border-secondary/30 rounded-lg text-sm text-muted-foreground">
+            Your webcam feed stays on this device. Browser permission is required before the preview can start.
           </div>
 
           <div className="space-y-4">

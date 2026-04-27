@@ -24,7 +24,7 @@ export default function Contact() {
 
           <div>
             <h3 className="text-xl font-bold text-foreground mb-2">Business Inquiries</h3>
-            <p>For advertising and legal matters, please contact: <strong className="text-primary">legal@devicetestonline.com</strong></p>
+            <p>For advertising and legal matters, please contact: <strong className="text-primary">legal@devicetesteronline.com</strong></p>
           </div>
         </div>
       </div>

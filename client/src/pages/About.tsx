@@ -9,10 +9,10 @@ export default function About() {
           &larr; Back to Diagnostics
         </Link>
 
-        <h1 className="text-4xl font-orbitron text-primary">About DeviceTestOnline</h1>
+        <h1 className="text-4xl font-orbitron text-primary">About Device Test Online</h1>
 
         <div className="space-y-4 text-lg leading-relaxed text-muted-foreground">
-          <p>DeviceTestOnline.com is a digital utility project published by <strong className="text-foreground">Ellie Petal Media</strong>.</p>
+          <p>DeviceTesterOnline.com is a digital utility project published by <strong className="text-foreground">Ellie Petal Media</strong>.</p>
           <p>We build privacy-focused diagnostic tools for gamers, remote workers, and IT professionals. Unlike downloaded software, our tools run instantly in your browser to verify hardware functionality without installing bloatware. Our comprehensive suite includes tests for mice, keyboards, monitors, microphones, webcams, game controllers, typing speed, and audio latency, all concluding with an exportable Hardware Scorecard.</p>
         </div>
       </div>

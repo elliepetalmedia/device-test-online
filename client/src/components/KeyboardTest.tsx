@@ -348,51 +348,6 @@ export function KeyboardTest() {
           <span>Pressed</span>
         </div>
       </div>
-
-      <div className="p-8 bg-surface border border-secondary/30 rounded-lg">
-        <h2 className="text-primary font-orbitron text-2xl mb-6 uppercase tracking-widest border-b border-secondary/30 pb-4">Comprehensive Keyboard Diagnostic Guide</h2>
-        <div className="space-y-8 text-lg text-muted-foreground font-roboto-mono leading-relaxed">
-
-          <section>
-            <h3 className="text-xl font-orbitron text-white mb-2">How to Use the Online Keyboard Tester</h3>
-            <p>
-              Our free, browser-based keyboard tester allows you to check every single key on your mechanical, membrane, or laptop keyboard. Simply type on your physical keyboard, and the virtual matrix above will illuminate the corresponding keys in real-time. This tool is essential for verifying new keyboard builds, diagnosing liquid damage, or checking for ghosting issues.
-            </p>
-          </section>
-
-          <section>
-            <h3 className="text-xl font-orbitron text-white mb-2">Testing N-Key Rollover (NKRO) & Ghosting</h3>
-            <p className="mb-2">
-              NKRO (N-Key Rollover) refers to a keyboard's ability to scan each key press individually. This means that no matter how many keys you press simultaneously, every single one will be registered by your computer.
-            </p>
-            <ul className="list-disc pl-6 space-y-2">
-              <li><strong>How to test:</strong> Press down multiple keys at once (e.g., Q, W, E, R, A, S, D, F) with both hands.</li>
-              <li><strong>What is Ghosting?</strong> "Ghosting" occurs on cheaper keyboards when pressing a specific combination of keys causes an unpressed third key to register, or causes one of the pressed keys to be ignored (key blocking).</li>
-              <li><strong>Gaming Keyboards:</strong> If you are a competitive gamer, 6-Key Rollover (6KRO) or full NKRO is mandatory to ensure complex movement combinations (like sprinting diagonally while crouching and jumping) are never dropped.</li>
-            </ul>
-          </section>
-
-          <section>
-            <h3 className="text-xl font-orbitron text-white mb-2">Diagnosing Keyboard Switch Failure</h3>
-            <p className="mb-2">
-              Mechanical keyboards use individual switches (like Cherry MX, Gateron, or Kailh) for every key. Over time, these can fail. Use our tool to diagnose common issues:
-            </p>
-            <ul className="list-disc pl-6 space-y-2">
-              <li><strong>Chatter (Double-Typing):</strong> If you tap a key once but the virtual matrix registers it flickering rapidly, or if your text outputs "tthe" instead of "the", your switch is experiencing contact "chatter." The copper leaf inside the switch is bouncing.</li>
-              <li><strong>Dead Keys:</strong> If a key remains gray and untested despite being pressed, the switch is dead. This could be due to a bent pin (on hot-swappable boards), a broken solder joint, or a completely failed switch mechanism.</li>
-              <li><strong>Liquid Damage:</strong> Spilling water or soda often shorts rows or columns of the keyboard matrix. If pressing the `G` key causes the entire `F,G,H,J` row to light up on our tester, your PCB matrix is shorted.</li>
-            </ul>
-          </section>
-
-          <section>
-            <h3 className="text-xl font-orbitron text-white mb-2">Laptop Keyboard Testing</h3>
-            <p>
-              Replacing a laptop keyboard is notoriously difficult. Before sending your laptop in for repair, use this dashboard to confirm if the issue is software-related (OS language settings, stuck modifier keys) or a hardware failure. If an entire section of keys (e.g., `7, U, J, M`) fails to light up simultaneously, the ribbon cable connecting the keyboard to the motherboard may be loose or damaged.
-            </p>
-          </section>
-
-        </div>
-      </div>
     </div>
   );
 }

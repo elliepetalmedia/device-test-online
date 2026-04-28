@@ -2,15 +2,12 @@ import React from "react";
 import { Link } from "wouter";
 import {
   FileText,
-  Gamepad2,
-  Headphones,
   HelpCircle,
   Keyboard,
   Mic,
   Monitor,
   MousePointer2,
   Smartphone,
-  Type,
   Volume2,
 } from "lucide-react";
 
@@ -25,58 +22,73 @@ export default function FAQ() {
           <div className="flex items-start gap-4">
             <HelpCircle className="mt-1 h-8 w-8 text-primary" />
             <div className="space-y-2">
-              <h2 className="font-orbitron text-2xl text-white">Interpret results faster</h2>
+              <h2 className="font-orbitron text-2xl text-white">Use the right page faster</h2>
               <p className="text-muted-foreground">
-                This guide explains the most common failures surfaced by the site, including switch bounce, ghosting,
-                dead pixels, one-ear headphone audio, permission issues, stick drift, touch dead zones, and Bluetooth
-                delay.
+                This FAQ focuses on cross-tool questions, route selection, and the most common interpretation gaps.
               </p>
             </div>
           </div>
         </div>
 
-        <div className="grid grid-cols-1 gap-4 lg:grid-cols-2">
-          {[
-            { href: "/speaker-test", label: "Need a quick call setup path?", body: "Start with speaker output, then continue to microphone and webcam checks." },
-            { href: "/double-click-test", label: "Mouse feels unreliable?", body: "Go straight to the dedicated double-click tester before replacing the switch." },
-            { href: "/refresh-rate-test", label: "Monitor feels stuck at 60Hz?", body: "Use the standalone refresh-rate page for a cleaner Hz read than the monitor overview route." },
-            { href: "/touchscreen-test", label: "Testing a phone or tablet?", body: "Use the touchscreen route to trace dead zones and confirm multi-touch coverage." },
-          ].map((item) => (
-            <Link key={item.href} href={item.href}>
-              <a className="block h-full rounded-lg border border-primary/20 bg-black/30 p-5 transition-colors hover:bg-primary/5">
-                <h3 className="mb-2 font-orbitron text-lg text-white">{item.label}</h3>
-                <p className="text-sm leading-relaxed text-muted-foreground">{item.body}</p>
-              </a>
-            </Link>
-          ))}
-        </div>
-
         <section>
           <h2 className="mb-4 flex items-center gap-3 border-b border-primary/20 pb-2 font-orbitron text-2xl text-primary">
-            <MousePointer2 className="h-6 w-6" /> Mouse Diagnostics
+            <FileText className="h-6 w-6" /> Which test should I use?
           </h2>
           <Accordion type="single" collapsible className="w-full">
-            <AccordionItem value="double-click">
+            <AccordionItem value="which-call">
               <AccordionTrigger className="text-lg font-bold text-foreground transition-colors hover:text-primary">
-                What is a mouse double-click fault?
+                What should I run before a call or stream?
               </AccordionTrigger>
               <AccordionContent className="text-base leading-relaxed text-gray-300">
-                A double-click fault happens when one physical press registers as two inputs because the switch is
-                bouncing electrically. Use the dedicated{" "}
-                <Link href="/double-click-test" className="text-primary hover:underline">
-                  double click test
-                </Link>{" "}
-                if you want a cleaner signal than the broader mouse page.
+                Start with the{" "}
+                <Link href="/microphone-test" className="text-primary hover:underline">
+                  microphone test
+                </Link>
+                , then continue to{" "}
+                <Link href="/speaker-test" className="text-primary hover:underline">
+                  speaker output
+                </Link>
+                ,{" "}
+                <Link href="/webcam-test" className="text-primary hover:underline">
+                  webcam preview
+                </Link>
+                , and finally the{" "}
+                <Link href="/audio-sync-test" className="text-primary hover:underline">
+                  audio sync test
+                </Link>
+                {" "}if wireless audio feels delayed.
               </AccordionContent>
             </AccordionItem>
-            <AccordionItem value="polling-rate">
+            <AccordionItem value="which-mouse">
               <AccordionTrigger className="text-lg font-bold text-foreground transition-colors hover:text-primary">
-                What is polling rate and why does it matter?
+                Which page should I use for a suspicious mouse click?
               </AccordionTrigger>
               <AccordionContent className="text-base leading-relaxed text-gray-300">
-                Polling rate is how often the mouse reports movement to the system. Higher numbers usually feel
-                smoother, but unstable readings can still come from hubs, dirty sensors, surfaces, or browser
-                sampling limits.
+                Use the broader{" "}
+                <Link href="/mouse-test" className="text-primary hover:underline">
+                  mouse test
+                </Link>
+                {" "}for buttons, scroll, and polling, then move to the{" "}
+                <Link href="/double-click-test" className="text-primary hover:underline">
+                  double click test
+                </Link>
+                {" "}if one switch seems to be bouncing or opening things twice.
+              </AccordionContent>
+            </AccordionItem>
+            <AccordionItem value="which-display">
+              <AccordionTrigger className="text-lg font-bold text-foreground transition-colors hover:text-primary">
+                Which page should I use for a monitor problem?
+              </AccordionTrigger>
+              <AccordionContent className="text-base leading-relaxed text-gray-300">
+                Use{" "}
+                <Link href="/dead-pixel-test" className="text-primary hover:underline">
+                  monitor test
+                </Link>
+                {" "}for pixel inspection and solid-color checks. Use{" "}
+                <Link href="/refresh-rate-test" className="text-primary hover:underline">
+                  refresh rate test
+                </Link>
+                {" "}when motion feels capped or the display seems stuck below its rated Hz.
               </AccordionContent>
             </AccordionItem>
           </Accordion>
@@ -84,141 +96,61 @@ export default function FAQ() {
 
         <section>
           <h2 className="mb-4 flex items-center gap-3 border-b border-primary/20 pb-2 font-orbitron text-2xl text-primary">
-            <Keyboard className="h-6 w-6" /> Keyboard Diagnostics
+            <Mic className="h-6 w-6" /> Permissions and Privacy
+          </h2>
+          <Accordion type="single" collapsible className="w-full">
+            <AccordionItem value="saved">
+              <AccordionTrigger className="text-lg font-bold text-foreground transition-colors hover:text-primary">
+                Are microphone recordings or webcam previews uploaded?
+              </AccordionTrigger>
+              <AccordionContent className="text-base leading-relaxed text-gray-300">
+                The diagnostic flow keeps microphone recordings and webcam previews in the browser session. Site-level
+                analytics and ad services are disclosed separately in the privacy policy.
+              </AccordionContent>
+            </AccordionItem>
+            <AccordionItem value="permission">
+              <AccordionTrigger className="text-lg font-bold text-foreground transition-colors hover:text-primary">
+                Why do camera or microphone tests fail immediately?
+              </AccordionTrigger>
+              <AccordionContent className="text-base leading-relaxed text-gray-300">
+                The most common causes are browser permission denial, the wrong input device being selected, or another
+                app already using the device. Use the dedicated{" "}
+                <Link href="/fix-microphone-not-working" className="text-primary hover:underline">
+                  microphone
+                </Link>
+                {" "}or{" "}
+                <Link href="/fix-webcam-not-working" className="text-primary hover:underline">
+                  webcam
+                </Link>
+                {" "}troubleshooting page if you need a step-by-step fix path.
+              </AccordionContent>
+            </AccordionItem>
+          </Accordion>
+        </section>
+
+        <section>
+          <h2 className="mb-4 flex items-center gap-3 border-b border-primary/20 pb-2 font-orbitron text-2xl text-primary">
+            <MousePointer2 className="h-6 w-6" /> Input and Hardware Signals
           </h2>
           <Accordion type="single" collapsible className="w-full">
             <AccordionItem value="ghosting">
               <AccordionTrigger className="text-lg font-bold text-foreground transition-colors hover:text-primary">
-                What is ghosting and NKRO?
+                What is ghosting, chatter, or switch bounce?
               </AccordionTrigger>
               <AccordionContent className="text-base leading-relaxed text-gray-300">
-                Ghosting happens when combinations of simultaneous key presses fail or produce incorrect signals. NKRO
-                means the board can register many concurrent presses. Use the{" "}
-                <Link href="/typing-test" className="text-primary hover:underline">
-                  typing test
-                </Link>{" "}
-                after the matrix page if you want to compare raw key coverage with real text-entry behavior.
+                Ghosting is a keyboard matrix limitation where combinations of presses fail or register incorrectly.
+                Chatter or switch bounce is the mouse or keyboard equivalent of one physical press generating multiple
+                electrical signals. Use the keyboard matrix, typing, and double-click pages together when you need to
+                separate raw hardware issues from normal user input.
               </AccordionContent>
             </AccordionItem>
-          </Accordion>
-        </section>
-
-        <section>
-          <h2 className="mb-4 flex items-center gap-3 border-b border-primary/20 pb-2 font-orbitron text-2xl text-primary">
-            <Monitor className="h-6 w-6" /> Display and Refresh
-          </h2>
-          <Accordion type="single" collapsible className="w-full">
-            <AccordionItem value="dead-vs-stuck">
-              <AccordionTrigger className="text-lg font-bold text-foreground transition-colors hover:text-primary">
-                Dead pixel vs. stuck pixel
-              </AccordionTrigger>
-              <AccordionContent className="text-base leading-relaxed text-gray-300">
-                Dead pixels are usually black because the transistor no longer drives light. Stuck pixels remain bright
-                on one color channel. Use the{" "}
-                <Link href="/refresh-rate-test" className="text-primary hover:underline">
-                  refresh-rate test
-                </Link>{" "}
-                separately if the panel looks fine but motion still feels wrong.
-              </AccordionContent>
-            </AccordionItem>
-            <AccordionItem value="refresh-rate">
-              <AccordionTrigger className="text-lg font-bold text-foreground transition-colors hover:text-primary">
-                Why am I not getting 144Hz or 165Hz?
-              </AccordionTrigger>
-              <AccordionContent className="text-base leading-relaxed text-gray-300">
-                The usual causes are OS settings, cable bandwidth, wrong ports, mirrored displays, or dock limits. The{" "}
-                <Link href="/fix-monitor-not-running-at-144hz" className="text-primary hover:underline">
-                  144Hz fix guide
-                </Link>{" "}
-                walks through the common bottlenecks in order.
-              </AccordionContent>
-            </AccordionItem>
-          </Accordion>
-        </section>
-
-        <section>
-          <h2 className="mb-4 flex items-center gap-3 border-b border-primary/20 pb-2 font-orbitron text-2xl text-primary">
-            <Mic className="h-6 w-6" /> Call Setup: Mic, Speakers, Webcam
-          </h2>
-          <Accordion type="single" collapsible className="w-full">
-            <AccordionItem value="mic-privacy">
-              <AccordionTrigger className="text-lg font-bold text-foreground transition-colors hover:text-primary">
-                Is my recording or camera preview saved?
-              </AccordionTrigger>
-              <AccordionContent className="text-base leading-relaxed text-gray-300">
-                The diagnostic flow keeps microphone recordings and webcam previews local to the browser session. For
-                broader site-level services such as analytics and advertising, see the privacy policy.
-              </AccordionContent>
-            </AccordionItem>
-            <AccordionItem value="permissions">
-              <AccordionTrigger className="text-lg font-bold text-foreground transition-colors hover:text-primary">
-                Why can&apos;t I access my camera or microphone?
-              </AccordionTrigger>
-              <AccordionContent className="text-base leading-relaxed text-gray-300">
-                Browsers require explicit permission. Look for the lock or media icon in the address bar, and check
-                whether another app is already using the device. The{" "}
-                <Link href="/fix-microphone-not-working" className="text-primary hover:underline">
-                  microphone
-                </Link>{" "}
-                and{" "}
-                <Link href="/fix-webcam-not-working" className="text-primary hover:underline">
-                  webcam
-                </Link>{" "}
-                fix guides walk through the most common blockers.
-              </AccordionContent>
-            </AccordionItem>
-          </Accordion>
-        </section>
-
-        <section>
-          <h2 className="mb-4 flex items-center gap-3 border-b border-primary/20 pb-2 font-orbitron text-2xl text-primary">
-            <Headphones className="h-6 w-6" /> Speaker and Headphone Audio
-          </h2>
-          <Accordion type="single" collapsible className="w-full">
-            <AccordionItem value="one-ear">
-              <AccordionTrigger className="text-lg font-bold text-foreground transition-colors hover:text-primary">
-                What should I do if audio only plays in one ear?
-              </AccordionTrigger>
-              <AccordionContent className="text-base leading-relaxed text-gray-300">
-                Check left-right balance, mono-audio settings, connector fit, and Bluetooth routing first. Then use
-                the{" "}
-                <Link href="/headphone-test" className="text-primary hover:underline">
-                  headphone test
-                </Link>{" "}
-                and the{" "}
-                <Link href="/fix-headphones-only-playing-in-one-ear" className="text-primary hover:underline">
-                  one-ear troubleshooting guide
-                </Link>{" "}
-                to narrow it down.
-              </AccordionContent>
-            </AccordionItem>
-            <AccordionItem value="bluetooth-delay">
-              <AccordionTrigger className="text-lg font-bold text-foreground transition-colors hover:text-primary">
-                Why do Bluetooth headphones have delay?
-              </AccordionTrigger>
-              <AccordionContent className="text-base leading-relaxed text-gray-300">
-                Bluetooth audio adds encoding, transport, and decoding delay. The{" "}
-                <Link href="/audio-sync-test" className="text-primary hover:underline">
-                  audio sync test
-                </Link>{" "}
-                helps compare how noticeable that delay is on your current path.
-              </AccordionContent>
-            </AccordionItem>
-          </Accordion>
-        </section>
-
-        <section>
-          <h2 className="mb-4 flex items-center gap-3 border-b border-primary/20 pb-2 font-orbitron text-2xl text-primary">
-            <Gamepad2 className="h-6 w-6" /> Gamepad / Controller
-          </h2>
-          <Accordion type="single" collapsible className="w-full">
             <AccordionItem value="drift">
               <AccordionTrigger className="text-lg font-bold text-foreground transition-colors hover:text-primary">
-                What is stick drift and how do you test it?
+                What causes controller stick drift?
               </AccordionTrigger>
               <AccordionContent className="text-base leading-relaxed text-gray-300">
-                Stick drift happens when analog sticks report movement while untouched. The controller page samples the
-                resting position and noise floor to estimate whether the deadzone is being compromised.
+                Stick drift usually comes from wear, contamination, or calibration issues in the analog stick assembly.
+                The controller page is most useful when you compare repeated resting behavior, not just one quick glance.
               </AccordionContent>
             </AccordionItem>
           </Accordion>
@@ -226,16 +158,48 @@ export default function FAQ() {
 
         <section>
           <h2 className="mb-4 flex items-center gap-3 border-b border-primary/20 pb-2 font-orbitron text-2xl text-primary">
-            <Smartphone className="h-6 w-6" /> Touchscreen Input
+            <Monitor className="h-6 w-6" /> Display, Audio, and Touch
           </h2>
           <Accordion type="single" collapsible className="w-full">
-            <AccordionItem value="touch-zones">
+            <AccordionItem value="audio-delay">
               <AccordionTrigger className="text-lg font-bold text-foreground transition-colors hover:text-primary">
-                How do I spot a touch dead zone?
+                Why is Bluetooth audio delayed?
               </AccordionTrigger>
               <AccordionContent className="text-base leading-relaxed text-gray-300">
-                Drag slowly across edges, corners, and the center of the touch pad. If one region consistently stops
-                tracking or misses multi-touch contact, that area may have a digitizer or protector-related problem.
+                Wireless audio adds encoding, transport, and decoding delay. Use the{" "}
+                <Link href="/audio-sync-test" className="text-primary hover:underline">
+                  audio sync test
+                </Link>
+                {" "}to compare perceived delay across wired and wireless paths.
+              </AccordionContent>
+            </AccordionItem>
+            <AccordionItem value="one-ear">
+              <AccordionTrigger className="text-lg font-bold text-foreground transition-colors hover:text-primary">
+                What if sound only comes from one speaker or one ear?
+              </AccordionTrigger>
+              <AccordionContent className="text-base leading-relaxed text-gray-300">
+                First confirm channel balance on the{" "}
+                <Link href="/speaker-test" className="text-primary hover:underline">
+                  speaker
+                </Link>
+                {" "}or{" "}
+                <Link href="/headphone-test" className="text-primary hover:underline">
+                  headphone
+                </Link>
+                {" "}page, then use the one-ear troubleshooting guide if the issue persists.
+              </AccordionContent>
+            </AccordionItem>
+            <AccordionItem value="touch">
+              <AccordionTrigger className="text-lg font-bold text-foreground transition-colors hover:text-primary">
+                How do I spot a touchscreen dead zone?
+              </AccordionTrigger>
+              <AccordionContent className="text-base leading-relaxed text-gray-300">
+                Use the{" "}
+                <Link href="/touchscreen-test" className="text-primary hover:underline">
+                  touchscreen test
+                </Link>
+                {" "}and drag across edges, corners, and the center. A repeated missed area is more meaningful than one
+                missed tap.
               </AccordionContent>
             </AccordionItem>
           </Accordion>
@@ -243,36 +207,54 @@ export default function FAQ() {
 
         <section>
           <h2 className="mb-4 flex items-center gap-3 border-b border-primary/20 pb-2 font-orbitron text-2xl text-primary">
-            <Type className="h-6 w-6" /> Typing Speed & Accuracy
+            <Keyboard className="h-6 w-6" /> Scores and Exports
           </h2>
           <Accordion type="single" collapsible className="w-full">
-            <AccordionItem value="wpm-calc">
+            <AccordionItem value="typing">
               <AccordionTrigger className="text-lg font-bold text-foreground transition-colors hover:text-primary">
-                How is WPM calculated?
+                How is typing speed measured?
               </AccordionTrigger>
               <AccordionContent className="text-base leading-relaxed text-gray-300">
-                Typing speed uses the standard five-characters-per-word formula combined with an accuracy calculation
-                based on correct versus incorrect keystrokes.
+                Words per minute uses the standard five-characters-per-word calculation, combined with an accuracy
+                score based on correct versus incorrect keystrokes.
+              </AccordionContent>
+            </AccordionItem>
+            <AccordionItem value="export">
+              <AccordionTrigger className="text-lg font-bold text-foreground transition-colors hover:text-primary">
+                Where can I see all my current results?
+              </AccordionTrigger>
+              <AccordionContent className="text-base leading-relaxed text-gray-300">
+                The session summary export in the sidebar gathers the current local test results in one place. Call
+                routes also keep the checklist export for meeting-oriented workflows.
               </AccordionContent>
             </AccordionItem>
           </Accordion>
         </section>
 
-        <section>
-          <h2 className="mb-4 flex items-center gap-3 border-b border-primary/20 pb-2 font-orbitron text-2xl text-primary">
-            <FileText className="h-6 w-6" /> Result Export
-          </h2>
-          <Accordion type="single" collapsible className="w-full">
-            <AccordionItem value="hardware-scorecard">
-              <AccordionTrigger className="text-lg font-bold text-foreground transition-colors hover:text-primary">
-                Where can I see or download all my test results?
-              </AccordionTrigger>
-              <AccordionContent className="text-base leading-relaxed text-gray-300">
-                The scorecard modal summarizes the current local session and now supports export flows for a broader
-                hardware summary. Call-focused routes also include a downloadable pre-call checklist.
-              </AccordionContent>
-            </AccordionItem>
-          </Accordion>
+        <section className="rounded-lg border border-primary/20 bg-surface p-6">
+          <div className="flex items-start gap-3">
+            <Volume2 className="mt-1 h-5 w-5 text-primary" />
+            <div className="space-y-2">
+              <h2 className="font-orbitron text-lg text-white">Need a guided fix path?</h2>
+              <p className="text-sm leading-relaxed text-muted-foreground">
+                Use the symptom guides when the test confirms a problem but you need an ordered troubleshooting path.
+              </p>
+              <div className="flex flex-wrap gap-3 text-sm">
+                <Link href="/fix-microphone-not-working" className="text-primary hover:underline">
+                  Fix microphone
+                </Link>
+                <Link href="/fix-webcam-not-working" className="text-primary hover:underline">
+                  Fix webcam
+                </Link>
+                <Link href="/fix-mouse-double-clicking" className="text-primary hover:underline">
+                  Fix double-clicking mouse
+                </Link>
+                <Link href="/fix-monitor-not-running-at-144hz" className="text-primary hover:underline">
+                  Fix 144Hz issues
+                </Link>
+              </div>
+            </div>
+          </div>
         </section>
       </div>
     </PublicInfoPageLayout>

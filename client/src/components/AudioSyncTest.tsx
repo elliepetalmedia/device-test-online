@@ -390,61 +390,6 @@ export function AudioSyncTest() {
           </Card>
         </div>
       </div>
-
-      <div className="rounded-lg border border-secondary/30 bg-surface p-8">
-        <h2 className="mb-6 border-b border-secondary/30 pb-4 font-orbitron text-2xl uppercase tracking-widest text-primary">
-          Understanding Audio Latency (A/V Sync)
-        </h2>
-        <div className="space-y-6 font-roboto-mono text-lg leading-relaxed text-muted-foreground">
-          <p>
-            Audio latency is the time delay between when an audio signal is triggered and when it is actually heard.
-            This online audio sync test helps you measure the delay of your Bluetooth headphones, wireless earbuds, or
-            gaming speakers.
-          </p>
-
-          <div>
-            <h3 className="mb-2 text-xl font-orbitron text-white">How this test works</h3>
-            <p>
-              We generate a sharp audio beep using the Web Audio API alongside an instantaneous visual screen flash.
-              Because human reaction to visual stimuli is incredibly fast, any delay in your reaction time compared to
-              the flash will expose the audio processing delay in your Bluetooth hardware. By averaging several
-              samples, the test reduces human reaction variance and reveals the underlying hardware latency.
-            </p>
-          </div>
-
-          <div>
-            <h3 className="mb-2 text-xl font-orbitron text-white">What is a Good Latency Score?</h3>
-            <ul className="list-disc space-y-2 pl-6">
-              <li>
-                <strong className="text-neon-green">Under 50ms:</strong> Typical for wired headphones. Unnoticeable to
-                humans. Ideal for competitive gaming.
-              </li>
-              <li>
-                <strong className="text-primary">50ms - 100ms:</strong> Excellent for wireless. Great for casual
-                gaming and watching movies without lip-sync issues.
-              </li>
-              <li>
-                <strong className="text-yellow-500">100ms - 200ms:</strong> Noticeable delay. Acceptable for music,
-                but distracting for video and dialogue sync.
-              </li>
-              <li>
-                <strong className="text-destructive">Over 200ms:</strong> High latency. Common with cheaper Bluetooth
-                devices or strong interference. Very distracting for gaming or editing.
-              </li>
-            </ul>
-          </div>
-
-          <div>
-            <h3 className="mb-2 text-xl font-orbitron text-white">How to Fix Bluetooth Audio Delay</h3>
-            <p>
-              If you are experiencing high latency on Windows 11 or macOS, try reducing interference by moving your
-              router away from your PC. Also ensure your headphones are connected using the highest quality codec
-              available, such as aptX Low Latency or LDAC. Gaming headsets with a dedicated 2.4GHz USB dongle usually
-              perform better than standard Bluetooth for latency-sensitive use.
-            </p>
-          </div>
-        </div>
-      </div>
     </div>
   );
 }

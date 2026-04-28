@@ -275,7 +275,7 @@ export function DeadPixelTest() {
         </div>
       </div>
 
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
+      <div className="grid grid-cols-1 gap-8">
         <Card className="p-8 bg-surface border border-secondary/30 flex flex-col items-center justify-center relative overflow-hidden">
           <div className="absolute top-0 right-0 p-4 opacity-20">
             <Activity className="w-24 h-24 text-primary" />
@@ -288,24 +288,6 @@ export function DeadPixelTest() {
             Real-time Detection
           </div>
         </Card>
-
-        <div className="p-8 bg-surface border border-secondary/30 rounded-lg">
-          <h3 className="text-primary font-orbitron text-2xl mb-4 uppercase tracking-widest">Monitor Diagnostics Explained</h3>
-          <div className="space-y-4 text-sm text-muted-foreground font-roboto-mono leading-relaxed h-[200px] overflow-y-auto pr-2 custom-scrollbar">
-            <p>
-              <strong className="text-primary">Dead Pixel Check:</strong> Dead pixels are picture elements that fail to light up or change color. Use the "Start Color Cycle" button to flash your screen with solid colors (Red, Green, Blue, Black, White). Look closely for any tiny dots that don't match the background color.
-            </p>
-            <p>
-              <strong className="text-primary">Refresh Rate (Hz):</strong> This number represents how many times per second your monitor updates the image. A higher number (like 144Hz or 240Hz) means smoother motion in games and scrolling. If this number is lower than your monitor's advertised speed, check your display settings in Windows/macOS.
-            </p>
-            <p>
-              <strong className="text-neon-red">Stuck vs. Dead Pixels:</strong> A "dead" pixel is usually black (completely unpowered), while a "stuck" pixel is frozen on a specific sub-pixel color (red, green, or blue).
-            </p>
-            <p>
-              <strong className="text-neon-red">Stuck Pixel Fixer:</strong> This tool rapidly alternates primary colors across the screen to force the liquid crystal inside the stuck pixel to flow and un-stick. It is heavily recommended to leave it running for at least 10-20 minutes for the highest chance of success. Note that true "dead" pixels (black) cannot be fixed with software.
-            </p>
-          </div>
-        </div>
       </div>
     </div>
   );

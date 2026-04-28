@@ -60,16 +60,16 @@ export function ChecklistExportCard({
   };
 
   return (
-    <Card className="border-primary/20 bg-surface p-6">
-      <div className="flex flex-col gap-4 md:flex-row md:items-center md:justify-between">
+    <Card className="border-secondary/20 bg-black/20 p-4">
+      <div className="flex flex-col gap-3 md:flex-row md:items-center md:justify-between">
         <div className="space-y-2">
           <div className="flex items-center gap-2 text-primary">
-            <FileCheck className="h-5 w-5" />
-            <h3 className="font-orbitron text-lg uppercase tracking-widest">
+            <FileCheck className="h-4 w-4" />
+            <h3 className="font-orbitron text-sm uppercase tracking-[0.2em]">
               {title}
             </h3>
           </div>
-          <p className="text-sm leading-relaxed text-muted-foreground">
+          <p className="text-xs leading-relaxed text-muted-foreground">
             {description}
           </p>
         </div>
@@ -77,7 +77,7 @@ export function ChecklistExportCard({
         <Button
           onClick={downloadChecklist}
           variant="outline"
-          className="border-primary/40 font-orbitron text-primary hover:bg-primary/10"
+          className="border-primary/40 font-orbitron text-xs text-primary hover:bg-primary/10"
         >
           <Download className="mr-2 h-4 w-4" />
           Download Checklist

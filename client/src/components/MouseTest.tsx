@@ -282,51 +282,6 @@ export function MouseTest() {
           </div>
         </div>
       </div>
-
-      <div className="p-8 bg-surface border border-secondary/30 rounded-lg">
-        <h2 className="text-primary font-orbitron text-2xl mb-6 uppercase tracking-widest border-b border-secondary/30 pb-4">Comprehensive Mouse Diagnostic Guide</h2>
-        <div className="space-y-8 text-lg text-muted-foreground font-roboto-mono leading-relaxed">
-
-          <section>
-            <h3 className="text-xl font-orbitron text-white mb-2">How to Use the Online Mouse Tester</h3>
-            <p>
-              This free online tool provides a complete diagnostic suite for your computer mouse without requiring any downloads. Simply interact with the testing area above to verify button functionality, test scroll wheel performance, and measure sensor accuracy in real-time. Whether you're a competitive gamer checking polling rates or simply trying to diagnose a broken left-click, this dashboard gives you instant results.
-            </p>
-          </section>
-
-          <section>
-            <h3 className="text-xl font-orbitron text-white mb-2">Diagnosing the "Double-Click" Mouse Fault</h3>
-            <p className="mb-2">
-              The most common hardware failure in modern mice (especially gaming mice from Logitech, Razer, and Corsair) is the dreaded double-click issue. This happens when a single physical press registers as two separate clicks, leading to accidental drag-and-drops or accidental right-clicks.
-            </p>
-            <ul className="list-disc pl-6 space-y-2">
-              <li><strong>Why it happens:</strong> Inside your mouse are tiny "microswitches" (often made by Omron or Kailh). Over time, the copper tension spring inside these switches degrades, loses its curve, or builds up oxidation. When it snaps back into place, it physically bounces, sending multiple electrical signals.</li>
-              <li><strong>How this tool helps:</strong> Our strict 80-millisecond threshold instantly flags these bounces. If you suspect a failing switch, rapidly click the suspect button. If the red warning banner appears, your switch is failing mechanically.</li>
-              <li><strong>How to fix a double-clicking mouse:</strong> Temporary software fixes include increasing your OS double-click speed or using debounce delay software. However, the only permanent fix is either replacing the entire mouse or desoldering and replacing the broken microswitch on the PCB with a new one.</li>
-            </ul>
-          </section>
-
-          <section>
-            <h3 className="text-xl font-orbitron text-white mb-2">Understanding Mouse Polling Rate & Jitter</h3>
-            <p className="mb-2">
-              The <strong className="text-primary">Polling Rate</strong> (measured in Hz) dictates how many times per second your mouse reports its position to your computer. A 1000Hz mouse reports every 1ms, while a standard 125Hz office mouse reports every 8ms.
-            </p>
-            <ul className="list-disc pl-6 space-y-2">
-              <li>Higher polling rates provide smoother cursor movement and lower input latency, which is crucial for competitive gaming.</li>
-              <li><strong>How to test:</strong> Move your mouse continuously in circles inside the test area. The "Current Rate" will display your real-time frequency.</li>
-              <li><strong>What is Sensor Jitter?</strong> The bar graph visualizes consistency. If your mouse is set to 1000Hz but the graph constantly drops to 400Hz or spikes unpredictably, your mouse sensor may be experiencing "jitter." This can be caused by a dirty sensor lens, a poor mousepad surface, or USB bandwidth issues.</li>
-            </ul>
-          </section>
-
-          <section>
-            <h3 className="text-xl font-orbitron text-white mb-2">Scroll Wheel Not Working Properly?</h3>
-            <p>
-              If your scroll wheel jumps in the opposite direction or fails to register scrolls, the internal rotary encoder is likely filled with dust or mechanically failing. Use the test area by scrolling up and down. If you scroll continuously down but the green "Scroll Up" arrow briefly flashes, your encoder is faulty. You can often temporarily fix this by blowing compressed air directly into the wheel housing.
-            </p>
-          </section>
-
-        </div>
-      </div>
     </div>
   );
 }

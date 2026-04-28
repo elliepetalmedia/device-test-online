@@ -294,21 +294,6 @@ export function TypingTest() {
                     )}
                 </div>
             </div>
-
-            <div className="p-8 bg-surface border border-secondary/30 rounded-lg">
-                <h2 className="text-primary font-orbitron text-2xl mb-6 uppercase tracking-widest border-b border-secondary/30 pb-4">Understanding Your Typing Speed & Accuracy</h2>
-                <div className="space-y-4 text-lg text-muted-foreground font-roboto-mono leading-relaxed">
-                    <p>
-                        This 60-second typing test is designed to measure your Words Per Minute (WPM) and absolute typing accuracy using a standardized algorithm. Whether you're a gamer, a software engineer, or performing data entry, knowing your true typing baseline helps you choose the right mechanical keyboard switches or layout.
-                    </p>
-                    <ul className="list-disc pl-6 space-y-2 mt-4">
-                        <li><strong className="text-primary">How WPM is Calculated:</strong> Our test uses the international standard for calculating WPM. We do not count raw words. Instead, we take the total number of correct keystrokes you made during the 60-second window and divide it by five (the standardized length of a "word"). This ensures fair scoring even if you receive a sequence of exceptionally long words.</li>
-                        <li><strong className="text-primary">Average Typing Speeds:</strong> The average person types around 40 WPM. Professional typists usually clock in at 65-75 WPM, while advanced competitive typists (and many software engineers) frequently exceed 100-120 WPM.</li>
-                        <li><strong className="text-primary">Accuracy Tracking:</strong> We track every correct and incorrect keystroke. A high WPM with low accuracy (below 94%) often indicates you are typing beyond your comfort threshold. Focus on reaching 98% accuracy first; speed naturally follows muscle memory.</li>
-                    </ul>
-                </div>
-            </div>
-
         </div>
     );
 }

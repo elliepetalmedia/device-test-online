@@ -389,10 +389,6 @@ export const ROUTE_CONTENT: Partial<Record<RouteTarget, RouteContentDefinition>>
         description: "Start with switch-bounce detection, then continue to keyboard and controller tests for a full input baseline.",
       },
     ],
-    trustCallout: {
-      title: "Best used as a quick hardware baseline",
-      body: "Mouse diagnostics require no browser permissions, making them a good first step when you want to confirm input responsiveness before moving to deeper device tests.",
-    },
     schemaKind: "diagnostic",
   },
   "double-click": {
@@ -502,10 +498,6 @@ export const ROUTE_CONTENT: Partial<Record<RouteTarget, RouteContentDefinition>>
         description: "Move from pixel inspection to a dedicated Hz verification page.",
       },
     ],
-    trustCallout: {
-      title: "Display tests stay visual-only",
-      body: "Monitor checks run without device permissions and are useful for confirming panel issues before testing input or audio hardware.",
-    },
     schemaKind: "diagnostic",
   },
   "refresh-rate": {
@@ -558,10 +550,6 @@ export const ROUTE_CONTENT: Partial<Record<RouteTarget, RouteContentDefinition>>
         description: "Combine touch coverage checks with a visual display inspection for used devices or repairs.",
       },
     ],
-    trustCallout: {
-      title: "Touch tests stay on the device",
-      body: "Touch paths are visualized in the page only and do not require microphone, camera, or other elevated device permissions.",
-    },
     schemaKind: "diagnostic",
   },
   mic: {
@@ -749,10 +737,6 @@ export const ROUTE_CONTENT: Partial<Record<RouteTarget, RouteContentDefinition>>
         description: "Compare basic output, channel balance, and then latency across the same headset path.",
       },
     ],
-    trustCallout: {
-      title: "Audio sync estimates perceived playback delay",
-      body: "This test helps compare relative latency between speakers, headsets, and Bluetooth paths. It is a practical browser estimate, not a lab-grade timing instrument.",
-    },
     schemaKind: "diagnostic",
   },
   faq: {

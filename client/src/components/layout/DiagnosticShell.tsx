@@ -20,8 +20,8 @@ import {
 
 import { TestSummaryModal } from "@/components/TestSummaryModal";
 import {
+  DiagnosticNextSection,
   DiagnosticSupportSection,
-  RelatedDiagnosticsSection,
   RouteTrustCallout,
 } from "@/components/RouteSupportSections";
 import { Card } from "@/components/ui/card";
@@ -31,6 +31,7 @@ import {
   MODULE_ROUTE_MAP,
   getRouteContent,
   getRouteDefinitionByTarget,
+  type DiagnosticCategory,
   type ModuleType,
 } from "@/lib/site";
 
@@ -50,6 +51,13 @@ const moduleIcons = {
   "refresh-rate": RefreshCw,
   touchscreen: Hand,
 } as const;
+
+const navGroups: Array<{ key: DiagnosticCategory; label: string }> = [
+  { key: "input", label: "Input" },
+  { key: "audio", label: "Audio" },
+  { key: "video-display", label: "Video / Display" },
+  { key: "mobile-touch", label: "Mobile / Touch" },
+];
 
 interface DiagnosticShellProps {
   activeModule: ModuleType;
@@ -88,15 +96,15 @@ export function DiagnosticShell({
       <Link href={href} onClick={() => setMobileMenuOpen(false)}>
         <a
           className={cn(
-            "w-full flex items-center gap-3 px-4 py-3 rounded transition-all duration-200 font-orbitron text-sm tracking-wide group cursor-pointer",
+            "flex w-full items-center gap-3 rounded px-3 py-2.5 font-orbitron text-xs tracking-[0.14em] transition-all duration-200 group cursor-pointer",
             isActive
-              ? "bg-primary/10 text-primary border-l-4 border-primary shadow-[inset_10px_0_20px_-10px_rgba(102,252,241,0.2)]"
-              : "text-muted-foreground hover:text-foreground hover:bg-surface",
+              ? "border-l-4 border-primary bg-primary/10 text-primary shadow-[inset_10px_0_20px_-10px_rgba(102,252,241,0.2)]"
+              : "text-muted-foreground hover:bg-surface hover:text-foreground",
           )}
         >
           <Icon
             className={cn(
-              "w-5 h-5 transition-colors",
+              "h-4 w-4 transition-colors",
               isActive
                 ? "text-primary drop-shadow-[0_0_5px_rgba(102,252,241,0.8)]"
                 : "group-hover:text-foreground",
@@ -112,11 +120,11 @@ export function DiagnosticShell({
     <div className="min-h-screen bg-background text-foreground md:flex">
       <aside
         className={cn(
-          "fixed inset-y-0 left-0 z-40 w-[18rem] max-w-[85vw] bg-black/40 backdrop-blur-xl border-r border-secondary/20 transform transition-transform duration-300 overflow-y-auto md:sticky md:top-0 md:h-screen md:w-64 md:translate-x-0",
+          "fixed inset-y-0 left-0 z-40 w-[18rem] max-w-[85vw] overflow-y-auto border-r border-secondary/20 bg-black/40 backdrop-blur-xl transition-transform duration-300 md:sticky md:top-0 md:h-screen md:w-64 md:translate-x-0",
           mobileMenuOpen ? "translate-x-0" : "-translate-x-full",
         )}
       >
-        <div className="border-b border-secondary/20 p-5 md:p-6">
+        <div className="border-b border-secondary/20 p-5">
           <div className="flex items-start justify-between gap-4">
             <div>
               <Link href="/" onClick={() => setMobileMenuOpen(false)}>
@@ -127,7 +135,7 @@ export function DiagnosticShell({
                 </a>
               </Link>
               <p className="mt-1 text-[10px] uppercase tracking-[0.2em] text-muted-foreground">
-                Hardware Suite
+                Quick hardware checks
               </p>
             </div>
             <button
@@ -139,45 +147,65 @@ export function DiagnosticShell({
               <X className="h-5 w-5" />
             </button>
           </div>
-          <p className="mt-4 text-sm leading-relaxed text-muted-foreground">
-            Diagnose call gear, gaming peripherals, displays, and touch hardware with browser-based checks.
+          <p className="mt-3 text-xs leading-relaxed text-muted-foreground">
+            Start with the device you need to verify, then follow the next suggested check.
           </p>
         </div>
 
-        <nav className="space-y-2 p-4">
-          {MODULE_ROUTES.filter((route) => route.target !== "dashboard").map(
-            (route) => (
-              <NavItem
-                key={route.target}
-                id={route.target}
-                label={route.navLabel ?? route.uiTitle ?? route.title}
-              />
-            ),
-          )}
+        <nav className="space-y-5 p-4">
+          {navGroups.map((group) => {
+            const routes = MODULE_ROUTES.filter(
+              (moduleRoute) =>
+                moduleRoute.target !== "dashboard" &&
+                getRouteContent(moduleRoute.target).dashboardCategory === group.key,
+            );
 
-          <div className="mt-4 space-y-2 border-t border-secondary/20 pt-4">
-            <div className="px-4 pb-2">
+            if (routes.length === 0) {
+              return null;
+            }
+
+            return (
+              <div key={group.key} className="space-y-2">
+                <div className="px-3 text-[10px] font-orbitron uppercase tracking-[0.22em] text-muted-foreground">
+                  {group.label}
+                </div>
+                <div className="space-y-1">
+                  {routes.map((route) => (
+                    <NavItem
+                      key={route.target}
+                      id={route.target}
+                      label={route.navLabel ?? route.uiTitle ?? route.title}
+                    />
+                  ))}
+                </div>
+              </div>
+            );
+          })}
+
+          <div className="border-t border-secondary/20 pt-4">
+            <div className="px-3 pb-2">
+              <div className="mb-2 text-[10px] font-orbitron uppercase tracking-[0.22em] text-muted-foreground">
+                Session tools
+              </div>
               <TestSummaryModal />
             </div>
             <Link
               href="/faq"
-              className="w-full flex items-center gap-3 px-4 py-3 rounded transition-all duration-200 font-orbitron text-sm tracking-wide group text-muted-foreground hover:text-primary hover:bg-surface"
+              className="flex w-full items-center gap-3 rounded px-3 py-2.5 font-orbitron text-xs tracking-[0.14em] text-muted-foreground transition-all duration-200 hover:bg-surface hover:text-primary"
             >
-              <HelpCircle className="h-5 w-5 transition-colors group-hover:text-primary" />
+              <HelpCircle className="h-4 w-4 transition-colors" />
               FAQ & GUIDE
             </Link>
           </div>
         </nav>
 
-        <div className="border-t border-secondary/20 bg-black/20 p-6 md:mt-auto">
-          <div className="flex flex-col gap-2 font-mono text-xs text-muted-foreground">
+        <div className="border-t border-secondary/20 bg-black/20 p-5 md:mt-auto">
+          <div className="flex flex-col gap-1.5 font-mono text-[11px] text-muted-foreground">
             <div className="flex items-center gap-2">
               <div className="h-2 w-2 rounded-full bg-neon-green shadow-[0_0_5px_var(--color-neon-green)]"></div>
               <span>Browser Diagnostics Live</span>
             </div>
-            <div className="opacity-50">
-              Local device checks with site-level analytics disclosure
-            </div>
+            <div className="opacity-50">Local tools, site-level analytics disclosure</div>
           </div>
         </div>
       </aside>
@@ -189,7 +217,7 @@ export function DiagnosticShell({
         />
       ) : null}
 
-      <main className="flex-1 min-w-0">
+      <main className="min-w-0 flex-1">
         <header className="sticky top-0 z-20 flex items-center justify-between border-b border-secondary/20 bg-background/80 p-4 backdrop-blur md:hidden">
           <span className="font-orbitron font-bold text-primary">
             Device Test Online
@@ -205,28 +233,26 @@ export function DiagnosticShell({
         </header>
 
         <div className="px-4 py-6 md:px-8 md:py-8 lg:px-12 lg:py-12">
-          <div className="mx-auto max-w-6xl space-y-10 md:space-y-12">
-            <header className="mb-8 animate-in fade-in slide-in-from-top-4 duration-500">
+          <div className="mx-auto max-w-6xl space-y-8 md:space-y-10">
+            <header className="animate-in fade-in slide-in-from-top-4 duration-500">
               <h2 className="mb-2 text-2xl font-orbitron text-foreground glow-text sm:text-3xl md:text-4xl">
                 {pageTitle}
               </h2>
               <p className="max-w-3xl text-sm leading-relaxed text-muted-foreground md:text-base">
                 {route.description}
               </p>
-              <div className="h-1 w-24 rounded-full bg-gradient-to-r from-primary to-transparent"></div>
+              <div className="mt-3 h-1 w-24 rounded-full bg-gradient-to-r from-primary to-transparent"></div>
             </header>
 
-            <div className="min-h-[500px] space-y-8 animate-in fade-in zoom-in-95 duration-300">
+            <div className="min-h-[500px] space-y-6 animate-in fade-in zoom-in-95 duration-300">
               <RouteTrustCallout target={activeModule} />
               {children}
               <DiagnosticSupportSection target={activeModule} />
-              {routeContent.relatedTargets?.length ? (
-                <RelatedDiagnosticsSection targets={routeContent.relatedTargets} />
-              ) : null}
+              <DiagnosticNextSection target={activeModule} />
             </div>
 
-            <footer className="mt-16 border-t border-secondary/10 py-8 text-center font-mono text-sm text-muted-foreground">
-              <div className="mb-4 flex flex-wrap justify-center gap-4 sm:gap-6">
+            <footer className="mt-12 border-t border-secondary/10 py-6 text-center font-mono text-xs text-muted-foreground">
+              <div className="mb-3 flex flex-wrap justify-center gap-4">
                 <Link href="/about" className="transition-colors hover:text-primary">
                   About
                 </Link>
@@ -237,8 +263,8 @@ export function DiagnosticShell({
                   Privacy
                 </Link>
               </div>
-              <p className="mb-2">
-                Device Test Online uses Google Analytics and may load Google AdSense to support the site. See{" "}
+              <p className="mb-1">
+                Device Test Online uses Google Analytics and may load Google AdSense. See{" "}
                 <Link href="/privacy" className="text-primary transition-colors hover:text-primary/80">
                   Privacy
                 </Link>{" "}

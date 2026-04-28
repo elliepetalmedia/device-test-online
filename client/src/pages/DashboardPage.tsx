@@ -20,9 +20,17 @@ import {
 
 import { Card } from "@/components/ui/card";
 import { DiagnosticShell } from "@/components/layout/DiagnosticShell";
-import { MODULE_ROUTES, getRouteContent, type DiagnosticCategory, type ModuleType } from "@/lib/site";
+import {
+  MODULE_ROUTES,
+  getRouteContent,
+  type DiagnosticCategory,
+  type ModuleType,
+} from "@/lib/site";
 
-const moduleIcons: Record<Exclude<ModuleType, "dashboard">, React.ComponentType<{ className?: string }>> = {
+const moduleIcons: Record<
+  Exclude<ModuleType, "dashboard">,
+  React.ComponentType<{ className?: string }>
+> = {
   mouse: MousePointer2,
   keyboard: Keyboard,
   pixel: Monitor,
@@ -41,50 +49,33 @@ const moduleIcons: Record<Exclude<ModuleType, "dashboard">, React.ComponentType<
 const groupedCategories: Array<{
   key: DiagnosticCategory;
   title: string;
-  description: string;
 }> = [
-  {
-    key: "input",
-    title: "Input Diagnostics",
-    description: "Mouse, keyboard, controller, and switch-behavior checks for gamers, office setups, and hardware triage.",
-  },
-  {
-    key: "audio",
-    title: "Audio Diagnostics",
-    description: "Microphone, speaker, headphone, and latency checks for calls, streaming, and Bluetooth troubleshooting.",
-  },
-  {
-    key: "video-display",
-    title: "Video and Display",
-    description: "Webcam, monitor, and refresh-rate checks for remote work, used-device inspection, and display tuning.",
-  },
-  {
-    key: "mobile-touch",
-    title: "Mobile and Touch",
-    description: "Touchscreen and screen-surface checks for phones, tablets, convertibles, and touch-enabled monitors.",
-  },
+  { key: "input", title: "Input" },
+  { key: "audio", title: "Audio" },
+  { key: "video-display", title: "Video / Display" },
+  { key: "mobile-touch", title: "Mobile / Touch" },
 ];
 
 const useCases = [
   {
-    title: "Before a Zoom, Meet, or Teams call",
+    title: "Call Setup",
     href: "/microphone-test",
-    description: "Start with microphone input, then move through speakers, webcam, and latency before you join.",
+    description: "Mic, speaker, webcam, latency",
   },
   {
-    title: "Troubleshoot a gaming setup",
+    title: "Gaming Input",
     href: "/mouse-test",
-    description: "Baseline your mouse, double-click behavior, keyboard matrix, controller drift, and monitor refresh path.",
+    description: "Mouse, double-click, keyboard, controller",
   },
   {
-    title: "Check a used laptop before buying",
+    title: "Used Laptop Check",
     href: "/dead-pixel-test",
-    description: "Inspect the screen, keyboard, webcam, microphone, and refresh path before you hand over money.",
+    description: "Display, keyboard, webcam, microphone",
   },
   {
-    title: "Test a phone or tablet screen",
+    title: "Phone or Tablet Screen",
     href: "/touchscreen-test",
-    description: "Confirm touch coverage, dead zones, and visual panel health on mobile or tablet hardware.",
+    description: "Touch coverage and panel health",
   },
 ];
 
@@ -96,38 +87,32 @@ export default function DashboardPage() {
   );
 
   return (
-    <DiagnosticShell
-      activeModule="dashboard"
-      pageTitle="Hardware Diagnostic Suite"
-    >
-      <div className="space-y-10">
-        <div className="space-y-4 text-center">
-          <p className="mx-auto max-w-4xl text-lg leading-relaxed text-muted-foreground font-roboto-mono">
-            Device Test Online helps you verify call gear, gaming peripherals, displays, touchscreens, and everyday
-            laptop hardware directly in the browser. Choose a workflow below or jump straight into any dedicated test.
+    <DiagnosticShell activeModule="dashboard" pageTitle="Hardware Diagnostic Suite">
+      <div className="space-y-8">
+        <div className="max-w-3xl">
+          <p className="text-base leading-relaxed text-muted-foreground font-roboto-mono">
+            Quick browser checks for call gear, gaming peripherals, displays, and touch hardware. Start with a use
+            case or jump straight to a test.
           </p>
         </div>
 
-        <section className="space-y-4">
-          <div className="space-y-2">
-            <h3 className="font-orbitron text-xl uppercase tracking-widest text-primary">
-              Common Use Cases
-            </h3>
-            <p className="text-sm text-muted-foreground">
-              Start with the workflow that matches what you are trying to diagnose or verify right now.
-            </p>
-          </div>
-
-          <div className="grid grid-cols-1 gap-4 lg:grid-cols-2">
+        <section className="space-y-3">
+          <h3 className="font-orbitron text-base uppercase tracking-widest text-primary">
+            Common Use Cases
+          </h3>
+          <div className="grid grid-cols-1 gap-3 lg:grid-cols-2">
             {useCases.map((useCase) => (
               <Link key={useCase.href} href={useCase.href}>
                 <a className="group block h-full">
-                  <Card className="h-full border-primary/20 bg-black/30 p-5 transition-all duration-200 hover:border-primary/50 hover:bg-primary/5">
-                    <h4 className="mb-2 font-orbitron text-lg text-white">{useCase.title}</h4>
-                    <p className="text-sm leading-relaxed text-muted-foreground">{useCase.description}</p>
-                    <div className="mt-4 inline-flex items-center text-sm font-bold uppercase tracking-wider text-primary">
-                      Start Here
-                      <ArrowRight className="ml-2 h-4 w-4 transition-transform group-hover:translate-x-1" />
+                  <Card className="h-full border-primary/20 bg-black/20 p-4 transition-all duration-200 hover:border-primary/50 hover:bg-primary/5">
+                    <div className="flex items-center justify-between gap-4">
+                      <div>
+                        <h4 className="font-orbitron text-sm text-white">{useCase.title}</h4>
+                        <p className="mt-1 text-xs leading-relaxed text-muted-foreground">
+                          {useCase.description}
+                        </p>
+                      </div>
+                      <ArrowRight className="h-4 w-4 text-primary transition-transform group-hover:translate-x-1" />
                     </div>
                   </Card>
                 </a>
@@ -136,7 +121,7 @@ export default function DashboardPage() {
           </div>
         </section>
 
-        <section className="space-y-8">
+        <section className="space-y-6">
           {groupedCategories.map((group) => {
             const routes = diagnosticRoutes.filter(
               (route) => getRouteContent(route.target).dashboardCategory === group.key,
@@ -147,42 +132,34 @@ export default function DashboardPage() {
             }
 
             return (
-              <div key={group.key} className="space-y-4">
-                <div className="space-y-2">
-                  <h3 className="font-orbitron text-xl uppercase tracking-widest text-primary">
-                    {group.title}
-                  </h3>
-                  <p className="text-sm text-muted-foreground">{group.description}</p>
-                </div>
+              <div key={group.key} className="space-y-3">
+                <h3 className="font-orbitron text-base uppercase tracking-widest text-primary">
+                  {group.title}
+                </h3>
 
-                <div className="grid grid-cols-1 gap-4 md:grid-cols-2 xl:grid-cols-3">
+                <div className="grid grid-cols-1 gap-3 md:grid-cols-2 xl:grid-cols-3">
                   {routes.map((route) => {
                     const Icon = moduleIcons[route.target];
 
                     return (
                       <Link key={route.target} href={route.path}>
                         <a className="group block h-full">
-                          <Card className="relative flex h-full flex-col overflow-hidden border-primary/20 bg-black/40 p-5 backdrop-blur-sm transition-all duration-300 hover:border-primary/50 hover:bg-primary/5">
-                            <div className="absolute right-0 top-0 p-4 opacity-5 transition-opacity group-hover:opacity-10">
-                              <Icon className="h-28 w-28 text-primary" />
-                            </div>
-
-                            <div className="z-10 mb-4 flex items-center gap-4">
-                              <div className="rounded-lg border border-primary/20 bg-primary/10 p-3 transition-colors group-hover:bg-primary/20">
-                                <Icon className="h-7 w-7 text-primary" />
+                          <Card className="flex h-full flex-col border-primary/20 bg-black/30 p-4 transition-all duration-200 hover:border-primary/50 hover:bg-primary/5">
+                            <div className="mb-3 flex items-center gap-3">
+                              <div className="rounded-lg border border-primary/20 bg-primary/10 p-2.5">
+                                <Icon className="h-5 w-5 text-primary" />
                               </div>
+                              <h4 className="font-orbitron text-base text-white">
+                                {route.uiTitle ?? route.title}
+                              </h4>
                             </div>
 
-                            <h4 className="z-10 mb-2 font-orbitron text-xl font-bold text-foreground transition-colors group-hover:text-primary">
-                              {route.uiTitle ?? route.title}
-                            </h4>
-
-                            <p className="z-10 mb-6 flex-1 text-sm leading-relaxed text-muted-foreground">
+                            <p className="mb-4 flex-1 text-xs leading-relaxed text-muted-foreground">
                               {route.description}
                             </p>
 
-                            <div className="z-10 flex items-center text-sm font-bold uppercase tracking-wider text-primary">
-                              Start Test
+                            <div className="flex items-center text-xs font-bold uppercase tracking-wider text-primary">
+                              Open Test
                               <ArrowRight className="ml-2 h-4 w-4 transition-transform group-hover:translate-x-1" />
                             </div>
                           </Card>
@@ -196,45 +173,47 @@ export default function DashboardPage() {
           })}
         </section>
 
-        <div className="grid grid-cols-1 gap-4 lg:grid-cols-3">
-          {[
-            {
-              href: "/faq",
-              icon: BookOpenText,
-              title: "Interpret Results",
-              description:
-                "Read the FAQ and hardware guide for ghosting, stick drift, one-ear audio, browser permissions, and refresh-rate troubleshooting.",
-            },
-            {
-              href: "/privacy",
-              icon: LockKeyhole,
-              title: "Review Privacy",
-              description:
-                "Understand which diagnostics stay local to the browser and how Google Analytics and AdSense are disclosed on the site.",
-            },
-            {
-              href: "/about",
-              icon: ShieldCheck,
-              title: "Know the Publisher",
-              description:
-                "See who publishes Device Test Online, why the suite exists, and where to send business or legal questions.",
-            },
-          ].map(({ href, icon: Icon, title, description }) => (
-            <Link key={href} href={href}>
-              <a className="group block h-full">
-                <Card className="h-full border-secondary/20 bg-surface p-5 transition-all duration-200 hover:border-primary/40 hover:bg-primary/5">
-                  <div className="mb-4 flex items-center gap-3">
-                    <div className="rounded-lg border border-primary/20 bg-primary/10 p-3">
-                      <Icon className="h-5 w-5 text-primary" />
+        <section className="space-y-3">
+          <h3 className="font-orbitron text-base uppercase tracking-widest text-primary">
+            Resources
+          </h3>
+          <div className="grid grid-cols-1 gap-3 md:grid-cols-3">
+            {[
+              {
+                href: "/faq",
+                icon: BookOpenText,
+                title: "FAQ",
+                description: "Cross-tool guidance and troubleshooting routes.",
+              },
+              {
+                href: "/privacy",
+                icon: LockKeyhole,
+                title: "Privacy",
+                description: "Local device processing and site-level disclosure.",
+              },
+              {
+                href: "/about",
+                icon: ShieldCheck,
+                title: "About",
+                description: "Publisher context and contact path.",
+              },
+            ].map(({ href, icon: Icon, title, description }) => (
+              <Link key={href} href={href}>
+                <a className="group block h-full">
+                  <Card className="h-full border-secondary/20 bg-surface p-4 transition-all duration-200 hover:border-primary/40 hover:bg-primary/5">
+                    <div className="mb-3 flex items-center gap-3">
+                      <div className="rounded-lg border border-primary/20 bg-primary/10 p-2.5">
+                        <Icon className="h-4 w-4 text-primary" />
+                      </div>
+                      <h3 className="font-orbitron text-sm text-white">{title}</h3>
                     </div>
-                    <h3 className="font-orbitron text-lg text-white">{title}</h3>
-                  </div>
-                  <p className="text-sm leading-relaxed text-muted-foreground">{description}</p>
-                </Card>
-              </a>
-            </Link>
-          ))}
-        </div>
+                    <p className="text-xs leading-relaxed text-muted-foreground">{description}</p>
+                  </Card>
+                </a>
+              </Link>
+            ))}
+          </div>
+        </section>
       </div>
     </DiagnosticShell>
   );

@@ -97,25 +97,23 @@ export default function DashboardPage() {
         </div>
 
         <section className="space-y-3">
-          <h3 className="font-orbitron text-base uppercase tracking-widest text-primary">
+          <h2 className="font-orbitron text-base uppercase tracking-widest text-primary">
             Common Use Cases
-          </h3>
+          </h2>
           <div className="grid grid-cols-1 gap-3 lg:grid-cols-2">
             {useCases.map((useCase) => (
-              <Link key={useCase.href} href={useCase.href}>
-                <a className="group block h-full">
-                  <Card className="h-full border-primary/20 bg-black/20 p-4 transition-all duration-200 hover:border-primary/50 hover:bg-primary/5">
-                    <div className="flex items-center justify-between gap-4">
-                      <div>
-                        <h4 className="font-orbitron text-sm text-white">{useCase.title}</h4>
-                        <p className="mt-1 text-xs leading-relaxed text-muted-foreground">
-                          {useCase.description}
-                        </p>
-                      </div>
-                      <ArrowRight className="h-4 w-4 text-primary transition-transform group-hover:translate-x-1" />
+              <Link key={useCase.href} href={useCase.href} className="group block h-full">
+                <Card className="h-full border-primary/20 bg-black/20 p-4 transition-all duration-200 hover:border-primary/50 hover:bg-primary/5">
+                  <div className="flex items-center justify-between gap-4">
+                    <div>
+                      <h3 className="font-orbitron text-sm text-white">{useCase.title}</h3>
+                      <p className="mt-1 text-xs leading-relaxed text-muted-foreground">
+                        {useCase.description}
+                      </p>
                     </div>
-                  </Card>
-                </a>
+                    <ArrowRight className="h-4 w-4 text-primary transition-transform group-hover:translate-x-1" />
+                  </div>
+                </Card>
               </Link>
             ))}
           </div>
@@ -133,37 +131,35 @@ export default function DashboardPage() {
 
             return (
               <div key={group.key} className="space-y-3">
-                <h3 className="font-orbitron text-base uppercase tracking-widest text-primary">
+                <h2 className="font-orbitron text-base uppercase tracking-widest text-primary">
                   {group.title}
-                </h3>
+                </h2>
 
                 <div className="grid grid-cols-1 gap-3 md:grid-cols-2 xl:grid-cols-3">
                   {routes.map((route) => {
                     const Icon = moduleIcons[route.target];
 
                     return (
-                      <Link key={route.target} href={route.path}>
-                        <a className="group block h-full">
-                          <Card className="flex h-full flex-col border-primary/20 bg-black/30 p-4 transition-all duration-200 hover:border-primary/50 hover:bg-primary/5">
-                            <div className="mb-3 flex items-center gap-3">
-                              <div className="rounded-lg border border-primary/20 bg-primary/10 p-2.5">
-                                <Icon className="h-5 w-5 text-primary" />
-                              </div>
-                              <h4 className="font-orbitron text-base text-white">
-                                {route.uiTitle ?? route.title}
-                              </h4>
+                      <Link key={route.target} href={route.path} className="group block h-full">
+                        <Card className="flex h-full flex-col border-primary/20 bg-black/30 p-4 transition-all duration-200 hover:border-primary/50 hover:bg-primary/5">
+                          <div className="mb-3 flex items-center gap-3">
+                            <div className="rounded-lg border border-primary/20 bg-primary/10 p-2.5">
+                              <Icon className="h-5 w-5 text-primary" />
                             </div>
+                            <h3 className="font-orbitron text-base text-white">
+                              {route.uiTitle ?? route.title}
+                            </h3>
+                          </div>
 
-                            <p className="mb-4 flex-1 text-xs leading-relaxed text-muted-foreground">
-                              {route.description}
-                            </p>
+                          <p className="mb-4 flex-1 text-xs leading-relaxed text-muted-foreground">
+                            {route.description}
+                          </p>
 
-                            <div className="flex items-center text-xs font-bold uppercase tracking-wider text-primary">
-                              Open Test
-                              <ArrowRight className="ml-2 h-4 w-4 transition-transform group-hover:translate-x-1" />
-                            </div>
-                          </Card>
-                        </a>
+                          <div className="flex items-center text-xs font-bold uppercase tracking-wider text-primary">
+                            Open Test
+                            <ArrowRight className="ml-2 h-4 w-4 transition-transform group-hover:translate-x-1" />
+                          </div>
+                        </Card>
                       </Link>
                     );
                   })}
@@ -174,9 +170,9 @@ export default function DashboardPage() {
         </section>
 
         <section className="space-y-3">
-          <h3 className="font-orbitron text-base uppercase tracking-widest text-primary">
+          <h2 className="font-orbitron text-base uppercase tracking-widest text-primary">
             Resources
-          </h3>
+          </h2>
           <div className="grid grid-cols-1 gap-3 md:grid-cols-3">
             {[
               {
@@ -198,9 +194,8 @@ export default function DashboardPage() {
                 description: "Publisher context and contact path.",
               },
             ].map(({ href, icon: Icon, title, description }) => (
-              <Link key={href} href={href}>
-                <a className="group block h-full">
-                  <Card className="h-full border-secondary/20 bg-surface p-4 transition-all duration-200 hover:border-primary/40 hover:bg-primary/5">
+              <Link key={href} href={href} className="group block h-full">
+                <Card className="h-full border-secondary/20 bg-surface p-4 transition-all duration-200 hover:border-primary/40 hover:bg-primary/5">
                     <div className="mb-3 flex items-center gap-3">
                       <div className="rounded-lg border border-primary/20 bg-primary/10 p-2.5">
                         <Icon className="h-4 w-4 text-primary" />
@@ -209,7 +204,6 @@ export default function DashboardPage() {
                     </div>
                     <p className="text-xs leading-relaxed text-muted-foreground">{description}</p>
                   </Card>
-                </a>
               </Link>
             ))}
           </div>

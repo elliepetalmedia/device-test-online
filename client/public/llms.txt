@@ -1,0 +1,41 @@
+# Device Test Online
+
+> Free browser-based hardware diagnostics with local device processing.
+> Published by Ellie Petal Media at https://devicetesteronline.com
+
+Core diagnostics run in the browser. Microphone recordings and webcam previews
+are processed locally in the page; site traffic measurement (Google Analytics)
+and ad delivery (Google AdSense) are disclosed in the privacy policy:
+https://devicetesteronline.com/privacy
+
+## Diagnostic tools
+
+- [Hardware Diagnostic Suite](https://devicetesteronline.com/): overview of all tests
+- [Mouse Test](https://devicetesteronline.com/mouse-test): clicks, scroll, polling rate
+- [Keyboard Tester](https://devicetesteronline.com/keyboard-test): keys, ghosting, NKRO
+- [Monitor Test](https://devicetesteronline.com/dead-pixel-test): dead/stuck pixels, display check
+- [Microphone Test](https://devicetesteronline.com/microphone-test): record and play back locally
+- [Webcam Test](https://devicetesteronline.com/webcam-test): camera feed, resolution, FPS
+- [Gamepad Tester](https://devicetesteronline.com/gamepad-test): buttons, sticks, drift
+- [Typing Speed Test](https://devicetesteronline.com/typing-test): WPM and accuracy
+- [Audio Delay Test](https://devicetesteronline.com/audio-sync-test): headphone/Bluetooth latency
+- [Speaker Test](https://devicetesteronline.com/speaker-test): left/right/center output
+- [Headphone Test](https://devicetesteronline.com/headphone-test): stereo balance, ear channels
+- [Double Click Test](https://devicetesteronline.com/double-click-test): switch bounce detection
+- [Refresh Rate Test](https://devicetesteronline.com/refresh-rate-test): browser-visible monitor Hz
+- [Touchscreen Test](https://devicetesteronline.com/touchscreen-test): touch points, dead zones
+
+## Troubleshooting guides
+
+- [How to Fix a Microphone That Is Not Working](https://devicetesteronline.com/fix-microphone-not-working)
+- [How to Fix a Webcam That Is Not Working](https://devicetesteronline.com/fix-webcam-not-working)
+- [How to Fix a Mouse That Keeps Double Clicking](https://devicetesteronline.com/fix-mouse-double-clicking)
+- [How to Fix a Monitor That Is Not Running at 144Hz](https://devicetesteronline.com/fix-monitor-not-running-at-144hz)
+- [How to Fix Headphones That Only Play in One Ear](https://devicetesteronline.com/fix-headphones-only-playing-in-one-ear)
+
+## Reference
+
+- [FAQ and Hardware Diagnostic Guide](https://devicetesteronline.com/faq)
+- [About Device Test Online](https://devicetesteronline.com/about)
+- [Contact](https://devicetesteronline.com/contact)
+- [Privacy Policy](https://devicetesteronline.com/privacy)

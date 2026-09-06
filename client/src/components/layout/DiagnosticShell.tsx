@@ -93,25 +93,25 @@ export function DiagnosticShell({
     const href = MODULE_ROUTE_MAP[id];
 
     return (
-      <Link href={href} onClick={() => setMobileMenuOpen(false)}>
-        <a
+      <Link
+        href={href}
+        onClick={() => setMobileMenuOpen(false)}
+        className={cn(
+          "flex w-full items-center gap-3 rounded px-3 py-2.5 font-orbitron text-xs tracking-[0.14em] transition-all duration-200 group cursor-pointer",
+          isActive
+            ? "border-l-4 border-primary bg-primary/10 text-primary shadow-[inset_10px_0_20px_-10px_rgba(102,252,241,0.2)]"
+            : "text-muted-foreground hover:bg-surface hover:text-foreground",
+        )}
+      >
+        <Icon
           className={cn(
-            "flex w-full items-center gap-3 rounded px-3 py-2.5 font-orbitron text-xs tracking-[0.14em] transition-all duration-200 group cursor-pointer",
+            "h-4 w-4 transition-colors",
             isActive
-              ? "border-l-4 border-primary bg-primary/10 text-primary shadow-[inset_10px_0_20px_-10px_rgba(102,252,241,0.2)]"
-              : "text-muted-foreground hover:bg-surface hover:text-foreground",
+              ? "text-primary drop-shadow-[0_0_5px_rgba(102,252,241,0.8)]"
+              : "group-hover:text-foreground",
           )}
-        >
-          <Icon
-            className={cn(
-              "h-4 w-4 transition-colors",
-              isActive
-                ? "text-primary drop-shadow-[0_0_5px_rgba(102,252,241,0.8)]"
-                : "group-hover:text-foreground",
-            )}
-          />
-          {label}
-        </a>
+        />
+        {label}
       </Link>
     );
   };
@@ -127,12 +127,14 @@ export function DiagnosticShell({
         <div className="border-b border-secondary/20 p-5">
           <div className="flex items-start justify-between gap-4">
             <div>
-              <Link href="/" onClick={() => setMobileMenuOpen(false)}>
-                <a className="block cursor-pointer transition-opacity hover:opacity-80">
-                  <h1 className="bg-gradient-to-r from-primary to-secondary bg-clip-text font-orbitron text-2xl font-black text-transparent drop-shadow-[0_0_10px_rgba(102,252,241,0.3)]">
-                    Device Test Online
-                  </h1>
-                </a>
+              <Link
+                href="/"
+                onClick={() => setMobileMenuOpen(false)}
+                className="block cursor-pointer transition-opacity hover:opacity-80"
+              >
+                <span className="bg-gradient-to-r from-primary to-secondary bg-clip-text font-orbitron text-2xl font-black text-transparent drop-shadow-[0_0_10px_rgba(102,252,241,0.3)]">
+                  Device Test Online
+                </span>
               </Link>
               <p className="mt-1 text-[10px] uppercase tracking-[0.2em] text-muted-foreground">
                 Quick hardware checks
@@ -235,9 +237,9 @@ export function DiagnosticShell({
         <div className="px-4 py-6 md:px-8 md:py-8 lg:px-12 lg:py-12">
           <div className="mx-auto max-w-6xl space-y-8 md:space-y-10">
             <header className="animate-in fade-in slide-in-from-top-4 duration-500">
-              <h2 className="mb-2 text-2xl font-orbitron text-foreground glow-text sm:text-3xl md:text-4xl">
+              <h1 className="mb-2 text-2xl font-orbitron text-foreground glow-text sm:text-3xl md:text-4xl">
                 {pageTitle}
-              </h2>
+              </h1>
               <p className="max-w-3xl text-sm leading-relaxed text-muted-foreground md:text-base">
                 {route.description}
               </p>

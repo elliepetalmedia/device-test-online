@@ -975,7 +975,6 @@ const defaultMeta = {
   description:
     "Browser-based hardware diagnostics with local device processing for mice, keyboards, displays, microphones, webcams, speakers, headphones, controllers, touchscreens, and audio latency.",
   indexable: true,
-  canonicalPath: "/",
 };
 
 export function getRouteDefinition(path: string): SiteRouteDefinition {

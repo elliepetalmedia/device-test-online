@@ -1,4 +1,19 @@
 User-agent: *
 Allow: /
 
+# AI assistants and search crawlers are welcome on public diagnostic,
+# guide, and FAQ pages. Device inputs stay in the visitor's browser;
+# see /privacy and /llms.txt for context.
+User-agent: GPTBot
+Allow: /
+
+User-agent: ClaudeBot
+Allow: /
+
+User-agent: PerplexityBot
+Allow: /
+
+User-agent: CCBot
+Allow: /
+
 Sitemap: https://devicetesteronline.com/sitemap.xml
